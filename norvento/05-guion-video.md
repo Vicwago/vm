@@ -1,5 +1,7 @@
 # Guion del vídeo demo (≈2 min)
 
+> 👉 Versión teleprompter (se desplaza sola, con instrucciones para grabarte): https://claude.ai/artifact/JT9q9x3tfN5M2NK7Yp88iF
+
 **Formato recomendado:** tú en cámara (webcam o móvil) en la intro y el cierre + grabación de pantalla con la cámara en una esquina (Loom lo hace solo).
 **¿HeyGen?** Para esto, mejor que no. A una empresa familiar de Lugo le va a llegar más tu cara real, de A Coruña, que un avatar. Guarda HeyGen para versiones en inglés o portugués si más adelante hacéis la propuesta LATAM.
 
@@ -28,7 +30,7 @@ Cuando salga, señala 4 cosas (haz zoom si puedes):
 > "Y al final, el borrador del email para el cliente en español y el resumen ejecutivo en inglés para el socio financiero. Todo en unos dos minutos. El ingeniero revisa y decide; la IA le quita el trabajo mecánico."
 
 ## Escena 5 — Cierre (1:40–2:00) · tú en cámara
-> "Esto está hecho solo con información pública. Con vuestras fichas reales, ofertas anteriores y condiciones comerciales, es mucho más potente. Y no solo sirve para ofertas: también para pliegos, documentación en portugués o el onboarding de la gente de la nueva fábrica. Estoy a una hora de Lugo. Me encantaría enseñároslo en persona. ¡Gracias!"
+> "Esto está hecho solo con información pública. Es lo mismo que este año hemos llevado al Colegio de Procuradores de A Coruña: herramientas concretas y un equipo que las usa de verdad. Con vuestras fichas reales, ofertas anteriores y condiciones comerciales, es mucho más potente. Y no solo sirve para ofertas: también para pliegos, documentación en portugués o el onboarding de la gente de la nueva fábrica. Estoy a una hora de Lugo. Me encantaría enseñároslo en persona. ¡Gracias!"
 
 ---
 
@@ -36,7 +38,7 @@ Cuando salga, señala 4 cosas (haz zoom si puedes):
 - [ ] 2–3 pruebas hechas; la respuesta incluye el aviso de altitud
 - [ ] Navegador limpio: sin pestañas personales, zoom al 125 %
 - [ ] Buena luz de frente, audio sin eco (vale el micro de los auriculares)
-- [ ] Escribe tú el título del vídeo: "Demo IA para ofertas TECHnPower – Víctor [Apellido]"
+- [ ] Escribe tú el título del vídeo: "Demo IA para ofertas TECHnPower – Víctor Mago"
 - [ ] Sin logo de Norvento; di en voz alta "información pública" y "RFQ ficticia"
 - [ ] Enlace de Loom en modo "cualquiera con el enlace" y **pruébalo en una ventana de incógnito**
 - [ ] Miniatura: tu cara + texto "2 min: IA para ofertas BESS"

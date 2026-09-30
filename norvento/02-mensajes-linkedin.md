@@ -25,11 +25,12 @@ Orden recomendado: día 1 envías la candidatura + la solicitud de conexión a P
 **Opción A — Personas / RRHH**
 > Gracias por aceptar, [Nombre].
 >
-> Te cuento en corto: soy cofundador de NorteIA (automatización con IA) y llevo 15 años como entrenador de tenis, así que lo mío es enseñar a la gente a cambiar su forma de trabajar. Ahora lo aplico a la IA.
+> Te cuento en corto: soy cofundador de NorteIA (formación y automatización con IA) y llevo 15 años como entrenador de tenis, así que lo mío es enseñar a la gente a cambiar su forma de trabajar. Este año lo hemos aplicado con el Colegio de Procuradores de A Coruña: política de IA, herramientas en uso diario y formación de todo el equipo.
 >
 > Veo que Norvento ya usa IA en ingeniería (cátedra UAH, Fisterra), pero con la fábrica nueva y la expansión en LATAM hay mucho trabajo de oficina que se puede acelerar: ofertas, pliegos, documentación, onboarding…
 >
 > Te dejo un vídeo de 2 min con una demo que he hecho para vosotros: [enlace]
+> Y mi portfolio, por si quieres más contexto: https://claude.ai/artifact/PvetA3SaNJFwVQk3tzZ5rM
 >
 > He enviado la candidatura por vuestra web. Si te encaja, me encantaría tomar un café en Lugo y enseñártelo en directo.
 

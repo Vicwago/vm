@@ -25,7 +25,7 @@ Necesitas: tu cuenta de claude.ai con Proyectos (Pro o superior) y un grabador d
 7. Si algo sale mal, repite la prueba o afina las instrucciones. Haz 2–3 pruebas antes de grabar.
 
 ## Extra (si te sobra tiempo, y así impresiona más)
-- **Segunda RFQ en portugués** (Brasil, proyecto FV + BESS) → demuestra el multiidioma. Pídele a Claude: "Escribe una RFQ ficticia en portugués de un EPC brasileño para un proyecto FV de 60 MW con BESS de 20 MW / 40 MWh".
+- **Segunda RFQ en portugués** → ya la tienes en `rfq-ejemplo-brasil-pt.md` (Brasil, FV + BESS). Demuestra el multiidioma.
 - **Versión n8n** (con Luis): el email entra en un buzón → n8n lo pasa a Claude → el borrador llega al comercial por email o Teams. Enseñarlo en 15 segundos al final del vídeo vende el "esto se integra con vuestro correo".
 
 ## Importante

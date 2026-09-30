@@ -1,0 +1,296 @@
+<title>Teleprompter Norvento</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: estudio a oscuras de un solo tema; texto en una columna estrecha pegada arriba (cerca de la webcam), barra de control fija abajo */
+:root {
+  --bg: #0b0d10;
+  --fg: #f3f1ea;
+  --dim: #7d848c;
+  --cue: #e8c547;
+  --screen: #7fc4e8;
+  --line: #262b31;
+  --read: #e8c547;
+  --read-font: "Atkinson Hyperlegible", "Verdana", system-ui, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
+  --size: 44px;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body { background: var(--bg); color: var(--fg); font-family: var(--read-font); overflow: hidden; }
+button, input { font: inherit; }
+button:focus-visible, input:focus-visible { outline: 3px solid var(--cue); outline-offset: 2px; }
+
+.tabs { position: fixed; top: 0; left: 0; right: 0; z-index: 5; display: flex; gap: 6px; padding: calc(env(safe-area-inset-top, 0px) + 8px) 16px 8px; background: linear-gradient(var(--bg) 70%, transparent); }
+.tabs button { background: transparent; color: var(--dim); border: 1px solid var(--line); border-radius: 999px; padding: 6px 14px; font-family: var(--mono); font-size: 13px; cursor: pointer; }
+.tabs button[aria-selected="true"] { color: var(--bg); background: var(--fg); border-color: var(--fg); }
+
+#stage { position: absolute; inset: 0; overflow-y: auto; scrollbar-width: none; padding-inline: 16px; }
+#stage::-webkit-scrollbar { display: none; }
+#script { max-width: 900px; margin: 0 auto; padding-block: 28vh 80vh; }
+#stage.mirror #script { transform: scaleX(-1); }
+
+.guide { position: fixed; left: 0; right: 0; top: 28vh; height: 0; border-top: 2px solid var(--read); opacity: .35; pointer-events: none; z-index: 2; }
+.guide::before { content: "▶"; position: absolute; left: 6px; top: -14px; color: var(--read); font-size: 16px; }
+
+.scene { margin-bottom: 2.2em; }
+.label { font-family: var(--mono); font-size: 14px; letter-spacing: .1em; text-transform: uppercase; color: var(--dim); margin-bottom: .6em; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.label .kind { padding: 2px 8px; border-radius: 4px; font-weight: 600; }
+.kind.cam { background: var(--cue); color: var(--bg); }
+.kind.pant { background: var(--screen); color: var(--bg); }
+.say { font-size: var(--size); line-height: 1.45; margin: 0 0 .5em; font-weight: 700; }
+.do { font-family: var(--mono); font-size: calc(var(--size) * .42); color: var(--screen); margin: 0 0 .7em; line-height: 1.5; }
+.pause { color: var(--cue); font-weight: 400; }
+.end { font-family: var(--mono); color: var(--dim); font-size: 18px; text-align: center; }
+
+.bar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 5; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: center; padding: 10px 16px calc(env(safe-area-inset-bottom, 0px) + 10px); background: rgba(11,13,16,.92); border-top: 1px solid var(--line); font-family: var(--mono); font-size: 13px; }
+.bar button { background: #1a1f25; color: var(--fg); border: 1px solid var(--line); border-radius: 8px; padding: 8px 12px; cursor: pointer; min-width: 40px; }
+.bar button.primary { background: var(--cue); color: var(--bg); border-color: var(--cue); font-weight: 600; min-width: 120px; }
+.bar .grp { display: flex; align-items: center; gap: 6px; }
+.bar .val { min-width: 34px; text-align: center; color: var(--dim); font-variant-numeric: tabular-nums; }
+.bar .keys { color: var(--dim); font-size: 12px; }
+
+#count { position: fixed; inset: 0; display: grid; place-items: center; font-size: 30vmin; font-weight: 700; color: var(--cue); background: rgba(11,13,16,.75); z-index: 8; }
+
+#howto { position: absolute; inset: 0; overflow-y: auto; padding: 72px 16px 40px; font-family: var(--read-font); }
+#howto .in { max-width: 720px; margin: 0 auto; display: grid; gap: 28px; }
+#howto h1 { font-size: 32px; margin: 0; }
+#howto h2 { font-size: 20px; margin: 0 0 10px; color: var(--cue); font-weight: 700; }
+#howto p, #howto li { font-size: 17px; line-height: 1.6; color: var(--fg); }
+#howto p { margin: 0; }
+#howto ol, #howto ul { margin: 0; padding-left: 22px; display: grid; gap: 8px; }
+#howto .muted { color: var(--dim); }
+#howto code { font-family: var(--mono); font-size: 14px; background: #1a1f25; padding: 1px 6px; border-radius: 4px; }
+#howto .box { border: 1px solid var(--line); border-radius: 10px; padding: 18px; }
+@media (max-width: 520px) { :root { --size: 30px; } .bar .keys { display: none; } }
+</style>
+
+<div class="tabs" role="tablist" aria-label="Vistas">
+  <button id="tab-read" role="tab" aria-selected="true" aria-controls="stage">Guion</button>
+  <button id="tab-how" role="tab" aria-selected="false" aria-controls="howto">Cómo grabarte</button>
+</div>
+
+<div id="stage" role="tabpanel" aria-labelledby="tab-read" tabindex="0">
+  <div class="guide" aria-hidden="true"></div>
+  <div id="script">
+    <div class="scene">
+      <div class="label"><span class="kind cam">A cámara</span> 1 · Gancho · 0:00–0:15</div>
+      <p class="say">Hola, soy Víctor Mago, de A Coruña, cofundador de NorteIA. <span class="pause">⏸</span></p>
+      <p class="say">He visto que Norvento TECHnPower está entrando en almacenamiento en Latinoamérica con el nXL. Y me hice una pregunta: <span class="pause">⏸</span></p>
+      <p class="say">¿cuánto tarda hoy vuestro equipo en preparar la primera respuesta a una petición de oferta? <span class="pause">⏸</span></p>
+      <p class="say">Os enseño algo en dos minutos.</p>
+    </div>
+
+    <div class="scene">
+      <div class="label"><span class="kind pant">Pantalla</span> 2 · El problema · 0:15–0:30</div>
+      <p class="do">→ Enseña el email de Chile. Scroll despacio.</p>
+      <p class="say">Esto es una petición de oferta ficticia: un sistema de baterías de cuarenta megavatios en Antofagasta, a dos mil trescientos cincuenta metros, con mucho polvo, y que pide grid-forming. <span class="pause">⏸</span></p>
+      <p class="say">Normalmente esto es leerlo todo, abrir fichas, calcular y redactar en dos idiomas.</p>
+    </div>
+
+    <div class="scene">
+      <div class="label"><span class="kind pant">Pantalla</span> 3 · La demo · 0:30–1:20</div>
+      <p class="do">→ Pega la petición en el Proyecto de Claude y envía.</p>
+      <p class="say">He montado un asistente con Claude al que solo le he dado la ficha pública del nXL.</p>
+      <p class="do">→ Espera a que responda (luego lo recortas). Señala la tabla.</p>
+      <p class="say">Extrae cada requisito y lo compara con la ficha.</p>
+      <p class="do">→ Señala el dimensionado.</p>
+      <p class="say">Propone cinco unidades de nueve megavoltamperios, y enseña el cálculo.</p>
+      <p class="do">→ Baja hasta el aviso de altitud. PARA aquí.</p>
+      <p class="say">Y fijaos en esto. <span class="pause">⏸</span> El sitio está a dos mil trescientos cincuenta metros, y la ficha garantiza potencia completa solo hasta dos mil. Lo marca como riesgo para ingeniería. <span class="pause">⏸</span> No se lo inventa: avisa.</p>
+      <p class="do">→ Señala el punto del polvo.</p>
+      <p class="say">Y además encuentra un argumento de venta: la refrigeración sellada es perfecta para el desierto de Atacama.</p>
+    </div>
+
+    <div class="scene">
+      <div class="label"><span class="kind pant">Pantalla</span> 4 · El resultado · 1:20–1:40</div>
+      <p class="do">→ Scroll al email y al resumen en inglés.</p>
+      <p class="say">Y al final, el borrador del email para el cliente en español, y el resumen en inglés para el socio financiero. En unos dos minutos. <span class="pause">⏸</span></p>
+      <p class="say">El ingeniero revisa y decide. La IA le quita el trabajo mecánico.</p>
+    </div>
+
+    <div class="scene">
+      <div class="label"><span class="kind cam">A cámara</span> 5 · Cierre · 1:40–2:05</div>
+      <p class="say">Esto está hecho solo con información pública. <span class="pause">⏸</span></p>
+      <p class="say">Es lo mismo que este año hemos llevado al Colegio de Procuradores de A Coruña: herramientas concretas, y un equipo que las usa de verdad.</p>
+      <p class="say">Con vuestras fichas y ofertas reales es mucho más potente. Y sirve también para pliegos, documentación en portugués, o el onboarding de la nueva fábrica. <span class="pause">⏸</span></p>
+      <p class="say">Estoy a una hora de Lugo. Me encantaría enseñároslo en persona. <span class="pause">⏸</span> ¡Gracias!</p>
+    </div>
+    <p class="end">— FIN · sonríe 2 segundos antes de cortar —</p>
+  </div>
+</div>
+
+<div id="howto" role="tabpanel" aria-labelledby="tab-how" hidden>
+  <div class="in">
+    <h1>Cómo grabarte (20 minutos de preparación)</h1>
+
+    <div class="box">
+      <h2>Lo que necesitas (0 €)</h2>
+      <ul>
+        <li><strong>Loom</strong>, cuenta gratuita (vídeos de hasta 5 minutos). Graba la pantalla y tu cámara a la vez y te da un enlace para compartir. Instálalo como extensión de Chrome o como app de escritorio.</li>
+        <li>El portátil con su webcam. Si la webcam es mala, también vale el móvil para las partes a cámara.</li>
+        <li>Auriculares con micrófono (los del móvil sirven) o el micro del portátil en una habitación sin eco.</li>
+      </ul>
+    </div>
+
+    <div class="box">
+      <h2>Prepara el sitio</h2>
+      <ol>
+        <li><strong>Luz de frente</strong>: siéntate mirando a una ventana. Nunca con la ventana detrás.</li>
+        <li><strong>Cámara a la altura de los ojos</strong>: pon libros debajo del portátil.</li>
+        <li><strong>Habitación con cosas</strong> (sofá, cortinas, estanterías): absorben el eco. Evita cocinas y baños.</li>
+        <li><strong>Fondo limpio</strong>: una pared o una estantería ordenada.</li>
+        <li><strong>Ropa lisa</strong>, sin rayas finas. Una camisa o un jersey sencillo.</li>
+      </ol>
+    </div>
+
+    <div class="box">
+      <h2>Coloca este teleprompter</h2>
+      <ol>
+        <li>Abre esta página en una ventana del navegador y hazla <strong>estrecha y baja</strong>. Colócala en la parte de arriba de la pantalla, justo debajo de la webcam. Así, al leer, parece que miras a cámara.</li>
+        <li>Ajusta la <strong>letra</strong> (A− / A+) hasta leer sin forzar la vista.</li>
+        <li>Pulsa <code>Espacio</code> para empezar (cuenta atrás 3-2-1) y para pausar. Con <code>↑</code> y <code>↓</code> cambias la velocidad; con <code>R</code> vuelves al principio.</li>
+        <li>Empieza con velocidad <strong>3</strong> y súbela si te quedas esperando al texto.</li>
+      </ol>
+    </div>
+
+    <div class="box">
+      <h2>Graba (una sola toma en Loom)</h2>
+      <ol>
+        <li>Deja abiertas <strong>solo dos pestañas</strong>: el email de Chile y tu Proyecto de Claude. Cierra lo personal y silencia las notificaciones (modo «No molestar»).</li>
+        <li>Pon el zoom del navegador al <strong>125 %</strong> para que se lea bien en el vídeo.</li>
+        <li>En Loom elige <strong>«Pantalla + cámara»</strong>. En las escenas 1 y 5 (a cámara) agranda la burbuja de tu cara; en las escenas 2–4 hazla pequeña en una esquina.</li>
+        <li>Escenas amarillas (<em>a cámara</em>): léelas del teleprompter. Escenas azules (<em>pantalla</em>): no leas palabra por palabra, usa las notas y habla natural.</li>
+        <li>Cuando Claude esté generando la respuesta, <strong>no hables</strong>. Esa espera la recortas después con la tijera de Loom (Edit → Trim). La demo es real; solo quitas el silencio.</li>
+        <li>Habla un 10 % más despacio de lo normal y respeta los ⏸.</li>
+      </ol>
+    </div>
+
+    <div class="box">
+      <h2>Después</h2>
+      <ol>
+        <li>Graba <strong>tres tomas</strong> y quédate con la mejor. No busques la perfección: se nota más la naturalidad que un fallo pequeño.</li>
+        <li>Título: <code>Demo IA para ofertas TECHnPower – Víctor Mago</code>.</li>
+        <li>Recorta el principio y el final. Duración objetivo: menos de 2:30.</li>
+        <li>Comparte → «Cualquiera con el enlace puede ver». <strong>Prueba el enlace en una ventana de incógnito.</strong></li>
+        <li>Pega el enlace en la carta y en los mensajes de LinkedIn (donde pone [enlace]).</li>
+      </ol>
+      <p class="muted" style="margin-top:12px">Sin logo de Norvento en el vídeo ni en la miniatura. Di en voz alta «información pública» y «petición ficticia».</p>
+    </div>
+  </div>
+</div>
+
+<div id="count" hidden>3</div>
+
+<div class="bar" id="bar">
+  <button id="play" class="primary" type="button">▶ Empezar</button>
+  <div class="grp" aria-label="Velocidad"><button id="slow" type="button" aria-label="Más lento">−</button><span class="val" id="speedVal">3</span><button id="fast" type="button" aria-label="Más rápido">+</button><span class="keys">velocidad</span></div>
+  <div class="grp" aria-label="Tamaño de letra"><button id="smaller" type="button">A−</button><button id="bigger" type="button">A+</button></div>
+  <button id="mirror" type="button" aria-pressed="false">Espejo</button>
+  <button id="reset" type="button">↺ Inicio</button>
+  <span class="keys">Espacio · ↑ ↓ · R</span>
+</div>
+
+<script>
+(function () {
+  var stage = document.getElementById('stage');
+  var howto = document.getElementById('howto');
+  var bar = document.getElementById('bar');
+  var playBtn = document.getElementById('play');
+  var countEl = document.getElementById('count');
+  var speedVal = document.getElementById('speedVal');
+  var tabRead = document.getElementById('tab-read');
+  var tabHow = document.getElementById('tab-how');
+  var root = document.documentElement;
+
+  var state = { playing: false, speed: 3, size: 44, mirror: false };
+  try {
+    var saved = JSON.parse(localStorage.getItem('tp-norvento') || '{}');
+    if (saved.speed) state.speed = saved.speed;
+    if (saved.size) state.size = saved.size;
+  } catch (e) {}
+
+  function save() { try { localStorage.setItem('tp-norvento', JSON.stringify({ speed: state.speed, size: state.size })); } catch (e) {} }
+  function applySize() { root.style.setProperty('--size', state.size + 'px'); }
+  function applySpeed() { speedVal.textContent = state.speed; }
+  applySize(); applySpeed();
+
+  var last = 0, carry = 0, raf = 0, wake = null, counting = false;
+  function tick(t) {
+    if (!state.playing) return;
+    if (last) {
+      var dt = (t - last) / 1000;
+      carry += dt * (state.speed * 14);
+      var whole = Math.floor(carry);
+      if (whole >= 1) { stage.scrollTop += whole; carry -= whole; }
+    }
+    last = t;
+    if (stage.scrollTop + stage.clientHeight >= stage.scrollHeight - 2) { stop(); return; }
+    raf = requestAnimationFrame(tick);
+  }
+  function start() {
+    if (counting) return;
+    counting = true;
+    var n = 3;
+    countEl.textContent = n; countEl.hidden = false;
+    var iv = setInterval(function () {
+      n -= 1;
+      if (n > 0) { countEl.textContent = n; return; }
+      clearInterval(iv); countEl.hidden = true; counting = false;
+      state.playing = true; last = 0; carry = 0;
+      playBtn.textContent = '❚❚ Pausa';
+      raf = requestAnimationFrame(tick);
+      if (navigator.wakeLock && navigator.wakeLock.request) {
+        navigator.wakeLock.request('screen').then(function (w) { wake = w; }).catch(function () {});
+      }
+    }, 800);
+  }
+  function stop() {
+    state.playing = false; cancelAnimationFrame(raf);
+    playBtn.textContent = '▶ Seguir';
+    if (wake) { try { wake.release(); } catch (e) {} wake = null; }
+  }
+  function toggle() { state.playing ? stop() : start(); }
+  function speed(d) { state.speed = Math.min(10, Math.max(1, state.speed + d)); applySpeed(); save(); }
+  function size(d) { state.size = Math.min(96, Math.max(24, state.size + d)); applySize(); save(); }
+  function reset() { stop(); stage.scrollTop = 0; playBtn.textContent = '▶ Empezar'; }
+
+  playBtn.addEventListener('click', toggle);
+  document.getElementById('slow').addEventListener('click', function () { speed(-1); });
+  document.getElementById('fast').addEventListener('click', function () { speed(1); });
+  document.getElementById('smaller').addEventListener('click', function () { size(-4); });
+  document.getElementById('bigger').addEventListener('click', function () { size(4); });
+  document.getElementById('reset').addEventListener('click', reset);
+  var mirrorBtn = document.getElementById('mirror');
+  mirrorBtn.addEventListener('click', function () {
+    state.mirror = !state.mirror;
+    stage.classList.toggle('mirror', state.mirror);
+    mirrorBtn.setAttribute('aria-pressed', String(state.mirror));
+  });
+
+  function show(which) {
+    var read = which === 'read';
+    stage.hidden = !read; bar.hidden = !read; howto.hidden = read;
+    tabRead.setAttribute('aria-selected', String(read));
+    tabHow.setAttribute('aria-selected', String(!read));
+    if (!read) stop();
+  }
+  tabRead.addEventListener('click', function () { show('read'); });
+  tabHow.addEventListener('click', function () { show('how'); });
+
+  document.addEventListener('keydown', function (e) {
+    if (stage.hidden) return;
+    if (e.target && e.target.tagName === 'BUTTON' && (e.key === ' ' || e.key === 'Enter')) {
+      if (e.target !== playBtn && e.key === ' ') { e.preventDefault(); toggle(); }
+      return;
+    }
+    if (e.key === ' ') { e.preventDefault(); toggle(); }
+    else if (e.key === 'ArrowUp') { e.preventDefault(); speed(1); }
+    else if (e.key === 'ArrowDown') { e.preventDefault(); speed(-1); }
+    else if (e.key === 'r' || e.key === 'R') { reset(); }
+  });
+  if (location.hash === '#grabar') show('how');
+})();
+</script>

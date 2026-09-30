@@ -1,0 +1,311 @@
+<title>Portfolio Víctor Mago</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Public+Sans:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: una columna editorial con "líneas de pista" finas como estructura; bloques que se abren a dos columnas en escritorio */
+:root {
+  --paper: #f5f6f2;
+  --ink: #13202e;
+  --muted: #56616c;
+  --line: #d5d9d2;
+  --panel: #ffffff;
+  --accent: #1f5c4a;       /* verde pista, para texto y enlaces */
+  --ball: #d8cf3f;         /* amarillo pelota, solo para rellenos */
+  --ball-ink: #13202e;
+  --risk: #b3261e;
+  --warn: #9a6200;
+  --ok: #1f7a4d;
+  --display: "Bricolage Grotesque", "Avenir Next", "Segoe UI", system-ui, sans-serif;
+  --body: "Public Sans", "Segoe UI", system-ui, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #0f171f; --ink: #e8ece6; --muted: #9aa5ad; --line: #26333d; --panel: #16212b;
+    --accent: #7cc7ab; --ball: #d8cf3f; --ball-ink: #13202e; --risk: #ff8a80; --warn: #f0b95a; --ok: #6fd3a0;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #0f171f; --ink: #e8ece6; --muted: #9aa5ad; --line: #26333d; --panel: #16212b;
+  --accent: #7cc7ab; --ball: #d8cf3f; --ball-ink: #13202e; --risk: #ff8a80; --warn: #f0b95a; --ok: #6fd3a0;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body { background: var(--paper); color: var(--ink); font-family: var(--body); font-size: 17px; line-height: 1.6; }
+.wrap { max-width: 1040px; margin: 0 auto; padding-inline: 20px; padding-block: 0 64px; }
+a { color: var(--accent); text-underline-offset: 3px; }
+a:focus-visible, button:focus-visible { outline: 3px solid var(--ball); outline-offset: 2px; border-radius: 4px; }
+h1, h2, h3 { font-family: var(--display); line-height: 1.1; text-wrap: balance; margin: 0; }
+p { margin: 0; }
+.eyebrow { font-family: var(--mono); font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+
+/* Cabecera */
+header.top { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding-block: 22px; border-bottom: 1px solid var(--line); flex-wrap: wrap; }
+.brand { font-family: var(--display); font-weight: 700; font-size: 18px; }
+nav { display: flex; gap: 18px; flex-wrap: wrap; font-size: 14px; }
+nav a { color: var(--muted); text-decoration: none; }
+nav a:hover { color: var(--ink); }
+
+/* Hero */
+.hero { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); gap: 40px; padding-block: 56px 48px; align-items: end; border-bottom: 1px solid var(--line); }
+.hero h1 { font-size: clamp(40px, 7vw, 76px); font-weight: 800; letter-spacing: -0.02em; }
+.hero h1 .dot { display: inline-block; width: .42em; height: .42em; border-radius: 50%; background: var(--ball); margin-left: .08em; vertical-align: .05em; }
+.hero .lead { font-size: clamp(19px, 2.2vw, 23px); line-height: 1.45; margin-top: 20px; max-width: 34ch; }
+.hero-side { display: grid; gap: 14px; }
+.fact { display: grid; grid-template-columns: 88px minmax(0,1fr); gap: 12px; align-items: baseline; padding-block: 10px; border-top: 1px solid var(--line); }
+.fact b { font-family: var(--display); font-size: 26px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.fact span { color: var(--muted); font-size: 15px; }
+
+section { padding-block: 56px; border-bottom: 1px solid var(--line); }
+.sec-head { display: grid; gap: 10px; margin-bottom: 28px; max-width: 62ch; }
+.sec-head h2 { font-size: clamp(28px, 4vw, 40px); font-weight: 700; }
+.sec-head p { color: var(--muted); }
+
+/* Historia */
+.story { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 32px; }
+.story p { max-width: 60ch; }
+.story p + p { margin-top: 14px; }
+.quote { font-family: var(--display); font-size: clamp(22px, 3vw, 30px); font-weight: 500; line-height: 1.25; border-left: 6px solid var(--ball); padding-left: 20px; align-self: start; }
+
+/* Caso ICPC */
+.case { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr); gap: 36px; }
+.case-meta { display: grid; gap: 12px; align-content: start; }
+.case-meta dl { margin: 0; display: grid; gap: 10px; }
+.case-meta dt { font-family: var(--mono); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.case-meta dd { margin: 0 0 6px; font-weight: 600; }
+.timeline { list-style: none; margin: 0; padding: 0; display: grid; gap: 0; }
+.timeline li { display: grid; grid-template-columns: 96px minmax(0,1fr); gap: 16px; padding-block: 14px; border-top: 1px solid var(--line); }
+.timeline li:last-child { border-bottom: 1px solid var(--line); }
+.timeline time { font-family: var(--mono); font-size: 13px; color: var(--accent); padding-top: 3px; }
+.timeline strong { display: block; }
+.timeline span { color: var(--muted); font-size: 15px; }
+
+/* Demo */
+.demo { display: grid; gap: 22px; }
+.flow { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; font-family: var(--mono); font-size: 13px; }
+.flow span { padding: 6px 10px; border: 1px solid var(--line); border-radius: 999px; background: var(--panel); }
+.flow i { color: var(--muted); font-style: normal; }
+.demo-grid { display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.4fr); gap: 20px; }
+.panel { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 20px; min-width: 0; }
+.panel h3 { font-size: 15px; font-family: var(--mono); font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: var(--muted); margin-bottom: 12px; }
+.mail { font-size: 14.5px; line-height: 1.55; }
+.mail .hdr { font-family: var(--mono); font-size: 12.5px; color: var(--muted); border-bottom: 1px dashed var(--line); padding-bottom: 10px; margin-bottom: 10px; display: grid; gap: 2px; }
+.mail ul { margin: 8px 0 0; padding-left: 18px; }
+.tbl-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 14px; }
+th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font-family: var(--mono); font-size: 11.5px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+td.num { font-variant-numeric: tabular-nums; white-space: nowrap; }
+.pill { display: inline-block; font-family: var(--mono); font-size: 11.5px; font-weight: 600; padding: 2px 8px; border-radius: 999px; white-space: nowrap; border: 1px solid currentColor; }
+.pill.ok { color: var(--ok); } .pill.warn { color: var(--warn); } .pill.risk { color: var(--risk); }
+tr.flag td { background: color-mix(in srgb, var(--risk) 8%, transparent); }
+.calc { font-family: var(--mono); font-size: 13.5px; display: grid; gap: 4px; margin-top: 14px; padding-top: 12px; border-top: 1px dashed var(--line); }
+.calc b { color: var(--ink); }
+.note { font-size: 13.5px; color: var(--muted); }
+
+/* Casos de uso */
+.uses { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 0; border-top: 1px solid var(--line); border-left: 1px solid var(--line); }
+.use { padding: 20px; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); display: grid; gap: 8px; align-content: start; }
+.use .area { font-family: var(--mono); font-size: 11.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); }
+.use h3 { font-size: 20px; font-weight: 700; }
+.use p { color: var(--muted); font-size: 15px; }
+.tag { justify-self: start; font-family: var(--mono); font-size: 11.5px; padding: 2px 8px; border-radius: 4px; background: var(--ball); color: var(--ball-ink); font-weight: 600; }
+.tag.alt { background: transparent; color: var(--muted); border: 1px solid var(--line); }
+
+/* Método */
+.steps { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 20px; counter-reset: s; }
+.step { display: grid; gap: 8px; align-content: start; border-top: 3px solid var(--ink); padding-top: 14px; }
+.step::before { counter-increment: s; content: "0" counter(s); font-family: var(--mono); font-size: 13px; color: var(--muted); }
+.step h3 { font-size: 19px; }
+.step p { font-size: 15px; color: var(--muted); }
+
+.tools { display: flex; flex-wrap: wrap; gap: 8px; }
+.tools span { font-family: var(--mono); font-size: 13px; padding: 6px 12px; border: 1px solid var(--line); border-radius: 6px; background: var(--panel); }
+
+/* Contacto */
+.contact { display: grid; grid-template-columns: minmax(0,1.3fr) minmax(0,1fr); gap: 32px; align-items: end; border-bottom: 0; }
+.contact h2 { font-size: clamp(30px, 5vw, 52px); font-weight: 800; }
+.links { display: grid; gap: 10px; }
+.links a { display: flex; justify-content: space-between; gap: 12px; padding-block: 12px; border-top: 1px solid var(--line); text-decoration: none; color: var(--ink); font-weight: 600; }
+.links a:last-child { border-bottom: 1px solid var(--line); }
+.links a span { color: var(--muted); font-family: var(--mono); font-size: 13px; font-weight: 400; }
+footer { padding-block: 24px 0; font-size: 13px; color: var(--muted); }
+
+@media (max-width: 860px) {
+  .hero, .story, .case, .demo-grid, .contact { grid-template-columns: minmax(0,1fr); }
+  .uses { grid-template-columns: minmax(0,1fr); }
+  .steps { grid-template-columns: repeat(2, minmax(0,1fr)); }
+}
+@media (max-width: 480px) {
+  .steps { grid-template-columns: minmax(0,1fr); }
+  .timeline li { grid-template-columns: minmax(0,1fr); gap: 4px; }
+  nav { display: none; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .hero h1 .dot { animation: bounce 1.6s cubic-bezier(.3,.7,.4,1) 1 both; }
+  @keyframes bounce { 0% { transform: translateY(-0.9em); } 40% { transform: translateY(0); } 60% { transform: translateY(-0.25em); } 80%,100% { transform: translateY(0); } }
+}
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div class="brand">Víctor Mago</div>
+    <nav aria-label="Secciones">
+      <a href="#caso">Caso real</a>
+      <a href="#demo">Demo</a>
+      <a href="#ideas">Ideas</a>
+      <a href="#metodo">Cómo trabajo</a>
+      <a href="#contacto">Contacto</a>
+    </nav>
+  </header>
+
+  <div class="hero">
+    <div>
+      <p class="eyebrow">Adopción de IA en empresas · A Coruña</p>
+      <h1>Hago que los equipos trabajen con IA de verdad<span class="dot" aria-hidden="true"></span></h1>
+      <p class="lead">Cofundador de NorteIA. Llevo la IA del chat al trabajo diario: ofertas, documentos, actas, formación y cumplimiento del EU AI Act.</p>
+    </div>
+    <div class="hero-side">
+      <div class="fact"><b>15+</b><span>años como entrenador de tenis: enseñar a personas a cambiar cómo hacen las cosas</span></div>
+      <div class="fact"><b>2026</b><span>acompañando a un colegio profesional completo en su transición a la IA</span></div>
+      <div class="fact"><b>AI Act</b><span>gobernanza, inventario de sistemas y alfabetización (art. 4) desde el primer día</span></div>
+    </div>
+  </div>
+
+  <section aria-labelledby="h-historia">
+    <div class="story">
+      <div>
+        <p class="eyebrow" style="margin-bottom:12px">Quién soy</p>
+        <h2 id="h-historia" style="font-size:clamp(26px,3.6vw,36px);margin-bottom:18px">De la pista a la oficina</h2>
+        <p>Durante más de quince años he entrenado a personas de todas las edades y niveles. Lo que aprendí ahí es lo que más uso hoy: nadie cambia un hábito porque le enseñes la teoría. Cambia cuando lo prueba con su propio trabajo, ve el resultado y repite.</p>
+        <p>Con NorteIA aplico eso a la inteligencia artificial. Junto a mi socio técnico, Luis Salgado, diseñamos herramientas concretas con Claude y n8n, y formamos a los equipos para que las usen sin miedo y sin incumplir la normativa.</p>
+      </div>
+      <p class="quote">Las herramientas son la parte fácil. Lo difícil es que un equipo las use el lunes por la mañana.</p>
+    </div>
+  </section>
+
+  <section id="caso" aria-labelledby="h-caso">
+    <div class="sec-head">
+      <p class="eyebrow">Caso real · 2026</p>
+      <h2 id="h-caso">Ilustre Colegio de Procuradores de A Coruña</h2>
+      <p>Un proyecto integral: auditoría, gobernanza, herramientas y formación para el personal del Colegio y sus colegiados.</p>
+    </div>
+    <div class="case">
+      <div class="case-meta">
+        <dl>
+          <dt>Cliente</dt><dd>Colegio profesional, sector jurídico</dd>
+          <dt>Enfoque</dt><dd>Política AI-First + cumplimiento EU AI Act y RGPD</dd>
+          <dt>Herramientas</dt><dd>Proyectos de Claude, transcripción local, plantillas bilingües</dd>
+          <dt>Idea clave</dt><dd>Los datos sensibles no salen del edificio: el audio de las actas se procesa en local</dd>
+        </dl>
+      </div>
+      <ol class="timeline">
+        <li><time>Abr 2026</time><div><strong>Auditoría de IA del Colegio</strong><span>Qué se usa, qué riesgo tiene y qué hay que cambiar.</span></div></li>
+        <li><time>Jun 2026</time><div><strong>Plan a 12 meses y Política AI-First</strong><span>Inventario de sistemas de IA, mapa de gobernanza, acta del Comité de IA y acuerdo de tratamiento de datos.</span></div></li>
+        <li><time>Jun 2026</time><div><strong>Actas de la Junta de Gobierno con IA</strong><span>Transcripción local y redacción asistida. Guía interna de procesos para el personal.</span></div></li>
+        <li><time>Jul 2026</time><div><strong>Herramienta de circulares bilingües</strong><span>Proyecto en Claude que redacta circulares en castellano y gallego a partir de cuatro datos.</span></div></li>
+        <li><time>Jun–Jul</time><div><strong>Formación completa, módulos 1 a 4</strong><span>Material en PDF y presentaciones para el personal.</span></div></li>
+        <li><time>Sep 2026</time><div><strong>Sesión «Dirigir la IA en el despacho del procurador»</strong><span>120 minutos presenciales, retransmitidos a otros colegios y abiertos por el Decano. Cada asistente salió con una tarea propia convertida en encargo para la IA.</span></div></li>
+      </ol>
+    </div>
+  </section>
+
+  <section id="demo" aria-labelledby="h-demo">
+    <div class="sec-head">
+      <p class="eyebrow">Demo preparada para Norvento TECHnPower</p>
+      <h2 id="h-demo">Primera respuesta a una petición de oferta, en dos minutos</h2>
+      <p>Un asistente en Claude que solo conoce la ficha pública del convertidor nXL. Le llega una petición de oferta y devuelve el trabajo preparado para que un ingeniero lo revise.</p>
+    </div>
+    <div class="demo">
+      <div class="flow" aria-label="Flujo del asistente">
+        <span>Email del cliente</span><i>→</i><span>Requisitos</span><i>→</i><span>Dimensionado</span><i>→</i><span>Riesgos</span><i>→</i><span>Borrador ES + resumen EN</span>
+      </div>
+      <div class="demo-grid">
+        <div class="panel mail">
+          <h3>Entrada · petición de oferta</h3>
+          <div class="hdr"><span>De: Compras · Andes Storage SpA</span><span>Asunto: PCS para BESS «Pampa Norte»</span></div>
+          <p>Solicitamos cotización del sistema de conversión de potencia para un BESS en la Región de Antofagasta:</p>
+          <ul>
+            <li>40 MW / 160 MWh, baterías LFP a 1.500 V</li>
+            <li>2.350 m de altitud, máx. 42 °C, mucho polvo</li>
+            <li>Grid-forming obligatorio, black start deseable</li>
+            <li>Formato contenedor, espacio limitado</li>
+          </ul>
+        </div>
+        <div class="panel">
+          <h3>Salida · requisitos frente a la ficha</h3>
+          <div class="tbl-wrap">
+            <table>
+              <thead><tr><th>Requisito</th><th>Pedido</th><th>nXL</th></tr></thead>
+              <tbody>
+                <tr><td>Tensión DC</td><td class="num">1.500 V</td><td><span class="pill ok">Cumple</span></td></tr>
+                <tr><td>Temperatura</td><td class="num">42 °C</td><td><span class="pill ok">Cumple · hasta 50 °C</span></td></tr>
+                <tr class="flag"><td><strong>Altitud</strong></td><td class="num"><strong>2.350 m</strong></td><td><span class="pill risk">Riesgo · ficha hasta 2.000 m</span></td></tr>
+                <tr><td>Polvo</td><td>Alto</td><td><span class="pill ok">Punto fuerte · refrigeración sellada</span></td></tr>
+                <tr><td>Grid-forming / black start</td><td>Sí</td><td><span class="pill ok">Cumple</span></td></tr>
+                <tr><td>Frecuencia, plazo, precio</td><td>—</td><td><span class="pill warn">Consultar</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="calc" aria-label="Dimensionamiento preliminar">
+            <span>40 MW ÷ 0,95 fp ≈ 42,1 MVA · +2 % pérdidas ≈ 43 MVA</span>
+            <span>43 ÷ 9 MVA = 4,8 → <b>5 unidades nXL (45 MVA)</b></span>
+            <span>Con reducción por altitud → posible 6.ª unidad · validar con ingeniería</span>
+          </div>
+        </div>
+      </div>
+      <p class="note">Hecho solo con información pública de notas de prensa y una petición de oferta ficticia. El asistente no inventa lo que no está en la ficha: lo marca como «consultar».</p>
+    </div>
+  </section>
+
+  <section id="ideas" aria-labelledby="h-ideas">
+    <div class="sec-head">
+      <p class="eyebrow">Qué más se puede hacer</p>
+      <h2 id="h-ideas">Seis sitios donde la IA ahorra horas en una empresa de energía</h2>
+      <p>Complementan la IA de ingeniería (control de potencia, gemelos digitales). Aquí hablamos del trabajo de oficina que la rodea.</p>
+    </div>
+    <div class="uses">
+      <article class="use"><span class="area">Comercial</span><h3>Ofertas técnicas</h3><p>Requisitos, dimensionado preliminar y borrador de respuesta en el idioma del cliente.</p><span class="tag">2–4 semanas</span></article>
+      <article class="use"><span class="area">Licitaciones</span><h3>Análisis de pliegos</h3><p>Matriz de cumplimiento, fechas clave y penalizaciones de un pliego de 200 páginas.</p><span class="tag">2–4 semanas</span></article>
+      <article class="use"><span class="area">Documentación</span><h3>Español, inglés y portugués</h3><p>Manuales y fichas con un glosario técnico propio, para que cada término se traduzca siempre igual.</p><span class="tag alt">1–2 meses</span></article>
+      <article class="use"><span class="area">Desarrollo eólico</span><h3>Expedientes de tramitación</h3><p>Resúmenes de informes, alegaciones y plazos de una cartera de proyectos en desarrollo.</p><span class="tag alt">1–2 meses</span></article>
+      <article class="use"><span class="area">Personas</span><h3>Onboarding de la nueva fábrica</h3><p>Asistente de preguntas frecuentes y guías de acogida. La decisión sobre candidatos, siempre humana.</p><span class="tag">2–4 semanas</span></article>
+      <article class="use"><span class="area">Dirección</span><h3>Vigilancia de mercado</h3><p>Licitaciones, competidores y regulación de almacenamiento, resumidos cada lunes en el correo.</p><span class="tag">2–4 semanas</span></article>
+    </div>
+  </section>
+
+  <section id="metodo" aria-labelledby="h-metodo">
+    <div class="sec-head">
+      <p class="eyebrow">Cómo trabajo</p>
+      <h2 id="h-metodo">Pequeño, medible y con el equipo dentro</h2>
+    </div>
+    <div class="steps">
+      <div class="step"><h3>Diagnóstico</h3><p>Una semana hablando con quien hace el trabajo. Elegimos un proceso que duela.</p></div>
+      <div class="step"><h3>Piloto</h3><p>Cuatro semanas, un indicador (horas por oferta, por ejemplo) y documentos reales.</p></div>
+      <div class="step"><h3>Formación</h3><p>El equipo lo usa con sus tareas. Buenas prácticas y reglas claras sobre qué datos entran.</p></div>
+      <div class="step"><h3>Medir y escalar</h3><p>Si funciona, siguiente proceso. Si no, se para. La decisión es vuestra.</p></div>
+    </div>
+    <div style="margin-top:32px;display:grid;gap:12px">
+      <p class="eyebrow">Con qué trabajo</p>
+      <div class="tools">
+        <span>Claude · Proyectos</span><span>Claude Code</span><span>n8n</span><span>Transcripción local</span><span>React + Supabase</span><span>HeyGen</span><span>EU AI Act · RGPD</span>
+      </div>
+    </div>
+  </section>
+
+  <section id="contacto" class="contact" aria-labelledby="h-contacto">
+    <div>
+      <p class="eyebrow" style="margin-bottom:12px">Hablemos</p>
+      <h2 id="h-contacto">Estoy a una hora de Lugo. Os lo enseño en persona.</h2>
+    </div>
+    <div class="links">
+      <a href="https://www.norteia.es">NorteIA <span>norteia.es ↗</span></a>
+      <a href="https://www.linkedin.com/">LinkedIn <span>Víctor Mago ↗</span></a>
+    </div>
+  </section>
+
+  <footer>Víctor Mago · Cofundador de NorteIA · A Coruña</footer>
+</div>

@@ -14,7 +14,9 @@ Hola, equipo de Personas de Norvento:
 
 Antes de nada, os dejo un vídeo de 2 minutos donde enseño algo que he preparado para vosotros: un asistente con IA que lee una petición de oferta de un proyecto BESS en Chile, la cruza con la ficha pública del convertidor nXL y redacta el borrador de respuesta en minutos. 👉 [enlace al vídeo]
 
-Me llamo Víctor [Apellido], tengo 34 años y soy de A Coruña. Soy cofundador de NorteIA, una empresa gallega de automatización con IA, donde me encargo de la parte comercial y de implantación con clientes. Trabajo a diario con Claude, Claude Code y n8n para automatizar tareas de empresa: ofertas, documentación, atención a clientes y reporting.
+Me llamo Víctor Mago, tengo 34 años y soy de A Coruña. Soy cofundador de NorteIA, una empresa gallega de formación, consultoría y automatización con IA, donde me encargo de la parte comercial y de formación. Trabajo a diario con Claude, Claude Code y n8n.
+
+Este año, por ejemplo, hemos acompañado al **Ilustre Colegio de Procuradores de A Coruña** en toda su transición a la IA: auditoría y Política AI-First alineada con el EU AI Act, actas de la Junta con transcripción local (el audio no sale del edificio), una herramienta en Claude que redacta circulares en castellano y gallego, y la formación de su personal y de los colegiados. Lo tenéis resumido en mi portfolio: https://claude.ai/artifact/PvetA3SaNJFwVQk3tzZ5rM
 
 Os escribo porque creo que Norvento está en un momento en el que la IA puede aportar mucho **más allá de la ingeniería**. Ya aplicáis IA en electrónica de potencia (la cátedra con la Universidad de Alcalá, Fisterra, Rural VPP). Pero con la expansión de TECHnPower a Latinoamérica, los 1.000 MW en tramitación y la nueva fábrica en As Gándaras, hay mucho trabajo de oficina que se puede acelerar. Hablo de ofertas técnicas, pliegos, documentación en varios idiomas, subvenciones, sostenibilidad y onboarding de las personas que vais a incorporar.
 
@@ -25,7 +27,7 @@ Me gustaría aportar en un rol de **adopción de IA / automatización de proceso
 Estoy a una hora de Lugo y me encantaría enseñaros la demo en persona, sin compromiso.
 
 Un saludo,
-Víctor [Apellido]
+Víctor Mago
 [teléfono] · [email] · [LinkedIn]
 
 ---
@@ -36,7 +38,7 @@ Víctor [Apellido]
 
 Hola, [Nombre]:
 
-Soy Víctor [Apellido], cofundador de NorteIA, una empresa de A Coruña especializada en automatización con IA.
+Soy Víctor Mago, cofundador de NorteIA, una empresa de A Coruña de formación, consultoría y automatización con IA. Este año hemos llevado al Colegio de Procuradores de A Coruña de cero a una Política AI-First con herramientas en uso diario (portfolio: https://claude.ai/artifact/PvetA3SaNJFwVQk3tzZ5rM).
 
 He visto que TECHnPower ha presentado la familia nXL y está entrando fuerte en almacenamiento en Latinoamérica. Con esa idea os he preparado una pequeña demo, usando solo información pública: un asistente que recibe una petición de oferta de un proyecto BESS en Chile, extrae los requisitos, detecta los puntos críticos (por ejemplo, una instalación por encima de los 2.000 m de altitud) y redacta el borrador de respuesta en español con resumen en inglés.
 
@@ -44,11 +46,11 @@ He visto que TECHnPower ha presentado la familia nXL y está entrando fuerte en 
 
 No pretende sustituir a vuestros ingenieros. Pretende que dediquen su tiempo a lo que solo ellos saben hacer y no a copiar datos de fichas a documentos.
 
-Lo que os propongo es un **piloto acotado de 4 semanas** sobre un único proceso: ofertas, pliegos o documentación técnica, el que más os duela. Tendría objetivos medibles (horas ahorradas por oferta) y, al final, vosotros decidís si seguir.
+Lo que os propongo es un **piloto acotado de 4 semanas a precio cerrado** sobre un único proceso: ofertas, pliegos o documentación técnica, el que más os duela. Tendría objetivos medibles (horas ahorradas por oferta) y, al final, vosotros decidís si seguir.
 
 ¿Tendríais 20 minutos la semana que viene? Puedo ir a Lugo cuando os venga bien.
 
 Un saludo,
-Víctor [Apellido]
+Víctor Mago
 Cofundador · NorteIA
 [teléfono] · [web] · [LinkedIn]
