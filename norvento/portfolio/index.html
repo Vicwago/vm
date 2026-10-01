@@ -132,6 +132,10 @@ tr.flag td { background: color-mix(in srgb, var(--risk) 8%, transparent); }
 .links a { display: flex; justify-content: space-between; gap: 12px; padding-block: 12px; border-top: 1px solid var(--line); text-decoration: none; color: var(--ink); font-weight: 600; }
 .links a:last-child { border-bottom: 1px solid var(--line); }
 .links a span { color: var(--muted); font-family: var(--mono); font-size: 13px; font-weight: 400; }
+.mailrow { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; padding-block: 14px; border-top: 1px solid var(--line); }
+.mail-label { font-weight: 600; }
+.mail-addr { font-family: var(--mono); font-size: 16px; user-select: all; flex: 1 1 auto; min-width: 0; overflow-wrap: anywhere; }
+.copy { font: 600 13px var(--mono); padding: 8px 14px; border-radius: 6px; border: 0; background: var(--ball); color: var(--ball-ink); cursor: pointer; }
 footer { padding-block: 24px 0; font-size: 13px; color: var(--muted); }
 
 @media (max-width: 860px) {
@@ -299,13 +303,35 @@ footer { padding-block: 24px 0; font-size: 13px; color: var(--muted); }
   <section id="contacto" class="contact" aria-labelledby="h-contacto">
     <div>
       <p class="eyebrow" style="margin-bottom:12px">Hablemos</p>
-      <h2 id="h-contacto">Estoy a una hora de Lugo. Os lo enseño en persona.</h2>
+      <h2 id="h-contacto">Escríbeme y os lo enseño en persona.</h2>
+      <p style="margin-top:14px;color:var(--muted)">Estoy en A Coruña, a una hora de Lugo.</p>
     </div>
     <div class="links">
+      <div class="mailrow">
+        <span class="mail-label">Email</span>
+        <span class="mail-addr" id="mail-addr">victor@norteia.es</span>
+        <button type="button" id="copy-mail" class="copy">Copiar</button>
+      </div>
+      <a href="https://www.linkedin.com/in/victormago">LinkedIn <span>/in/victormago ↗</span></a>
       <a href="https://www.norteia.es">NorteIA <span>norteia.es ↗</span></a>
-      <a href="https://www.linkedin.com/">LinkedIn <span>Víctor Mago ↗</span></a>
     </div>
   </section>
 
   <footer>Víctor Mago · Cofundador de NorteIA · A Coruña</footer>
 </div>
+<script>
+(function () {
+  var btn = document.getElementById('copy-mail');
+  var addr = document.getElementById('mail-addr');
+  function selectText() {
+    var r = document.createRange(); r.selectNodeContents(addr);
+    var sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(r);
+  }
+  btn.addEventListener('click', function () {
+    var done = function () { btn.textContent = 'Copiado'; setTimeout(function () { btn.textContent = 'Copiar'; }, 1800); };
+    try {
+      navigator.clipboard.writeText(addr.textContent).then(done, function () { selectText(); btn.textContent = 'Pulsa Ctrl+C'; });
+    } catch (e) { selectText(); btn.textContent = 'Pulsa Ctrl+C'; }
+  });
+})();
+</script>

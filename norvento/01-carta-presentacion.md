@@ -28,7 +28,7 @@ Estoy a una hora de Lugo y me encantaría enseñaros la demo en persona, sin com
 
 Un saludo,
 Víctor Mago
-[teléfono] · [email] · [LinkedIn]
+victor@norteia.es · linkedin.com/in/victormago
 
 ---
 
@@ -53,4 +53,4 @@ Lo que os propongo es un **piloto acotado de 4 semanas a precio cerrado** sobre 
 Un saludo,
 Víctor Mago
 Cofundador · NorteIA
-[teléfono] · [web] · [LinkedIn]
+victor@norteia.es · norteia.es · linkedin.com/in/victormago

@@ -18,11 +18,11 @@ Todo lo que se podía preparar sin ti ya está hecho. Lo que queda son las cosas
 
 ## Mañana (≈45 min)
 6. **[10 min] Actualiza tu LinkedIn** con `06-perfil-linkedin.md`.
-7. **[15 min] Envía la candidatura** en el formulario de Viterbit con la **carta A** (`01-carta-presentacion.md`). Sustituye `[enlace al vídeo]` y `[teléfono] · [email]`.
+7. **[15 min] Envía la candidatura** en el formulario de Viterbit con la **carta A** (`01-carta-presentacion.md`). Solo te falta sustituir `[enlace al vídeo]`.
 8. **[10 min] Solicitudes de conexión en LinkedIn** (`02-mensajes-linkedin.md`, sección 1):
    - Responsable de Personas de Norvento (su nombre está en norvento.com → Equipo)
    - Alguien de TECHnPower comercial / business development
-9. **[10 min] Avisa a Luis** de que vas a mencionar el caso ICPC y confirmad que el Colegio está de acuerdo.
+9. **[5 min] Avisa a Luis** de que vas a mencionar el caso ICPC en tu candidatura (el Colegio ya ha dado el visto bueno).
 
 ## Días 3–7
 10. Cuando acepten la conexión → mensaje de la sección 2.

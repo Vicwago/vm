@@ -25,7 +25,7 @@ Antes de escribir a nadie de Norvento, revisarán tu perfil. Estos son los cambi
 >
 > Me interesan especialmente la industria y la energía en Galicia, donde hay mucho trabajo de oficina que la IA puede acelerar.
 >
-> 📍 A Coruña · norteia.es
+> 📍 A Coruña · victor@norteia.es · norteia.es
 
 ## 3. Sección "Destacado"
 Añade, en este orden:
@@ -43,5 +43,5 @@ Añade, en este orden:
 ## 5. Aptitudes (añade estas 5 y fíjalas arriba)
 Inteligencia artificial generativa · Claude · Automatización de procesos (n8n) · EU AI Act · Formación de equipos
 
-## ⚠️ Revisa antes de publicar
-- **Confirma con el Decano o con María** (secretaría del ICPC) que podéis mencionar al Colegio como cliente en público. En el portfolio no aparecen importes ni datos internos.
+## Contacto
+En "Información de contacto" pon **victor@norteia.es** y la web **norteia.es**.
