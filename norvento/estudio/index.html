@@ -1,0 +1,508 @@
+<title>Estudio Demo Norvento</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Public+Sans:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: escenario a pantalla completa que se recorre con ← →; una escena por pantalla, legible en un vídeo a 1080p. Tema claro fijo a propósito: es lo que se graba. */
+:root {
+  --paper: #f4f5f1;
+  --ink: #13202e;
+  --muted: #5a6570;
+  --line: #d6dad3;
+  --panel: #ffffff;
+  --accent: #1f5c4a;
+  --ball: #d8cf3f;
+  --ok: #1f7a4d;
+  --warn: #9a6200;
+  --risk: #b3261e;
+  --code-bg: #13202e;
+  --code-fg: #d9e3dc;
+  --display: "Bricolage Grotesque", "Avenir Next", "Segoe UI", system-ui, sans-serif;
+  --body: "Public Sans", "Segoe UI", system-ui, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body { background: var(--paper); color: var(--ink); font-family: var(--body); font-size: 19px; line-height: 1.55; overflow: hidden; }
+button, textarea { font: inherit; }
+button:focus-visible, textarea:focus-visible { outline: 3px solid var(--ball); outline-offset: 2px; }
+h1, h2, h3 { font-family: var(--display); line-height: 1.08; margin: 0; text-wrap: balance; }
+p { margin: 0; }
+
+.scene { position: absolute; inset: 0 0 56px; overflow-y: auto; padding-inline: 24px; }
+.scene .in { max-width: 1180px; margin: 0 auto; padding-block: 40px 40px; display: grid; gap: 24px; }
+.eyebrow { font-family: var(--mono); font-size: 13px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+
+/* Navegación inferior */
+.nav { position: fixed; left: 0; right: 0; bottom: 0; height: calc(56px + env(safe-area-inset-bottom, 0px)); padding: 0 20px env(safe-area-inset-bottom, 0px); display: flex; align-items: center; justify-content: space-between; gap: 12px; border-top: 1px solid var(--line); background: var(--paper); z-index: 4; }
+.dots { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.dots button { border: 0; background: transparent; cursor: pointer; padding: 6px 4px; font-family: var(--mono); font-size: 12.5px; color: var(--muted); }
+.dots button[aria-current="step"] { color: var(--ink); font-weight: 600; box-shadow: inset 0 -2px 0 var(--ball); }
+.arrows { display: flex; gap: 8px; }
+.arrows button { border: 1px solid var(--line); background: var(--panel); border-radius: 8px; width: 42px; height: 36px; cursor: pointer; font-size: 17px; color: var(--ink); }
+
+/* Escena 0: backstage */
+.check { display: grid; gap: 10px; counter-reset: c; padding: 0; margin: 0; list-style: none; }
+.check li { display: grid; grid-template-columns: 34px minmax(0,1fr); gap: 12px; align-items: start; padding: 12px 0; border-top: 1px solid var(--line); }
+.check li::before { counter-increment: c; content: counter(c); width: 28px; height: 28px; border-radius: 50%; background: var(--ink); color: var(--paper); display: grid; place-items: center; font: 600 14px var(--mono); }
+.check li span { color: var(--muted); font-size: 16px; display: block; }
+.status { font-family: var(--mono); font-size: 14px; padding: 10px 14px; border-radius: 8px; border: 1px solid var(--line); background: var(--panel); }
+.btn { border: 0; border-radius: 10px; padding: 14px 22px; font-weight: 700; cursor: pointer; background: var(--ink); color: var(--paper); }
+.btn.big { font-size: 20px; padding: 18px 28px; }
+.btn.yellow { background: var(--ball); color: var(--ink); }
+.btn.ghost { background: transparent; color: var(--ink); border: 1px solid var(--line); font-weight: 600; }
+.btn[disabled] { opacity: .5; cursor: default; }
+.row { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+
+/* Escena 1: portada */
+.cover { min-height: calc(100vh - 56px - 80px); display: grid; align-content: center; gap: 28px; }
+.cover h1 { font-size: clamp(44px, 7vw, 88px); font-weight: 800; letter-spacing: -0.02em; max-width: 15ch; }
+.cover h1 em { font-style: normal; box-shadow: inset 0 -0.28em 0 var(--ball); }
+.cover .sub { font-size: clamp(20px, 2.4vw, 26px); color: var(--muted); max-width: 40ch; }
+.byline { display: flex; gap: 24px; flex-wrap: wrap; font-family: var(--mono); font-size: 14px; color: var(--muted); padding-top: 18px; border-top: 1px solid var(--line); }
+.byline b { color: var(--ink); font-weight: 600; }
+
+/* Escena 2: email */
+.mail { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+.mail-h { padding: 16px 22px; border-bottom: 1px solid var(--line); display: grid; gap: 4px; font-size: 15.5px; }
+.mail-h .subj { font-family: var(--display); font-size: 24px; font-weight: 700; }
+.mail-h .meta { font-family: var(--mono); font-size: 13px; color: var(--muted); }
+.mail-b { padding: 20px 22px; white-space: pre-wrap; font-size: 18px; line-height: 1.6; }
+.mark { background: color-mix(in srgb, var(--ball) 55%, transparent); padding: 0 3px; border-radius: 3px; }
+.tabs { display: flex; gap: 6px; }
+.tabs button { border: 1px solid var(--line); background: var(--panel); border-radius: 999px; padding: 6px 14px; font-size: 14px; cursor: pointer; color: var(--muted); }
+.tabs button[aria-pressed="true"] { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+
+/* Escena 3: asistente */
+.asst { display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, 1.4fr); gap: 22px; align-items: start; }
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 20px; display: grid; gap: 14px; min-width: 0; }
+.card h3 { font-family: var(--mono); font-size: 13px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { font-family: var(--mono); font-size: 13px; padding: 5px 10px; border: 1px solid var(--line); border-radius: 6px; background: var(--paper); }
+.timer { font-family: var(--mono); font-size: 15px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.timer b { color: var(--ink); }
+.stream { background: var(--code-bg); color: var(--code-fg); border-radius: 12px; padding: 18px; font-family: var(--mono); font-size: 13.5px; line-height: 1.55; height: 52vh; overflow: auto; white-space: pre-wrap; word-break: break-word; }
+.stream .ph { color: #8ea39a; }
+.err { color: var(--risk); font-size: 16px; }
+
+/* Escena 4: resultado */
+.res { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr); gap: 22px; align-items: start; }
+.tbl-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 16px; }
+th, td { text-align: left; padding: 9px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font-family: var(--mono); font-size: 12px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+td small { display: block; color: var(--muted); font-size: 14px; }
+tr.riesgo td { background: color-mix(in srgb, var(--risk) 9%, transparent); }
+.pill { display: inline-block; font-family: var(--mono); font-size: 12.5px; font-weight: 600; padding: 2px 9px; border-radius: 999px; border: 1.5px solid currentColor; white-space: nowrap; }
+.pill.ok { color: var(--ok); } .pill.consultar { color: var(--warn); } .pill.riesgo { color: var(--risk); }
+.steps-list { margin: 0; padding-left: 20px; display: grid; gap: 4px; font-family: var(--mono); font-size: 14.5px; }
+.concl { font-family: var(--display); font-size: 24px; font-weight: 700; }
+.risk-list, .plain-list { margin: 0; padding: 0; list-style: none; display: grid; gap: 10px; }
+.risk-list li { padding: 10px 12px; border-radius: 8px; border: 1px solid var(--line); font-size: 16px; }
+.risk-list li.alto { border-color: var(--risk); background: color-mix(in srgb, var(--risk) 8%, transparent); }
+.risk-list li b { font-family: var(--mono); font-size: 12px; text-transform: uppercase; letter-spacing: .06em; display: block; color: var(--muted); }
+.risk-list li.alto b { color: var(--risk); }
+.plain-list li { padding-left: 18px; position: relative; font-size: 16px; }
+.plain-list li::before { content: ""; position: absolute; left: 0; top: .6em; width: 8px; height: 8px; border-radius: 50%; background: var(--ball); }
+.saved-note { font-family: var(--mono); font-size: 13px; color: var(--warn); }
+
+/* Escena 5: email de respuesta */
+.reply { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap: 22px; align-items: start; }
+.reply .body { white-space: pre-wrap; font-size: 17px; line-height: 1.6; }
+.qs { margin: 0; padding-left: 20px; display: grid; gap: 6px; font-size: 16px; }
+
+/* Escena 6: cierre */
+.close h1 { font-size: clamp(40px, 6vw, 72px); font-weight: 800; max-width: 18ch; }
+.close-grid { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 28px; align-items: end; }
+.contact { display: grid; gap: 0; }
+.contact div { display: flex; justify-content: space-between; gap: 16px; padding: 14px 0; border-top: 1px solid var(--line); font-size: 19px; }
+.contact div:last-child { border-bottom: 1px solid var(--line); }
+.contact span { font-family: var(--mono); font-size: 14px; color: var(--muted); }
+.uses { display: flex; flex-wrap: wrap; gap: 8px; }
+.uses span { padding: 7px 12px; border-radius: 6px; background: var(--panel); border: 1px solid var(--line); font-size: 16px; }
+
+@media (max-width: 860px) {
+  .asst, .res, .reply, .close-grid { grid-template-columns: minmax(0,1fr); }
+  .stream { height: 40vh; }
+  .dots button span.lbl { display: none; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .scene:not([hidden]) .in { animation: rise .35s ease-out both; }
+  @keyframes rise { from { transform: translateY(8px); opacity: .6; } to { transform: none; opacity: 1; } }
+}
+</style>
+
+<!-- 0 · Backstage (no se graba) -->
+<section class="scene" id="s0" aria-label="Antes de grabar">
+  <div class="in">
+    <p class="eyebrow">Backstage · esta pantalla no se graba</p>
+    <h2 style="font-size:clamp(30px,4vw,44px)">Todo listo en 4 pasos</h2>
+    <ol class="check">
+      <li><div><strong>Abre el teleprompter en otra ventana</strong><span>Colócalo pequeño, justo debajo de la webcam. Enlace: claude.ai/artifact/JT9q9x3tfN5M2NK7Yp88iF</span></div></li>
+      <li><div><strong>Haz una prueba del asistente aquí</strong><span>La primera vez Claude te pide permiso para usar tu cuenta: acéptalo ahora, así no sale en el vídeo. Tarda entre 20 y 60 segundos.</span></div></li>
+      <li><div><strong>En Loom elige «Pestaña actual» + cámara</strong><span>Así solo se graba esta pestaña, nunca el teleprompter. Zoom del navegador al 110–125 %.</span></div></li>
+      <li><div><strong>Empieza a grabar y pulsa →</strong><span>Con las flechas ← → pasas de escena. En la escena del asistente pulsa «Analizar con Claude». Si algo falla durante la grabación, pulsa la tecla G y se muestra el resultado de la prueba (con su etiqueta).</span></div></li>
+    </ol>
+    <div class="row">
+      <button class="btn yellow" id="test-btn" type="button">Probar el asistente ahora</button>
+      <span class="status" id="test-status">Asistente: comprobando…</span>
+    </div>
+  </div>
+</section>
+
+<!-- 1 · Portada -->
+<section class="scene" id="s1" aria-label="Portada" hidden>
+  <div class="in cover">
+    <p class="eyebrow">Demo · 2 minutos</p>
+    <h1>Primera respuesta a una petición de oferta, <em>en minutos</em></h1>
+    <p class="sub">Un asistente con Claude que solo conoce la ficha pública del convertidor nXL de Norvento TECHnPower.</p>
+    <div class="byline"><span>Preparado por <b>Víctor Mago</b> · NorteIA</span><span>Información pública + petición ficticia</span></div>
+  </div>
+</section>
+
+<!-- 2 · Petición -->
+<section class="scene" id="s2" aria-label="Petición de oferta" hidden>
+  <div class="in">
+    <div class="row" style="justify-content:space-between">
+      <p class="eyebrow">Paso 1 · Llega una petición de oferta (ficticia)</p>
+      <div class="tabs" role="group" aria-label="Petición"><button type="button" data-rfq="cl" aria-pressed="true">Chile · ES</button><button type="button" data-rfq="br" aria-pressed="false">Brasil · PT</button></div>
+    </div>
+    <article class="mail">
+      <div class="mail-h"><span class="meta" id="mail-from"></span><span class="subj" id="mail-subj"></span></div>
+      <div class="mail-b" id="mail-body"></div>
+    </article>
+  </div>
+</section>
+
+<!-- 3 · Asistente -->
+<section class="scene" id="s3" aria-label="Asistente" hidden>
+  <div class="in">
+    <p class="eyebrow">Paso 2 · El asistente la analiza</p>
+    <div class="asst">
+      <div class="card">
+        <h3>Lo que sabe el asistente</h3>
+        <div class="chips"><span class="chip">Ficha pública nXL</span><span class="chip">Petición recibida</span></div>
+        <p style="font-size:16px;color:var(--muted)">Instrucción clave: si un dato no está en la ficha, no lo inventa. Lo marca como «consultar» para ingeniería.</p>
+        <button class="btn big" id="run-btn" type="button">Analizar con Claude</button>
+        <button class="btn ghost" id="stop-btn" type="button" hidden>Detener</button>
+        <p class="timer" id="timer">Listo</p>
+        <p class="err" id="run-err" hidden></p>
+      </div>
+      <div class="stream" id="stream" aria-live="polite"><span class="ph">La respuesta de Claude aparecerá aquí en tiempo real.</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- 4 · Resultado -->
+<section class="scene" id="s4" aria-label="Resultado" hidden>
+  <div class="in">
+    <div class="row" style="justify-content:space-between"><p class="eyebrow">Paso 3 · Requisitos, dimensionado y riesgos</p><span class="saved-note" id="saved-note" hidden>Resultado de una ejecución anterior</span></div>
+    <p id="r-resumen" style="font-size:20px;max-width:70ch"></p>
+    <div class="res">
+      <div class="card"><h3>Requisitos frente a la ficha</h3><div class="tbl-wrap"><table><thead><tr><th>Requisito</th><th>Pedido</th><th>Ficha nXL</th></tr></thead><tbody id="r-req"></tbody></table></div></div>
+      <div style="display:grid;gap:22px">
+        <div class="card"><h3>Dimensionamiento preliminar</h3><ol class="steps-list" id="r-steps"></ol><p class="concl" id="r-concl"></p></div>
+        <div class="card"><h3>Riesgos para ingeniería</h3><ul class="risk-list" id="r-risks"></ul></div>
+        <div class="card"><h3>Argumentos de venta</h3><ul class="plain-list" id="r-strong"></ul></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 5 · Respuesta -->
+<section class="scene" id="s5" aria-label="Borrador de respuesta" hidden>
+  <div class="in">
+    <p class="eyebrow">Paso 4 · Borrador listo para que el ingeniero revise</p>
+    <div class="reply">
+      <div class="card"><h3 id="r-email-h">Email al cliente</h3><div class="body" id="r-email"></div></div>
+      <div style="display:grid;gap:22px">
+        <div class="card"><h3>Executive summary · English</h3><p id="r-summary" style="font-size:16.5px"></p></div>
+        <div class="card"><h3>Preguntas para el cliente</h3><ol class="qs" id="r-qs"></ol></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 6 · Cierre -->
+<section class="scene close" id="s6" aria-label="Cierre" hidden>
+  <div class="in cover">
+    <p class="eyebrow">Y esto es solo el principio</p>
+    <h1>Con vuestras fichas y ofertas reales, mucho más</h1>
+    <div class="uses"><span>Ofertas técnicas</span><span>Análisis de pliegos</span><span>Documentación ES · EN · PT</span><span>Onboarding de la nueva fábrica</span><span>Vigilancia de mercado</span></div>
+    <div class="close-grid">
+      <p class="sub">Lo mismo que hemos llevado este año al Ilustre Colegio de Procuradores de A Coruña: herramientas concretas y un equipo que las usa de verdad.</p>
+      <div class="contact">
+        <div><b>Víctor Mago</b><span>NorteIA · A Coruña</span></div>
+        <div>victor@norteia.es<span>email</span></div>
+        <div>linkedin.com/in/victormago<span>LinkedIn</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<nav class="nav" aria-label="Escenas">
+  <div class="dots" id="dots"></div>
+  <div class="arrows"><button type="button" id="prev" aria-label="Escena anterior">←</button><button type="button" id="next" aria-label="Escena siguiente">→</button></div>
+</nav>
+
+<script>
+(function () {
+  "use strict";
+
+  var FICHA = [
+    "FICHA PÚBLICA — Norvento TECHnPower nXL (resumen de notas de prensa públicas)",
+    "- Convertidor bidireccional multi-MW y multipropósito, fabricado en Lugo (España).",
+    "- Potencia: hasta 9 MVA por unidad en un contenedor de 20 pies. Densidad hasta 622 kVA/m3.",
+    "- Tensión DC: hasta 1.500 V a plena potencia; preparado para futuros 2.000 V.",
+    "- 4 entradas DC independientes. Ratio DC/AC hasta 200 % sin modificaciones.",
+    "- THDi < 1 %.",
+    "- Operación continua hasta 50 °C y hasta 2.000 m de altitud SIN reducción de potencia.",
+    "- Refrigeración sellada: líquida en componentes principales + recirculación interna de aire frío, sin intercambio de aire con el exterior.",
+    "- Modos: on-grid y off-grid, grid-forming, black start, transición de modo sin interrupción.",
+    "- Aplicaciones: BESS, fotovoltaica, electrólisis de hidrógeno, STATCOM, OPS en puertos, ferrocarril.",
+    "- NO publicados (marcar como consultar): plazo de entrega, precio, garantía, certificaciones por país, curvas de reducción por encima de 2.000 m o 50 °C, frecuencia nominal y rangos de tensión AC."
+  ].join("\n");
+
+  var RFQ = {
+    cl: {
+      from: "De: Carolina Muñoz · Jefa de Compras · Andes Storage SpA (ficticia)",
+      subj: "RFQ – PCS para proyecto BESS «Pampa Norte» 40 MW / 160 MWh",
+      lang: "es",
+      body: "Estimados:\n\nSomos una EPC chilena y desarrollamos el proyecto BESS «Pampa Norte», asociado a una planta fotovoltaica existente en la Región de Antofagasta. Solicitamos cotización para el sistema de conversión de potencia (PCS).\n\n· Potencia BESS: [[40 MW]] en el punto de conexión, 160 MWh (4 horas)\n· Sitio: [[2.350 m s. n. m.]], máx. [[42 °C]], [[mucho polvo en suspensión]]\n· Tensión DC de baterías: [[1.500 V]] (celdas LFP, proveedor por confirmar)\n· Conexión a 220 kV mediante subestación (no incluida) · Red de 50 Hz\n· El Coordinador pide [[grid-forming]] y, si es posible, black start\n· Solución en contenedor, lo más compacta posible\n\nNecesitamos: configuración propuesta, ficha técnica, plazo de entrega a Antofagasta, garantía, experiencia en LATAM y precio orientativo. Plazo: 3 semanas. Agradeceríamos un resumen ejecutivo en inglés para el socio financiero.\n\nSaludos cordiales,\nCarolina Muñoz"
+    },
+    br: {
+      from: "De: Rafael Oliveira · Gerente de Suprimentos · Sol Nordeste Engenharia (fictícia)",
+      subj: "Cotação – Conversores para projeto híbrido FV + BESS «Sertão Verde»",
+      lang: "pt",
+      body: "Prezados,\n\nSomos a Sol Nordeste Engenharia (EPC) e estamos desenvolvendo o projeto híbrido «Sertão Verde», no interior da Bahia:\n\n· Usina fotovoltaica de [[60 MWp]]\n· BESS de [[20 MW / 40 MWh]], acoplado em corrente contínua (DC-coupled)\n· Altitude: [[480 m]]; temperatura máxima: [[44 °C]]\n· Tensão DC: [[1.500 V]] · Frequência da rede: [[60 Hz]]\n· Controle de potência reativa e, se possível, operação grid-forming\n\nSolicitamos: configuração e número de unidades, ficha técnica, prazo de entrega no porto de Salvador, garantia e preço estimado. Prazo: 15 dias.\n\nAtenciosamente,\nRafael Oliveira"
+    }
+  };
+
+  var SAVED = {
+    cliente: "Andes Storage SpA", proyecto: "BESS «Pampa Norte» 40 MW / 160 MWh · Antofagasta, Chile",
+    resumen: "EPC chilena pide el PCS para un BESS de 40 MW / 160 MWh junto a una planta fotovoltaica en Antofagasta. Plazo de respuesta: 3 semanas, con resumen en inglés para el socio financiero.",
+    requisitos: [
+      { requisito: "Potencia en punto de conexión", pedido: "40 MW", estado: "ok", nota: "Varias unidades de hasta 9 MVA" },
+      { requisito: "Tensión DC", pedido: "1.500 V", estado: "ok", nota: "Hasta 1.500 V a plena potencia" },
+      { requisito: "Temperatura máxima", pedido: "42 °C", estado: "ok", nota: "Sin reducción hasta 50 °C" },
+      { requisito: "Altitud", pedido: "2.350 m", estado: "riesgo", nota: "Sin reducción solo hasta 2.000 m" },
+      { requisito: "Polvo en suspensión", pedido: "Alto", estado: "ok", nota: "Refrigeración sellada, sin aire exterior" },
+      { requisito: "Grid-forming / black start", pedido: "Sí", estado: "ok", nota: "Ambos modos disponibles" },
+      { requisito: "Frecuencia 50 Hz", pedido: "50 Hz", estado: "consultar", nota: "No figura en la ficha" },
+      { requisito: "Plazo, garantía y precio", pedido: "Sí", estado: "consultar", nota: "No publicados" }
+    ],
+    dimensionado: { pasos: ["40 MW ÷ fp 0,95 ≈ 42,1 MVA", "+2 % pérdidas ≈ 43 MVA", "43 ÷ 9 MVA = 4,8 unidades"], conclusion: "5 unidades nXL (45 MVA) · orientativo" },
+    riesgos: [
+      { nivel: "alto", texto: "Altitud de 2.350 m, por encima de los 2.000 m sin reducción. Pedir la curva de reducción: puede hacer falta una 6.ª unidad." },
+      { nivel: "medio", texto: "Requisitos grid-forming del Coordinador Eléctrico Nacional: ensayos y certificaciones exigidos." },
+      { nivel: "medio", texto: "Compatibilidad con 50 Hz y rango de tensión AC del transformador elevador." }
+    ],
+    puntos_fuertes: ["Refrigeración sellada: ideal para el polvo del desierto de Atacama", "Formato compacto: 9 MVA en 20 pies para un espacio limitado", "Grid-forming y black start de serie"],
+    preguntas: ["¿Qué factor de potencia exige el Coordinador en el punto de conexión?", "¿Proveedor de celdas LFP y protocolo del BMS?", "¿Qué ensayos grid-forming pide el Coordinador?", "¿Fecha objetivo de puesta en servicio?"],
+    email_idioma: "es",
+    email: "Estimada Carolina:\n\nMuchas gracias por contar con Norvento TECHnPower para el proyecto Pampa Norte.\n\nTras una primera revisión, nuestra familia nXL encaja muy bien con lo que buscáis: operación a 1.500 V, grid-forming y black start, y hasta 9 MVA en un contenedor de 20 pies. Su refrigeración sellada, sin intercambio de aire con el exterior, está pensada para entornos con mucho polvo como el vuestro.\n\nComo configuración preliminar planteamos cinco unidades nXL. Estamos validando con ingeniería el efecto de la altitud del emplazamiento (2.350 m) para confirmar el número definitivo.\n\n¿Organizamos una llamada técnica esta semana o la próxima?\n\nUn saludo,\n[Nombre] · Norvento TECHnPower",
+    summary_en: "Andes Storage requests a PCS for the 40 MW / 160 MWh Pampa Norte BESS in Antofagasta, Chile. The nXL family meets the key requirements: 1,500 V DC, grid-forming and black start, and sealed cooling suited to dusty desert sites. Preliminary configuration: five nXL units (45 MVA). Main open point: site altitude (2,350 m) above the 2,000 m rating without derating, which may require a sixth unit."
+  };
+
+  function buildPrompt(r) {
+    return [
+      "Eres el asistente de ofertas técnicas del equipo comercial de Norvento TECHnPower. Preparas un PRIMER BORRADOR de respuesta a una petición de oferta para que un ingeniero lo revise.",
+      "Fuente de verdad: usa SOLO la ficha de abajo. Si un dato no está en la ficha, no lo inventes: estado \"consultar\".",
+      "Compara SIEMPRE las condiciones del sitio (altitud, temperatura, polvo, tensión, frecuencia) con los límites de la ficha; si alguna supera un límite publicado, estado \"riesgo\" y riesgo de nivel \"alto\".",
+      "Dimensionamiento: calcula unidades con la potencia por unidad de la ficha, con margen por potencia reactiva y pérdidas. Si falta un dato para dimensionar, dilo en los pasos y pregúntalo.",
+      "",
+      FICHA,
+      "",
+      "PETICIÓN RECIBIDA:",
+      r.subj,
+      r.body.replace(/\[\[|\]\]/g, ""),
+      "",
+      "Responde SOLO con un objeto JSON con esta forma exacta (textos internos en español; \"email\" en el idioma del cliente; \"summary_en\" en inglés):",
+      '{"cliente": string, "proyecto": string, "resumen": string (2 frases), "requisitos": [{"requisito": string, "pedido": string, "estado": "ok"|"riesgo"|"consultar", "nota": string (máx 8 palabras)}] (6-9 filas), "dimensionado": {"pasos": [string] (2-4 pasos cortos con números), "conclusion": string (máx 8 palabras)}, "riesgos": [{"nivel": "alto"|"medio", "texto": string (máx 30 palabras)}] (2-4), "puntos_fuertes": [string] (2-3, máx 14 palabras), "preguntas": [string] (3-5), "email_idioma": "es"|"pt"|"en", "email": string (máx 140 palabras, saltos de línea con \\n, firma \"[Nombre] · Norvento TECHnPower\", sin precio ni plazo), "summary_en": string (máx 80 palabras)}'
+    ].join("\n");
+  }
+
+  // ---------- navegación ----------
+  var LABELS = ["Backstage", "Portada", "Petición", "Asistente", "Resultado", "Respuesta", "Cierre"];
+  var scenes = LABELS.map(function (_, i) { return document.getElementById("s" + i); });
+  var dots = document.getElementById("dots");
+  var cur = 0;
+  LABELS.forEach(function (l, i) {
+    var b = document.createElement("button");
+    b.type = "button";
+    b.innerHTML = "<span class=\"num\">" + i + "</span> <span class=\"lbl\"></span>";
+    b.querySelector(".lbl").textContent = l;
+    b.addEventListener("click", function () { go(i); });
+    dots.appendChild(b);
+  });
+  function go(i) {
+    cur = Math.max(0, Math.min(scenes.length - 1, i));
+    scenes.forEach(function (s, k) { s.hidden = k !== cur; });
+    Array.prototype.forEach.call(dots.children, function (b, k) {
+      if (k === cur) b.setAttribute("aria-current", "step"); else b.removeAttribute("aria-current");
+    });
+    scenes[cur].scrollTop = 0;
+  }
+  document.getElementById("prev").addEventListener("click", function () { go(cur - 1); });
+  document.getElementById("next").addEventListener("click", function () { go(cur + 1); });
+  document.addEventListener("keydown", function (e) {
+    var t = e.target && e.target.tagName;
+    if (t === "TEXTAREA" || t === "INPUT") return;
+    if (e.key === "ArrowRight" || e.key === "PageDown") { e.preventDefault(); go(cur + 1); }
+    else if (e.key === "ArrowLeft" || e.key === "PageUp") { e.preventDefault(); go(cur - 1); }
+    else if (e.key === "g" || e.key === "G") { showResult(savedFor(), true); }
+  });
+  go(0);
+
+  // ---------- petición ----------
+  var rfqKey = "cl";
+  function renderMail() {
+    var r = RFQ[rfqKey];
+    document.getElementById("mail-from").textContent = r.from;
+    document.getElementById("mail-subj").textContent = r.subj;
+    var body = document.getElementById("mail-body");
+    body.textContent = "";
+    r.body.split(/(\[\[[^\]]+\]\])/).forEach(function (part) {
+      if (/^\[\[/.test(part)) { var m = document.createElement("span"); m.className = "mark"; m.textContent = part.slice(2, -2); body.appendChild(m); }
+      else body.appendChild(document.createTextNode(part));
+    });
+  }
+  document.querySelectorAll("[data-rfq]").forEach(function (b) {
+    b.addEventListener("click", function () {
+      rfqKey = b.getAttribute("data-rfq");
+      document.querySelectorAll("[data-rfq]").forEach(function (x) { x.setAttribute("aria-pressed", String(x === b)); });
+      renderMail();
+    });
+  });
+  renderMail();
+
+  // ---------- resultado ----------
+  var lastResult = null;
+  function savedFor() { return lastResult ? { data: lastResult, saved: true } : { data: SAVED, saved: true }; }
+  function el(tag, cls, text) { var e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = String(text); return e; }
+  function arr(x) { return Array.isArray(x) ? x : []; }
+  var ESTADO = { ok: "Cumple", riesgo: "Riesgo", consultar: "Consultar" };
+
+  function showResult(pack, jump) {
+    var d = pack.data || {};
+    document.getElementById("saved-note").hidden = !pack.saved;
+    document.getElementById("r-resumen").textContent = d.resumen || "";
+    var tb = document.getElementById("r-req"); tb.textContent = "";
+    arr(d.requisitos).forEach(function (q) {
+      var st = ESTADO[q.estado] ? q.estado : "consultar";
+      var tr = el("tr", st === "riesgo" ? "riesgo" : "");
+      var td1 = el("td"); td1.appendChild(el(st === "riesgo" ? "strong" : "span", "", q.requisito)); tr.appendChild(td1);
+      tr.appendChild(el("td", "", q.pedido));
+      var td3 = el("td"); td3.appendChild(el("span", "pill " + st, ESTADO[st])); if (q.nota) td3.appendChild(el("small", "", q.nota)); tr.appendChild(td3);
+      tb.appendChild(tr);
+    });
+    var dim = d.dimensionado || {};
+    var ol = document.getElementById("r-steps"); ol.textContent = "";
+    arr(dim.pasos).forEach(function (p) { ol.appendChild(el("li", "", p)); });
+    document.getElementById("r-concl").textContent = dim.conclusion || "";
+    var rl = document.getElementById("r-risks"); rl.textContent = "";
+    arr(d.riesgos).forEach(function (r) {
+      var li = el("li", r.nivel === "alto" ? "alto" : "");
+      li.appendChild(el("b", "", r.nivel === "alto" ? "Riesgo alto" : "A validar"));
+      li.appendChild(document.createTextNode(r.texto || ""));
+      rl.appendChild(li);
+    });
+    var sl = document.getElementById("r-strong"); sl.textContent = "";
+    arr(d.puntos_fuertes).forEach(function (p) { sl.appendChild(el("li", "", p)); });
+    var langs = { es: "Email al cliente · español", pt: "Email ao cliente · português", en: "Email to client · English" };
+    document.getElementById("r-email-h").textContent = langs[d.email_idioma] || "Email al cliente";
+    document.getElementById("r-email").textContent = d.email || "";
+    document.getElementById("r-summary").textContent = d.summary_en || "";
+    var qs = document.getElementById("r-qs"); qs.textContent = "";
+    arr(d.preguntas).forEach(function (p) { qs.appendChild(el("li", "", p)); });
+    if (jump) go(4);
+  }
+  showResult({ data: SAVED, saved: true }, false);
+
+  // ---------- asistente ----------
+  var runBtn = document.getElementById("run-btn");
+  var stopBtn = document.getElementById("stop-btn");
+  var timerEl = document.getElementById("timer");
+  var stream = document.getElementById("stream");
+  var errEl = document.getElementById("run-err");
+  var testBtn = document.getElementById("test-btn");
+  var testStatus = document.getElementById("test-status");
+  var sampleFn = null, ctl = null, tick = null;
+
+  var COPY = {
+    not_granted: "No se ha dado permiso para usar Claude desde esta página. Recarga y acepta el permiso.",
+    sampling_disabled: "Claude no está disponible para esta cuenta desde páginas publicadas.",
+    rate_limited: "Demasiadas peticiones o límite de uso alcanzado. Espera un momento y vuelve a probar.",
+    session_expired: "La sesión ha caducado. Vuelve a iniciar sesión en claude.ai.",
+    invalid_json: "La respuesta no tenía el formato esperado. Pulsa de nuevo.",
+    refused: "Claude no ha querido responder a esta petición.",
+    upstream_error: "Fallo de conexión. Pulsa de nuevo."
+  };
+
+  function setRunning(on) {
+    runBtn.disabled = on; testBtn.disabled = on;
+    stopBtn.hidden = !on;
+  }
+
+  function run(isTest) {
+    if (!sampleFn) return;
+    var r = RFQ[rfqKey];
+    ctl = new AbortController();
+    var started = Date.now();
+    errEl.hidden = true;
+    setRunning(true);
+    stream.textContent = "";
+    stream.appendChild(el("span", "ph", "Pensando…"));
+    timerEl.innerHTML = "Analizando… <b>0 s</b>";
+    if (isTest) testStatus.textContent = "Probando… (acepta el permiso si te lo pide)";
+    tick = setInterval(function () {
+      var s = Math.round((Date.now() - started) / 1000);
+      timerEl.innerHTML = "Analizando… <b>" + s + " s</b>";
+      if (isTest) testStatus.textContent = "Probando… " + s + " s";
+    }, 500);
+    sampleFn.json(buildPrompt(r), {
+      signal: ctl.signal,
+      cache: false,
+      onText: function (u) { stream.textContent = u.text; stream.scrollTop = stream.scrollHeight; }
+    }).then(function (data) {
+      var s = Math.round((Date.now() - started) / 1000);
+      lastResult = data;
+      timerEl.innerHTML = "Respuesta generada en <b>" + s + " s</b>";
+      if (isTest) testStatus.textContent = "✓ Funciona (" + s + " s). Ya puedes empezar a grabar.";
+      showResult({ data: data, saved: false }, false);
+    }).catch(function (e) {
+      var code = e && e.code;
+      if (code === "cancelled") { timerEl.textContent = "Detenido"; if (isTest) testStatus.textContent = "Prueba detenida"; return; }
+      var msg = COPY[code] || COPY.upstream_error;
+      errEl.textContent = msg + " (Tecla G: mostrar resultado guardado.)";
+      errEl.hidden = false;
+      timerEl.textContent = "Sin respuesta";
+      if (isTest) testStatus.textContent = "✗ " + msg;
+      if (e && e.text) stream.textContent = e.text;
+    }).then(function () {
+      clearInterval(tick); setRunning(false);
+    });
+  }
+
+  runBtn.addEventListener("click", function () { run(false); });
+  testBtn.addEventListener("click", function () { run(true); });
+  stopBtn.addEventListener("click", function () { if (ctl) ctl.abort(); });
+
+  setRunning(false);
+  runBtn.disabled = true; testBtn.disabled = true;
+  var api = window.claude && typeof window.claude.use === "function" ? window.claude.use("sample") : Promise.resolve(null);
+  api.then(function (s) {
+    sampleFn = s;
+    if (s) {
+      runBtn.disabled = false; testBtn.disabled = false;
+      testStatus.textContent = "Asistente disponible · haz la prueba";
+    } else {
+      testStatus.textContent = "Abre esta página dentro de claude.ai para usar el asistente en directo. Mientras tanto, la tecla G muestra el resultado guardado.";
+      timerEl.textContent = "Asistente no disponible en esta vista (tecla G: resultado guardado)";
+    }
+  }, function () {
+    testStatus.textContent = "Asistente no disponible. Tecla G: resultado guardado.";
+  });
+})();
+</script>

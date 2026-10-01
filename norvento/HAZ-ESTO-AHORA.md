@@ -1,34 +1,30 @@
-# Haz esto ahora (en orden)
+# Para terminar todo: 3 bloques, ~1 h 15 min en total
 
-Todo lo que se podía preparar sin ti ya está hecho. Lo que queda son las cosas que solo puedes hacer tú: tu cara, tu cuenta y tus envíos.
+Ya está hecho y no tienes que tocarlo: la investigación, las cartas, los mensajes, el perfil de LinkedIn, el portfolio, el teleprompter y el **estudio de grabación**, con el asistente funcionando.
 
 ## Enlaces
-- **Teleprompter + cómo grabarte:** https://claude.ai/artifact/JT9q9x3tfN5M2NK7Yp88iF (pestaña «Cómo grabarte»)
-- **Portfolio:** https://claude.ai/artifact/PvetA3SaNJFwVQk3tzZ5rM
-  → Para que Norvento pueda verlo: ábrelo → **Compartir** → activar enlace público.
+| Qué | Enlace |
+|---|---|
+| 🎬 **Estudio**: todo el vídeo en una pestaña, con el asistente en directo | https://claude.ai/artifact/8DbQjWytt6dRu71ziQB4Zg |
+| 📜 **Teleprompter** + «Cómo grabarte» | https://claude.ai/artifact/JT9q9x3tfN5M2NK7Yp88iF |
+| 🗂️ **Portfolio** | https://claude.ai/artifact/PvetA3SaNJFwVQk3tzZ5rM |
 
-## Hoy (≈1 h 30 min)
-1. **[10 min] Monta la demo en claude.ai** → sigue `04-demo-asistente-ofertas/como-montarlo.md`.
-   - Instrucciones del proyecto: pega `instrucciones-proyecto.md`.
-   - Conocimiento: sube `ficha-nXL.md`.
-2. **[10 min] Prueba 2 veces** con `rfq-ejemplo-chile.md` y compara con `salida-de-referencia.md`. Tiene que salir el aviso 🔴 de altitud.
-3. **[10 min] Prepara el sitio**: luz de frente, portátil a la altura de los ojos, Loom instalado.
-4. **[30 min] Graba 3 tomas** con el teleprompter. Quédate con la mejor y recorta las esperas.
-5. **[10 min] Comparte el vídeo** con enlace público y pruébalo en una ventana de incógnito.
+## Bloque 1 · Grabar (≈40 min)
+1. Abre el **Estudio** en una ventana grande y el **Teleprompter** en otra pequeña, debajo de la webcam.
+2. En el Estudio (pantalla «Backstage») pulsa **«Probar el asistente ahora»** y acepta el permiso.
+3. Loom → **«Pestaña actual» + cámara** → graba. Pasa de escena con `→`, lee el teleprompter y pulsa «Analizar con Claude» cuando toque.
+4. Graba 2–3 tomas, recorta la espera y comparte con enlace público. **Pásame el enlace.**
 
-## Mañana (≈45 min)
-6. **[10 min] Actualiza tu LinkedIn** con `06-perfil-linkedin.md`.
-7. **[15 min] Envía la candidatura** en el formulario de Viterbit con la **carta A** (`01-carta-presentacion.md`). Solo te falta sustituir `[enlace al vídeo]`.
-8. **[10 min] Solicitudes de conexión en LinkedIn** (`02-mensajes-linkedin.md`, sección 1):
-   - Responsable de Personas de Norvento (su nombre está en norvento.com → Equipo)
-   - Alguien de TECHnPower comercial / business development
-9. **[5 min] Avisa a Luis** de que vas a mencionar el caso ICPC en tu candidatura (el Colegio ya ha dado el visto bueno).
+## Bloque 2 · Me pasas el enlace del vídeo y yo (≈5 min tuyos)
+- Lo meto en las cartas, los mensajes de LinkedIn y el portfolio, y te devuelvo los textos finales para copiar y pegar.
+- Tú: portfolio → **Compartir → enlace público**.
 
-## Días 3–7
-10. Cuando acepten la conexión → mensaje de la sección 2.
-11. **Día 7** sin respuesta → seguimiento (sección 3).
-12. **Día 10** sin respuesta → **carta B** por email o LinkedIn al área comercial / dirección.
-13. Después de hablar con ellos (o al día 10) → publicación opcional (sección 4).
+## Bloque 3 · Enviar (≈30 min; esto solo puedes hacerlo tú, desde tus cuentas)
+1. **LinkedIn**: pega el titular y el «Acerca de» (`06-perfil-linkedin.md`) y añade vídeo + portfolio en «Destacado».
+2. **Viterbit**: formulario de candidatura con la **carta A**.
+3. **LinkedIn**: 2 solicitudes de conexión (Personas + TECHnPower) con los textos de `02-mensajes-linkedin.md`.
+4. Avisa a Luis.
 
-## Si te llaman
-Lleva `03-casos-de-uso.md` impreso o en el móvil. Abre con la demo en directo, pregunta cuánto tardan hoy en una oferta y propón el piloto de 4 semanas.
+## Después
+- Cuando acepten → mensaje de la sección 2 · día 7 → seguimiento · día 10 → carta B.
+- Si te llaman: lleva el **Estudio** abierto y haz la demo en directo delante de ellos.

@@ -14,4 +14,5 @@ Material para presentarse a Norvento (Lugo) con una propuesta de IA aplicada a n
 | `05-guion-video.md` | Guion del vídeo (versión texto) |
 | `06-perfil-linkedin.md` | Titular, «Acerca de», Destacado y Experiencia para copiar y pegar |
 | `portfolio/index.html` | Portfolio → https://claude.ai/artifact/PvetA3SaNJFwVQk3tzZ5rM |
+| `estudio/index.html` | Estudio de grabación con el asistente en directo → https://claude.ai/artifact/8DbQjWytt6dRu71ziQB4Zg |
 | `teleprompter/index.html` | Teleprompter + cómo grabarte → https://claude.ai/artifact/JT9q9x3tfN5M2NK7Yp88iF |
