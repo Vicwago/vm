@@ -9,11 +9,14 @@ Ya está hecho y no tienes que tocarlo: la investigación, las cartas, los mensa
 | 📜 **Teleprompter** + «Cómo grabarte» | https://claude.ai/artifact/JT9q9x3tfN5M2NK7Yp88iF |
 | 🗂️ **Portfolio** | https://claude.ai/artifact/PvetA3SaNJFwVQk3tzZ5rM |
 
-## Bloque 1 · Grabar (≈40 min)
-1. Abre el **Estudio** en una ventana grande y el **Teleprompter** en otra pequeña, debajo de la webcam.
-2. En el Estudio (pantalla «Backstage») pulsa **«Probar el asistente ahora»** y acepta el permiso.
-3. Loom → **«Pestaña actual» + cámara** → graba. Pasa de escena con `→`, lee el teleprompter y pulsa «Analizar con Claude» cuando toque.
-4. Graba 2–3 tomas, recorta la espera y comparte con enlace público. **Pásame el enlace.**
+## Bloque 1 · Grabar (≈30 min) — todo dentro del Estudio
+Abre el **Estudio** y sigue sus 4 pasos:
+1. **Preparar demo** → Claude analiza la petición de verdad (<1 min). Acepta el permiso. Tienen que salir 3 ✓.
+2. **Ensayar** → lees en voz alta el subtítulo de arriba y pulsas `Espacio`. Las escenas, los resaltados y la respuesta de Claude se montan solos.
+3. **Grabar** → Loom (extensión de Chrome, gratis) → «Pantalla y cámara» → «Pestaña actual» → Empezar. Luego pulsas «Empezar» en el Estudio y haces lo mismo que en el ensayo. Al final, `Esc` y paras Loom.
+4. **Copiar enlace** en Loom y **pegármelo en el chat**.
+
+Ya no hace falta el teleprompter aparte ni recortar esperas.
 
 ## Bloque 2 · Me pasas el enlace del vídeo y yo (≈5 min tuyos)
 - Lo meto en las cartas, los mensajes de LinkedIn y el portfolio, y te devuelvo los textos finales para copiar y pegar.
