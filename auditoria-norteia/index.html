@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#0B5FA5">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Auditoría NorteIA">
+  <meta name="format-detection" content="telephone=no">
+  <title>Auditoría rápida NorteIA</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="assets/icon-192.png" type="image/png">
+  <link rel="apple-touch-icon" href="assets/icon-192.png">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <!-- Contenedor único: app.js dibuja aquí cada pantalla -->
+  <main id="app" aria-live="polite"></main>
+
+  <!-- Aviso de orientación (solo en vertical, por CSS) -->
+  <div class="aviso-giro" role="alert">
+    <div class="aviso-giro-icono" aria-hidden="true">⟳</div>
+    <p>Gira la tablet en horizontal</p>
+  </div>
+
+  <!-- Diálogo de confirmación genérico -->
+  <div id="dialogo" class="dialogo" hidden>
+    <div class="dialogo-caja" role="dialog" aria-modal="true" aria-labelledby="dialogo-texto">
+      <p id="dialogo-texto"></p>
+      <div class="dialogo-botones" id="dialogo-botones"></div>
+    </div>
+  </div>
+
+  <noscript>Esta aplicación necesita JavaScript.</noscript>
+
+  <!-- Orden de carga: config, config local (opcional), almacén, motor, librería QR, correo, app. Los nichos los carga app.js desde niches/index.js -->
+  <script src="config.js"></script>
+  <script src="config.local.js" onerror="void 0"></script>
+  <script src="niches/index.js"></script>
+  <script src="almacen.js"></script>
+  <script src="motor.js"></script>
+  <script src="assets/qr.js"></script>
+  <script src="email.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

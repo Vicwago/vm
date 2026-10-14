@@ -1,0 +1,14 @@
+# Configuración real (identificadores de EmailJS). Nunca al repositorio.
+config.local.js
+config.*.real.js
+*.real.js
+
+# Ficheros de entorno y exportaciones con datos reales
+.env
+.env.*
+*.env
+auditorias-norteia-*.csv
+exports/
+
+# Resultados de pruebas
+tests/salida/
