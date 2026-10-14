@@ -9,7 +9,7 @@
 window.CONFIG = {
   // Marca
   nombreEmpresa: "NorteIA",
-  logo: "assets/logo-norteia.svg", // logo oficial de norteia.es (oscuro). Variante: assets/logo-norteia-blanco.svg
+  logo: "assets/logo-norteia.svg", // logo oficial de NorteIA, monocromo en Tinta Norte (#0A1232). Variante: assets/logo-norteia-blanco.svg
 
   // Cálculo (cada nicho puede pisar estos valores en su bloque "parametros")
   // Coste/hora = SALARIO MÍNIMO + SEGURIDAD SOCIAL DE LA EMPRESA:
@@ -50,7 +50,7 @@ window.CONFIG = {
   modoDesarrollo: false,          // true = muestra nichos incompletos con etiqueta [COMPLETAR]
 
   // Varios
-  versionApp: "1.5",
+  versionApp: "1.6",
   pantallaCalculandoMs: 1200
 };
 

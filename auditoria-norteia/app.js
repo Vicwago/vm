@@ -691,7 +691,7 @@
       fondo.setAttribute("fill", "#fff");
       var path = document.createElementNS(ns, "path");
       path.setAttribute("d", d);
-      path.setAttribute("fill", "#1B2429");
+      path.setAttribute("fill", "#0A1232"); // Tinta Norte
       svg.appendChild(fondo);
       svg.appendChild(path);
       return svg;
