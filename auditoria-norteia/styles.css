@@ -6,9 +6,9 @@
   --texto: #14202B;
   --texto-suave: #5A6773;
   --borde: #D5DDE5;
-  --principal: #0B5FA5;
-  --principal-oscuro: #084A80;
-  --principal-claro: #E6F0FA;
+  --principal: #2E00F5;        /* azul eléctrico NorteIA (logo) */
+  --principal-oscuro: #2200B8;
+  --principal-claro: #ECE8FF;
   --acento: #F28C28;
   --acento-oscuro: #C96A0E;
   --acento-texto: #1E1206;
@@ -168,7 +168,7 @@ input, textarea, .seleccionable, .seleccionable * {
   min-height: var(--toque);
 }
 
-.logo-boton img { height: 96px; width: auto; display: block; }
+.logo-boton img { height: 72px; width: auto; display: block; }
 
 .bienvenida h1 {
   font-size: 46px;
@@ -212,7 +212,15 @@ input, textarea, .seleccionable, .seleccionable * {
 .nicho-tarjeta .icono { font-size: 44px; line-height: 1; }
 .nicho-tarjeta[aria-pressed="true"] { border-color: var(--principal); background: var(--principal-claro); color: var(--principal-oscuro); }
 
-.nichos.pestanas .nicho-tarjeta { min-height: var(--toque); min-width: 0; flex-direction: row; padding: 0 22px; }
+/* Más de 4 sectores: pestañas en rejilla de 5 columnas */
+.nichos.pestanas {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 12px;
+  width: 100%;
+  max-width: 1100px;
+}
+.nichos.pestanas .nicho-tarjeta { min-height: 84px; min-width: 0; padding: 8px 10px; gap: 2px; font-size: 20px; line-height: 1.15; text-align: center; }
 .nichos.pestanas .nicho-tarjeta .icono { font-size: 30px; }
 
 .etiqueta-completar {
@@ -645,13 +653,15 @@ input, textarea, .seleccionable, .seleccionable * {
 
 .cta-acciones { display: flex; flex-direction: column; gap: 4px; align-items: flex-start; min-width: 0; }
 .cta-secundario { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
-.boton-cta { font-size: 30px; min-height: 84px; padding: 0 36px; }
+.boton-cta { font-size: 26px; min-height: 84px; padding: 0 30px; text-align: center; }
 .telefono { font-size: 26px; font-weight: 700; color: var(--principal); text-decoration: none; min-height: var(--toque); display: inline-flex; align-items: center; }
+.contacto-norteia { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; font-size: 18px; color: var(--texto-suave); }
+.contacto-norteia a { color: var(--texto-suave); font-weight: 600; text-decoration: none; min-height: 44px; display: inline-flex; align-items: center; }
 .aviso-sin-conexion { color: var(--aviso); font-weight: 650; margin: 0; font-size: 19px; max-width: 520px; }
 
 .qr { margin: 0; display: flex; align-items: center; gap: 12px; }
 .qr svg { width: 132px; height: 132px; display: block; background: #fff; border-radius: 8px; flex: 0 0 auto; }
-.qr figcaption { font-size: 17px; color: var(--texto-suave); max-width: 130px; }
+.qr figcaption { font-size: 16px; color: var(--texto-suave); max-width: 110px; }
 
 .acciones-secundarias { display: flex; gap: var(--hueco); flex-wrap: wrap; }
 

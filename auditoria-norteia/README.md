@@ -1,6 +1,6 @@
 # Auditoría rápida de tiempo perdido · NorteIA
 
-Web app para tablet en horizontal. Cochet hace 10 preguntas en la visita y la app calcula las horas y los euros que el negocio pierde al año. Termina con un botón para agendar cita, la llamada directa y un QR. Funciona sin conexión.
+Web app para tablet en horizontal. Cochet elige el sector en una pestaña y hace 10 preguntas en la visita y la app calcula las horas y los euros que el negocio pierde al año. Termina con un botón para agendar cita, la llamada directa y un QR. Funciona sin conexión.
 
 ## 1. Publicar
 
@@ -18,14 +18,20 @@ Edita **`config.js`** con cualquier editor de texto: coste/hora, % de ahorro, en
 
 Para que la tablet recoja la nueva versión, **sube `CACHE_VERSION` en `sw.js`** (por ejemplo `v1.1.0` → `v1.1.1`) y abre la app una vez con internet. Actualizar no borra el historial ni los emails pendientes.
 
-- **Logo:** sustituye `assets/logo-norteia.svg` usando el mismo nombre. Los iconos están en `assets/icon-192.png` y `assets/icon-512.png`.
+- **Logo:** `assets/logo-norteia.svg` (azul) y `assets/logo-norteia-blanco.svg` están redibujados en vectorial a partir del logo oficial. Si tenéis el SVG original, sustituid los archivos con el mismo nombre. Para usar un PNG, guárdalo como `assets/logo-norteia.png` y pon `logo: "assets/logo-norteia.png"` en `config.js`. Los iconos de la app son `assets/icon-192.png` y `assets/icon-512.png` (estrella NorteIA).
+- **Contacto y redes de NorteIA:** se configuran en `CONFIG.contactoNorteIA` (web, email, WhatsApp, Instagram, LinkedIn). Salen en la barra de cita del resultado; los campos vacíos no se muestran.
 - **Historial oculto:** toca el logo 5 veces seguidas en la bienvenida. Desde ahí puedes descargar el CSV, reintentar los emails y borrar el historial.
-- **Nichos:** cada sector es un archivo en `niches/`. Talleres y Gestorías tienen la estructura lista, pero sus textos están marcados `[COMPLETAR]`. Para activar uno:
-  1. Rellénalo.
-  2. Pon `completo: true`.
-  3. Añádelo a `CONFIG.nichosVisibles`.
 
-  Para crear un sector nuevo, copia `niches/clinicas.js` y añade su id en `niches/index.js`. No hace falta tocar `app.js`. Si un nicho está mal configurado, se oculta y el motivo aparece en la consola del navegador.
+## Sectores (pestañas)
+
+Hay 10 sectores completos, cada uno con sus propias 10 preguntas, cálculo, textos de resultado, señales y resumen:
+
+Clínicas · Talleres · Gestorías · Peluquerías · Barberías · Spas y estética · Veterinarias · Inmobiliarias · Restaurantes · Academias y autoescuelas.
+
+- Cada sector es **un archivo** en `niches/`. Ahí se cambian las preguntas, las opciones, los textos, el coste/hora y el «habitual» de cada slider sin tocar código.
+- **Para ocultar un sector** en la tablet, quítalo de `CONFIG.nichosVisibles`. El orden de esa lista es el orden de las pestañas.
+- **Para crear un sector nuevo,** copia uno parecido (por ejemplo `niches/peluquerias.js`), cambia el `id` y añádelo en `niches/index.js` y en `CONFIG.nichosVisibles`. Si un sector está mal configurado, se oculta y el motivo aparece en la consola del navegador.
+- De dónde salen los costes por hora y los volúmenes: [`niches/FUENTES.md`](niches/FUENTES.md).
 
 ---
 
@@ -111,7 +117,8 @@ La checklist para pasar en la tablet real está en [`CHECKLIST.md`](CHECKLIST.md
 |---|---|
 | `config.js` | Configuración editable (sin identificadores reales) |
 | `config.local.example.js` | Plantilla para `config.local.js` (EmailJS; no se sube a Git) |
-| `niches/*.js` | Un archivo por sector: preguntas, cálculo, textos y resumen |
+| `niches/*.js` | Un archivo por sector: preguntas, cálculo, textos y resumen (10 sectores) |
+| `niches/FUENTES.md` | Fuentes de los costes por hora y volúmenes de cada sector |
 | `motor.js` | Cálculo, validación de nichos, textos, resumen, CSV e instantánea del email |
 | `app.js` | Pantallas e interacción |
 | `almacen.js` | Historial en el dispositivo (`localStorage`, clave `norteia_auditorias_v1`) |

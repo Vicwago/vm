@@ -44,10 +44,11 @@ Marca cada punto en la tablet, no en el ordenador.
 - [ ] Con `extrasActivas` en `true` aparecen la 11 y la 12 tras la 10, la barra cuenta 11 o 12, y salen en el resumen y en el email.
 - [ ] Con ambas en `false` no aparecen y no rompen nada.
 
-## Multi-nicho
-- [ ] Con `nichosVisibles: ["clinicas"]` no aparece selector.
-- [ ] Con `modoDesarrollo: true` y los 3 nichos visibles: 3 tarjetas, las incompletas con la etiqueta [COMPLETAR].
-- [ ] El historial y el CSV muestran el nicho.
+## Sectores
+- [ ] Aparecen las 10 pestañas y Clínicas sale preseleccionada.
+- [ ] Haz una auditoría completa en cada sector: preguntas propias del sector, resultado con sus textos y señales.
+- [ ] Revisa con alguien del sector (o con Cochet) que las preguntas y las cifras «habitual» suenan bien.
+- [ ] El historial y el CSV muestran el sector, y el filtro por sector funciona.
 
 ## Email (con EmailJS ya configurado; las pruebas reales también gastan cuota)
 - [ ] Auditoría ficticia con conexión: el envío sale al instante y llega a **las dos bandejas** (mira también spam) con el asunto correcto, las 10 respuestas, el interés y «Contacto: No recogido».
@@ -66,7 +67,8 @@ Marca cada punto en la tablet, no en el ordenador.
 1. Coste por hora (14 €) y porcentaje recuperable (65 %).
 2. Enlace real de Cal.com y teléfono que se muestra.
 3. Preguntas extra (desactivadas por defecto).
-4. Logo e iconos definitivos.
-5. Colores: principal `#0B5FA5` y acento `#F28C28` (en `styles.css`, `:root`).
+4. Logo: confirmar que el redibujado coincide con el oficial (o sustituirlo por el SVG original). Contacto y redes en `CONFIG.contactoNorteIA` (WhatsApp, Instagram, LinkedIn de empresa).
+5. Colores: principal `#2E00F5` (azul del logo) y acento de la cita `#F28C28` (en `styles.css`, `:root`).
 6. Buzón remitente de EmailJS y direcciones reales de Victor y Luis.
-7. Activar `capturarContacto` y aprobar el texto de privacidad, la retención local y la del proveedor.
+7. Coste/hora y «habitual» de cada sector (ver `niches/FUENTES.md`).
+8. Activar `capturarContacto` y aprobar el texto de privacidad, la retención local y la del proveedor.

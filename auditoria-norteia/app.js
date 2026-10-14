@@ -124,6 +124,26 @@
     return h("button", Object.assign({ type: "button", clase: "boton " + clase, onclick: accion }, extra || {}), [texto]);
   }
 
+  function rutaLogo() { return CONFIG.logo || "assets/logo-norteia.svg"; }
+
+  // Enlaces de NorteIA (web, email, WhatsApp, redes) definidos en CONFIG.contactoNorteIA
+  function enlacesNorteIA() {
+    var c = CONFIG.contactoNorteIA || {};
+    var lista = [];
+    if (c.whatsapp) lista.push({ texto: "WhatsApp", href: "https://wa.me/" + String(c.whatsapp).replace(/\D/g, "") });
+    if (c.web) lista.push({ texto: String(c.web).replace(/^https?:\/\/(www\.)?/, "").replace(/\/$/, ""), href: c.web });
+    if (c.email) lista.push({ texto: c.email, href: "mailto:" + c.email });
+    if (c.instagram) lista.push({ texto: "Instagram", href: c.instagram });
+    if (c.linkedin) lista.push({ texto: "LinkedIn", href: c.linkedin });
+    if (!lista.length) return null;
+    var cont = h("div", { clase: "contacto-norteia" });
+    lista.forEach(function (e, i) {
+      if (i) cont.appendChild(h("span", { "aria-hidden": "true", texto: "·" }));
+      cont.appendChild(h("a", { href: e.href, target: "_blank", rel: "noopener", texto: e.texto }));
+    });
+    return cont;
+  }
+
   function telefonoLimpio(tel) { return String(tel || "").replace(/[^\d+]/g, ""); }
 
   function idCorto() {
@@ -284,7 +304,7 @@
 
     var seccion = h("section", { clase: "pantalla bienvenida" + (contacto ? " con-scroll" : "") }, [
       h("button", { type: "button", clase: "logo-boton", "aria-label": "NorteIA", onclick: tocarLogo }, [
-        h("img", { src: "assets/logo-norteia.svg", alt: "NorteIA", draggable: "false" })
+        h("img", { src: rutaLogo(), alt: "NorteIA", draggable: "false" })
       ]),
       titulo,
       subtitulo,
@@ -680,6 +700,9 @@
     var registro = estado.registro;
     var n = estado.nicho;
     var t = M.textosResultado(n, registro, CONFIG);
+    // Que el «€» no se separe de su cifra al partir línea
+    ["titular", "subtitulo", "impulso"].forEach(function (k) { t[k] = String(t[k] || "").replace(/(\d) €/g, "$1\u00a0€"); });
+    t.contraste.texto = String(t.contraste.texto || "").replace(/(\d) €/g, "$1\u00a0€");
     var vars = t.variables;
     var seccion = h("section", { clase: "pantalla resultado" });
     var contenido = h("div", { clase: "resultado-contenido" });
@@ -689,7 +712,7 @@
         if (!libre()) return;
         mostrarPregunta(estado.preguntas.length - 1);
       }),
-      h("img", { src: "assets/logo-norteia.svg", alt: "NorteIA" })
+      h("img", { src: rutaLogo(), alt: "NorteIA" })
     ]));
 
     var animables = [];
@@ -745,7 +768,7 @@
     // Barra inferior fija: la cita siempre visible
     seccion.appendChild(contenido);
     seccion.appendChild(h("div", { clase: "cta-zona" }, [
-      h("div", { clase: "cta-acciones" }, [cta, h("div", { clase: "cta-secundario" }, [tel, aviso])]),
+      h("div", { clase: "cta-acciones" }, [cta, h("div", { clase: "cta-secundario" }, [tel, enlacesNorteIA(), aviso])]),
       qr ? h("figure", { clase: "qr" }, [qr, h("figcaption", { texto: T.escaneaQR })]) : null
     ]));
 

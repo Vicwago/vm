@@ -30,11 +30,61 @@ function registro(respuestas, extra) {
   return r;
 }
 
-test("el nicho clínicas es válido; talleres y gestorías están incompletos", () => {
-  assert.deepEqual(Array.from(M.validarNicho(CL).errores), []);
-  assert.equal(ctx.NICHOS.talleres.completo, false);
-  assert.equal(ctx.NICHOS.gestorias.completo, false);
-  assert.deepEqual(Array.from(ctx.NICHOS_LISTA), ["clinicas", "talleres", "gestorias"]);
+const IDS = ["clinicas", "talleres", "gestorias", "peluquerias", "barberias", "spas", "veterinarias", "inmobiliarias", "restaurantes", "academias"];
+
+test("los 10 nichos están completos, son válidos y visibles", () => {
+  assert.deepEqual(Array.from(ctx.NICHOS_LISTA), IDS);
+  assert.deepEqual(Array.from(ctx.CONFIG.nichosVisibles), IDS);
+  IDS.forEach((id) => {
+    const n = ctx.NICHOS[id];
+    assert.equal(n.id, id);
+    assert.equal(n.completo, true, id + " completo");
+    assert.deepEqual(Array.from(M.validarNicho(n).errores), [], id + " válido");
+    assert.equal(M.preguntasActivas(n, ctx.CONFIG).length, 10, id + " tiene 10 preguntas");
+    assert.equal(n.calculo.lineas.length, 3, id + " tiene 3 líneas de cálculo");
+    assert.ok(!JSON.stringify(n).includes("[COMPLETAR]"), id + " sin [COMPLETAR]");
+    assert.ok(n.resultado.senales.length >= 2, id + " con señales propias");
+  });
+});
+
+test("cada nicho calcula, genera resultado, resumen, CSV e instantánea de email", () => {
+  IDS.forEach((id) => {
+    const n = ctx.NICHOS[id];
+    const resp = {};
+    n.preguntas.forEach((p) => {
+      if (p.tipo === "slider") {
+        resp[p.clave] = p.slider.marca;
+        if (p.sub) resp[p.sub.clave] = p.sub.opciones[1];
+      } else resp[p.clave] = p.opciones[p.opciones.length - 1].valor;
+    });
+    resp[n.resultado.selectorVariante.clave] = "mucho";
+    const params = M.parametrosEfectivos(ctx.CONFIG, n);
+    const reg = {
+      id: "2026-10-14T08:42:11.000Z", idCorto: "AB12CD", fecha: "2026-10-14T08:42:11.000Z", nicho: id, nombreCliente: "",
+      respuestas: resp, calculo: M.calcular(n, resp, params), parametros: params,
+      preguntasMostradas: [].concat(...M.preguntasActivas(n, ctx.CONFIG).map((p) => (p.sub ? [p.clave, p.sub.clave] : [p.clave]))),
+      contactoNorteIA: { enlaceCal: "https://cal.com/x", telefono: "+34 600" }
+    };
+    assert.ok(reg.calculo.minutosDia > 0, id + ": con los valores habituales hay minutos");
+    const t = M.textosResultado(n, reg, ctx.CONFIG);
+    assert.equal(t.variante, "A");
+    assert.ok(!/\{\w+\}/.test(t.titular + t.subtitulo + t.impulso + t.contraste.texto + t.pie), id + ": sin variables sin rellenar");
+    assert.ok(t.senales.length <= 2);
+    const resumen = M.textoResumen(n, reg, ctx.CONFIG);
+    assert.ok(!resumen.includes("no recogido"), id + ": resumen completo");
+    assert.equal(resumen.split("\n").filter((l) => l.startsWith("- ")).length, 9 + 5, id + ": 9 respuestas + 5 de resultado");
+    const inst = M.instantaneaEmail(n, reg, ctx.CONFIG);
+    assert.equal(inst.respuestas_texto.split("\n").filter((l) => /^\d+\. /.test(l)).length, 10, id + ": 10 respuestas en el email");
+    assert.equal(inst.interes_texto, "Mucho (variante A)");
+    assert.match(M.generarCSV([reg]), new RegExp(";\"" + id + "\";"));
+  });
+});
+
+test("costes por hora de cada sector (valores [DECIDIR])", () => {
+  const coste = {};
+  IDS.forEach((id) => { coste[id] = M.parametrosEfectivos(ctx.CONFIG, ctx.NICHOS[id]).costeHora; });
+  assert.deepEqual(coste, { clinicas: 14, talleres: 15, gestorias: 15, peluquerias: 13, barberias: 13, spas: 13,
+    veterinarias: 14, inmobiliarias: 14, restaurantes: 14, academias: 13 });
 });
 
 test("ejemplo de la sección 6: 135 min/día, 540 h, 7.560 €, 351 h y 4.914 € (4.910 € mostrado)", () => {
@@ -269,10 +319,10 @@ test("instantánea: contacto solo con los campos dados, saneado y limitado", () 
   assert.equal(inst.nombre_cliente.length, 150);
 });
 
-test("ningún archivo del motor contiene textos del nicho clínicas", () => {
+test("ningún archivo del motor contiene textos de un nicho", () => {
   ["app.js", "motor.js", "email.js"].forEach((a) => {
     const s = fs.readFileSync(path.join(RAIZ, a), "utf8");
-    ["Tipo de clínica", "minLlamada", "Dental", "pacientes", "no_prioritario"].forEach((t) => {
+    ["Tipo de clínica", "minLlamada", "Dental", "pacientes", "no_prioritario", "Peluquer", "taller", "Idealista"].forEach((t) => {
       assert.ok(!s.includes(t), a + " contiene «" + t + "»");
     });
   });

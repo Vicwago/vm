@@ -31,8 +31,9 @@ function cargar(archivos, extra) {
 }
 
 function cargarTodo(extra) {
-  return cargar(["config.js", "niches/index.js", "niches/clinicas.js", "niches/talleres.js", "niches/gestorias.js",
-    "almacen.js", "motor.js", "email.js"], Object.assign({ localStorage: crearStorage() }, extra || {}));
+  const lista = cargar(["niches/index.js"], {}).NICHOS_LISTA;
+  return cargar(["config.js", "niches/index.js"].concat(Array.from(lista, (id) => "niches/" + id + ".js"))
+    .concat(["almacen.js", "motor.js", "email.js"]), Object.assign({ localStorage: crearStorage() }, extra || {}));
 }
 
 module.exports = { cargar, cargarTodo, crearStorage, RAIZ };

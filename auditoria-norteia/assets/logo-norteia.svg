@@ -1,9 +1,14 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 96" role="img" aria-label="NorteIA">
-  <!-- Logo provisional: sustituir por el definitivo con el mismo nombre de archivo -->
-  <g transform="translate(48 48)">
-    <circle r="42" fill="#0B5FA5"/>
-    <path d="M0 -32 L13 6 L0 0 L-13 6 Z" fill="#FFFFFF"/>
-    <path d="M0 32 L13 -6 L0 0 L-13 -6 Z" fill="#F28C28"/>
-  </g>
-  <text x="104" y="63" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="48" font-weight="800" fill="#14202B">Norte<tspan fill="#0B5FA5">IA</tspan></text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="244 320 917 246" role="img" aria-label="NorteIA">
+  <!-- Logo NorteIA redibujado en vectorial a partir de la imagen oficial. Si tenéis el SVG original, sustituid este archivo con el mismo nombre. -->
+  <defs>
+    <mask id="m" maskUnits="userSpaceOnUse" x="0" y="0" width="1419" height="922">
+      <rect x="0" y="0" width="1419" height="922" fill="#fff"/>
+      <path d="M868,474 Q872,445 898,445 Q925,445 928,474 Z M867,498 H972 V515 H927 Q920,531 900,531 Q872,531 867,498 Z" fill="#000"/>
+      <path d="M250,343 Q302,370 358,326 Q322,383 405,453 Q330,404 268,451 Q300,393 250,343 Z" fill="#000" stroke="#000" stroke-width="9" stroke-linejoin="round"/>
+    </mask>
+  </defs>
+  
+  <path d="M369,421 H403 V555 H369 Z M403,447 Q418,417 452,417 Q489,417 489,462 V555 H454 V478 Q454,450 430,450 Q406,450 403,478 Z M660,421 H695 V555 H660 Z M695,446 Q707,419 737,419 V452 Q699,449 695,488 Z M764,379 H799 V511 Q799,528 815,528 H822 V556 H802 Q764,556 764,520 Z M745,421 H822 V445 H745 Z M832,488 A66,71 0 1,0 964,488 A66,71 0 1,0 832,488 Z M981,555 V426 Q981,411 996,411 H1016 V555 Z M981,369 H1016 V385 Q1016,400 1001,400 H981 Z" fill="#2E00F5" mask="url(#m)"/>
+  <path d="M503,488 A70,71 0 1,0 643,488 A70,71 0 1,0 503,488 Z M540,488 A33.5,43 0 1,1 607,488 A33.5,43 0 1,1 540,488 Z M1043,449 Q1054,417 1097,417 Q1155,417 1155,467 V556 Q1135,548 1121,540 Q1108,560 1076,560 Q1032,560 1032,521 Q1032,486 1075,478 Q1112,472 1117,465 Q1120,443 1096,443 Q1073,443 1070,463 Z M1120,488 Q1108,495 1085,500 Q1067,504 1067,518 Q1067,534 1086,534 Q1120,534 1120,506 Z" fill="#2E00F5" fill-rule="evenodd"/>
+  <path d="M250,343 Q302,370 358,326 Q322,383 405,453 Q330,404 268,451 Q300,393 250,343 Z" fill="#2E00F5"/>
 </svg>

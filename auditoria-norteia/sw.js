@@ -4,7 +4,7 @@
  * Cambiar CACHE_VERSION no borra el historial ni la cola de emails (viven en localStorage).
  * Solo se interceptan peticiones GET del propio sitio: los POST de email nunca pasan por la caché.
  */
-var CACHE_VERSION = "v1.1.0";
+var CACHE_VERSION = "v1.2.0";
 var CACHE = "norteia-auditoria-" + CACHE_VERSION;
 
 importScripts("niches/index.js");
@@ -21,13 +21,14 @@ var ARCHIVOS = [
   "manifest.webmanifest",
   "niches/index.js",
   "assets/logo-norteia.svg",
+  "assets/logo-norteia-blanco.svg",
   "assets/icon-192.png",
   "assets/icon-512.png",
   "assets/qr.js"
 ].concat((self.NICHOS_LISTA || []).map(function (id) { return "niches/" + id + ".js"; }));
 
-// Opcional: puede no existir en la publicación (config local de EmailJS)
-var OPCIONALES = ["config.local.js"];
+// Opcionales: pueden no existir en la publicación (config local de EmailJS, logo en PNG)
+var OPCIONALES = ["config.local.js", "assets/logo-norteia.png"];
 
 self.addEventListener("install", function (ev) {
   ev.waitUntil(
