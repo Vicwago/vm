@@ -60,6 +60,12 @@
     siBorrar: "Sí, borrar",
     cancelar: "Cancelar",
     reintentar: "Reintentar pendientes",
+    claveEnvio: "Clave de envío de esta tablet",
+    claveEnvioAyuda: "Se introduce una sola vez por tablet. Te la da Luis o Víctor.",
+    claveGuardada: "Clave guardada en esta tablet",
+    claveFalta: "Falta la clave: los emails quedan pendientes",
+    claveCorta: "La clave debe tener al menos 8 caracteres",
+    guardar: "Guardar",
     ayudaEnviado: "Aceptado por el servicio; no confirma entrega en bandeja",
     sinConexionEmail: "Sin conexión: queda pendiente. Abre la app con internet para completar los envíos.",
     sinNichos: "No hay ningún nicho disponible. Revisa CONFIG.nichosVisibles en config.js.",
@@ -1164,6 +1170,7 @@
         h("h1", { texto: T.historial + " (" + lista.length + ")", tabindex: "-1", "data-foco": "1" })
       ]),
       h("p", { clase: "estado-general-email", "data-estado-general": "1", role: "status" }),
+      bloqueClaveEnvio(),
       filtros,
       ul,
       h("div", { clase: "botonera botonera-historial" }, [
@@ -1178,6 +1185,28 @@
     ]);
     mostrar(seccion, "historial");
     refrescarEmail();
+  }
+
+  // Clave de la tablet para la función /api/enviar (solo con el proveedor propio y el email activo)
+  function bloqueClaveEnvio() {
+    var eg = E.estadoGeneral();
+    if (!eg.habilitado || eg.proveedor !== "norteia") return null;
+    var estadoClave = h("span", { clase: "clave-estado", role: "status", texto: eg.tieneClave ? T.claveGuardada : T.claveFalta });
+    var campo = h("input", { type: "password", clase: "clave-campo seleccionable", id: "clave-envio", autocomplete: "off",
+      autocapitalize: "off", spellcheck: "false", maxlength: "128", placeholder: eg.tieneClave ? "••••••••" : "" });
+    var guardarBtn = boton(T.guardar, "boton-secundario", function () {
+      if (!libre()) return;
+      if (!E.guardarClaveDispositivo(campo.value)) { estadoClave.textContent = T.claveCorta; return; }
+      campo.value = "";
+      estadoClave.textContent = E.estadoGeneral().tieneClave ? T.claveGuardada : T.claveFalta;
+      E.reintentarPendientes();
+      refrescarEmail();
+    });
+    return h("div", { clase: "clave-envio" }, [
+      h("label", { "for": "clave-envio", texto: T.claveEnvio }),
+      h("div", { clase: "clave-fila" }, [campo, guardarBtn]),
+      h("p", { clase: "clave-ayuda" }, [T.claveEnvioAyuda + " ", estadoClave])
+    ]);
   }
 
   function borrarHistorial() {

@@ -53,15 +53,16 @@ Marca cada punto en la tablet, no en el ordenador.
 - [ ] Revisa con alguien del sector (o con Cochet) que las preguntas y las cifras «habitual» suenan bien.
 - [ ] El historial y el CSV muestran el sector, y el filtro por sector funciona.
 
-## Email (con EmailJS ya configurado; las pruebas reales también gastan cuota)
+## Email (con Resend y las variables de Vercel ya configuradas)
+- [ ] En el historial se ha guardado la clave de envío de la tablet («Clave guardada en esta tablet»).
 - [ ] Auditoría ficticia con conexión: el envío sale al instante y llega a **las dos bandejas** (mira también spam) con el asunto correcto, las 10 respuestas, el interés y «Contacto: No recogido».
-- [ ] Con el hotspot de Cochet: la tablet envía los dos resúmenes al terminar.
+- [ ] Con el hotspot de Cochet: la tablet envía el resumen al terminar.
 - [ ] Wi-Fi conectado pero datos móviles cortados en el móvil: **no** marca «enviado»; queda pendiente.
 - [ ] Modo avión: resultado, historial, resumen y CSV funcionan, y el email aparece como pendiente. Cerrar y abrir conserva los pendientes. Al volver la conexión con la app abierta se envían solos.
 - [ ] Con la app cerrada no se envía nada; al abrirla con conexión se procesan los pendientes.
 - [ ] Doble toque, volver al resultado o recargar no duplican el envío. Si se cambia una respuesta después de enviar, llega una «ACTUALIZACIÓN» con revisión 2.
-- [ ] Indicador: «Email: enviado (2/2)». Si solo llegó a uno, «pendiente (1/2 enviado)». El botón «Reintentar pendientes» del historial no reenvía los ya aceptados.
-- [ ] Repasa el repositorio y su historial: ningún identificador real publicado (`config.local.js` no está en Git). Si se filtró algo, regenera las claves en EmailJS; borrarlo del último commit no basta.
+- [ ] Indicador: «Email: enviado (1/1)». El botón «Reintentar pendientes» del historial no reenvía los ya aceptados.
+- [ ] Repasa el repositorio y su historial: ningún identificador real publicado (`config.local.js` no está en Git). La API key de Resend y la clave de la tablet solo están en Vercel. Si se filtró algo, regenéralo; borrarlo del último commit no basta.
 
 ---
 
@@ -72,6 +73,6 @@ Marca cada punto en la tablet, no en el ordenador.
 3. Preguntas extra (desactivadas por defecto).
 4. Redes sociales de NorteIA (Instagram, LinkedIn) en `CONFIG.contactoNorteIA` cuando existan.
 5. Colores: toda la app usa la paleta de norteia.es (`styles.css`, `:root`). Solo el rojo de errores y de «Borrar» queda fuera de la paleta.
-6. Buzón remitente de EmailJS y direcciones reales de Victor y Luis.
+6. Remitente (`EMAIL_REMITENTE`) y correos de destino (`EMAIL_DESTINO`) en Vercel.
 7. «Habitual» de cada sector (ver `niches/FUENTES.md`).
 8. Activar `capturarContacto` y aprobar el texto de privacidad, la retención local y la del proveedor.

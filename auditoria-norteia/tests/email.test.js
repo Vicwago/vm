@@ -20,6 +20,7 @@ function entorno(opciones) {
   const ctx = cargarTodo({ localStorage: o.storage || crearStorage() });
   Object.assign(ctx.CONFIG.email, {
     habilitado: true,
+    proveedor: "emailjs",
     serviceId: "service_abc123",
     publicKey: "pk_publica_123",
     destinatarios: [
@@ -388,4 +389,56 @@ test("aviso de pendientes con más de 24 horas", async () => {
   const c = e.E.contarPendientes();
   assert.equal(c.total, 1);
   assert.equal(c.antiguos, 1);
+});
+
+// ---------- Proveedor propio: función /api/enviar en Vercel (auditoría de Luis, A3) ----------
+
+function entornoApi(opciones) {
+  const e = entorno(Object.assign({}, opciones, {
+    email: Object.assign({ proveedor: "norteia", endpoint: "/api/enviar", serviceId: "", publicKey: "",
+      destinatarios: [{ id: "equipo", nombre: "NorteIA" }] }, (opciones || {}).email || {})
+  }));
+  return e;
+}
+
+test("proveedor propio: sin clave de la tablet no se envía nada y se pide configurarla", async () => {
+  const e = entornoApi();
+  e.nuevo(ID);
+  await e.E.procesar();
+  assert.equal(e.llamadas.length, 0);
+  assert.match(e.E.estadoGeneral().motivo, /clave de envío de esta tablet/);
+  assert.equal(e.E.resumenRegistro(e.reg(ID)).texto, "Email: pendiente · revisar configuración");
+});
+
+test("proveedor propio: con clave, un único POST a /api/enviar con la clave en cabecera y sin identificadores", async () => {
+  const e = entornoApi();
+  assert.equal(e.E.guardarClaveDispositivo("corta"), false, "mínimo 8 caracteres");
+  assert.equal(e.E.guardarClaveDispositivo("clave-tablet-1234"), true);
+  e.nuevo(ID);
+  await e.E.procesar();
+  assert.equal(e.llamadas.length, 1);
+  const l = e.llamadas[0];
+  assert.equal(l.url, "/api/enviar");
+  assert.equal(l.init.headers["X-Clave-Dispositivo"], "clave-tablet-1234");
+  assert.equal(l.body.destino, "equipo");
+  assert.equal(l.body.tipo_envio, "INICIAL");
+  assert.ok(!("service_id" in l.body) && !("user_id" in l.body) && !("to_email" in l.body));
+  assert.equal(e.E.resumenRegistro(e.reg(ID)).texto, "Email: enviado (1/1)");
+});
+
+test("proveedor propio: un 401 (clave incorrecta) no se reintenta en bucle y muestra el motivo", async () => {
+  const e = entornoApi();
+  e.E.guardarClaveDispositivo("clave-equivocada");
+  e.responder = () => resp(401, JSON.stringify({ error: "Clave de envío de la tablet incorrecta o ausente" }));
+  e.nuevo(ID);
+  await e.E.procesar();
+  await e.E.procesar();
+  assert.equal(e.llamadas.length, 1);
+  const d = e.destino(ID, "equipo");
+  assert.equal(d.estado, "requiere_revision");
+  assert.equal(d.ultimoError, "HTTP 401: Clave de envío de la tablet incorrecta o ausente");
+  e.E.guardarClaveDispositivo("clave-correcta-1");
+  e.responder = () => resp(200);
+  await e.E.reintentarPendientes();
+  assert.equal(e.E.resumenRegistro(e.reg(ID)).texto, "Email: enviado (1/1)");
 });

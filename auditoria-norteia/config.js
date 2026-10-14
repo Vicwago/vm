@@ -2,7 +2,7 @@
  * CONFIGURACIÓN DE LA APP (editable con cualquier editor de texto).
  * Después de cambiar algo: subir CACHE_VERSION en sw.js y volver a publicar.
  * Este archivo se publica con la web: no pongas aquí datos personales ni claves.
- * Los identificadores de EmailJS van en config.local.js (ver config.local.example.js).
+ * El envío por email se configura en Vercel (variables de entorno de /api/enviar, ver README).
  */
 window.CONFIG = {
   // Marca
@@ -62,27 +62,32 @@ window.CONFIG = {
   modoDesarrollo: false,
 
   // Varios
-  versionApp: "1.7",
+  versionApp: "1.8",
   pantallaCalculandoMs: 1200
 };
 
-// Envío por email de cada visita (EmailJS). Desactivado: con el email apagado no se guarda
-// ninguna cola de envío. Antes de activarlo, ver README (consentimiento y aviso de privacidad).
+// Envío por email de cada visita. Recomendado (auditoría de Luis, A3): proveedor "norteia",
+// la función propia /api/enviar en Vercel. Los correos de destino y la clave de Resend se
+// configuran en Vercel (variables de entorno), nunca aquí. Cada tablet necesita su clave de
+// envío, que se introduce una vez en el historial (protegido con PIN).
+// Con el email desactivado no se guarda ninguna cola de envío.
 window.CONFIG.email = {
   habilitado: false,
-  configLocal: false,       // true para cargar config.local.js con los identificadores de EmailJS
-  pedirConsentimiento: true, // el envío solo sale si el negocio lo acepta en la pantalla de resultado
-  proveedor: "emailjs",
-  serviceId: "",
-  publicKey: "",
+  proveedor: "norteia",       // "norteia" = /api/enviar (recomendado) · "emailjs" = alternativa sin servidor
+  endpoint: "/api/enviar",
+  pedirConsentimiento: true,  // el envío solo sale si el negocio lo acepta en la pantalla de resultado
   destinatarios: [
-    { id: "victor", nombre: "Victor", templateId: "" },
-    { id: "luis", nombre: "Luis", templateId: "" }
+    { id: "equipo", nombre: "NorteIA" }  // los correos reales están en Vercel (EMAIL_DESTINO)
   ],
   timeoutMs: 20000,
   intervaloMinimoMs: 1500,
   reintentosMinutos: [1, 5, 15, 60, 360],
   capturarContacto: false,
   avisoContacto: "Estos datos se envían por email a NorteIA solo para contactar sobre esta estimación.",
-  avisoEnvio: "Al enviarlo, NorteIA recibe este resumen (nombre del negocio y respuestas) para preparar la conversación. Más información en la política de privacidad."
+  avisoEnvio: "Al enviarlo, NorteIA recibe este resumen (nombre del negocio y respuestas) para preparar la conversación. Más información en la política de privacidad.",
+
+  // Solo para el proveedor "emailjs" (ver config.local.example.js)
+  configLocal: false,
+  serviceId: "",
+  publicKey: ""
 };

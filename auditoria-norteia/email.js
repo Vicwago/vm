@@ -15,6 +15,7 @@
   "use strict";
 
   var URL_ENVIO = "https://api.emailjs.com/api/v1.0/email/send";
+  var CLAVE_DISPOSITIVO = "norteia_clave_envio_v1"; // clave de la tablet para /api/enviar (no está en el código)
   var CLAVE_ESTADO = "norteia_email_estado_v1";
   var CLAVE_LIDER = "norteia_email_lider_v1";
   var NOMBRE_BLOQUEO = "norteia-email-cola";
@@ -27,7 +28,8 @@
 
   var DEFECTOS = {
     habilitado: false,
-    proveedor: "emailjs",
+    proveedor: "norteia",
+    endpoint: "/api/enviar",
     serviceId: "",
     publicKey: "",
     destinatarios: [],
@@ -115,12 +117,33 @@
       return r;
     }
 
+    function claveDispositivo() {
+      var v = d.almacen.leerValor(CLAVE_DISPOSITIVO);
+      return typeof v === "string" && v.length >= 8 ? v : "";
+    }
+
+    function guardarClaveDispositivo(clave) {
+      var limpia = String(clave || "").trim();
+      if (!limpia) { d.almacen.escribirValor(CLAVE_DISPOSITIVO, null); notificar(); return true; }
+      if (limpia.length < 8) return false;
+      var ok = d.almacen.escribirValor(CLAVE_DISPOSITIVO, limpia);
+      notificar();
+      return ok;
+    }
+
     function validarConfig() {
       var c = cfg();
       var motivos = [];
-      if (c.proveedor !== "emailjs") motivos.push("proveedor no soportado");
-      if (!idValido(c.serviceId)) motivos.push("falta Service ID");
-      if (!idValido(c.publicKey)) motivos.push("falta Public Key");
+      var esApi = c.proveedor === "norteia";
+      if (esApi) {
+        if (typeof c.endpoint !== "string" || !/^(\/|https:\/\/)/.test(c.endpoint)) motivos.push("falta la dirección del envío");
+        if (!claveDispositivo()) motivos.push("falta la clave de envío de esta tablet (historial → Clave de envío)");
+      } else if (c.proveedor === "emailjs") {
+        if (!idValido(c.serviceId)) motivos.push("falta Service ID");
+        if (!idValido(c.publicKey)) motivos.push("falta Public Key");
+      } else {
+        motivos.push("proveedor no soportado");
+      }
       var dest = Array.isArray(c.destinatarios) ? c.destinatarios : [];
       if (dest.length === 0) motivos.push("no hay destinatarios");
       var ids = {};
@@ -128,7 +151,7 @@
         if (!x || !x.id) { motivos.push("destinatario sin id"); return; }
         if (ids[x.id]) motivos.push("id de destinatario repetido: " + x.id);
         ids[x.id] = true;
-        if (!idValido(x.templateId)) motivos.push("falta Template ID de " + (x.nombre || x.id));
+        if (!esApi && !idValido(x.templateId)) motivos.push("falta Template ID de " + (x.nombre || x.id));
       });
       return { ok: motivos.length === 0, motivo: motivos.join("; ") };
     }
@@ -142,11 +165,12 @@
         vistos[x.id] = true;
         return true;
       }).map(function (x) {
+        var esApi = c.proveedor === "norteia";
         return {
           id: x.id,
           nombre: x.nombre || x.id,
-          templateId: idValido(x.templateId) ? x.templateId : null,
-          serviceId: idValido(c.serviceId) ? c.serviceId : null,
+          templateId: esApi ? "api" : (idValido(x.templateId) ? x.templateId : null),
+          serviceId: esApi ? "api" : (idValido(c.serviceId) ? c.serviceId : null),
           estado: "pendiente",
           intentos: 0,
           siguienteIntento: null,
@@ -320,6 +344,8 @@
     }
 
     function textoBreve(texto, c) {
+      // La función propia responde { "error": "..." }: se muestra solo el mensaje
+      try { var j = JSON.parse(texto); if (j && typeof j.error === "string") texto = j.error; } catch (e) { /* texto plano */ }
       var t = unaLinea(texto).slice(0, 120);
       [c.publicKey, c.serviceId].forEach(function (s) { if (s) t = t.split(s).join("…"); });
       return t;
@@ -353,9 +379,12 @@
       }
       return Promise.resolve().then(function () {
         // Nunca mode: "no-cors": una respuesta opaca no confirma la aceptación.
-        return d.fetch(URL_ENVIO, {
+        var esApi = c.proveedor === "norteia";
+        var cabeceras = { "Content-Type": "application/json" };
+        if (esApi) cabeceras["X-Clave-Dispositivo"] = claveDispositivo();
+        return d.fetch(esApi ? c.endpoint : URL_ENVIO, {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: cabeceras,
           body: cuerpo,
           signal: ctrl ? ctrl.signal : undefined
         });
@@ -464,12 +493,14 @@
         if (!latido()) { local.otraPestana = true; notificar(); programar(ahora + REINTENTO_OTRA_PESTANA_MS); return Promise.resolve(); }
 
         var ref = localizar(lista, sel.trabajo);
-        var cuerpo = JSON.stringify({
-          service_id: ref.destino.serviceId,
-          template_id: ref.destino.templateId,
-          user_id: c.publicKey,
-          template_params: ref.rev.instantanea
-        });
+        var cuerpo = c.proveedor === "norteia"
+          ? JSON.stringify(Object.assign({ destino: ref.destino.id }, ref.rev.instantanea))
+          : JSON.stringify({
+            service_id: ref.destino.serviceId,
+            template_id: ref.destino.templateId,
+            user_id: c.publicKey,
+            template_params: ref.rev.instantanea
+          });
         var bytes = bytesUtf8(cuerpo);
         if (bytes > LIMITE_BYTES) {
           ref.destino.estado = "requiere_revision";
@@ -689,7 +720,9 @@
         otraPestana: local.otraPestana,
         trabajando: !!local.enCurso,
         persistente: d.almacen.persistente(),
-        capturarContacto: !!c.capturarContacto
+        capturarContacto: !!c.capturarContacto,
+        proveedor: c.proveedor,
+        tieneClave: !!claveDispositivo()
       };
     }
 
@@ -718,6 +751,7 @@
       detalle: detalle,
       estadoGeneral: estadoGeneral,
       validarConfig: validarConfig,
+      guardarClaveDispositivo: guardarClaveDispositivo,
       suscribir: suscribir,
       iniciar: iniciar,
       _interno: { huella: huella, clasificar: clasificar, siguienteTrabajo: siguienteTrabajo, LIMITE_BYTES: LIMITE_BYTES }

@@ -61,6 +61,7 @@ function ok(cond, msg) {
 
 const CORS = { "Access-Control-Allow-Origin": "*" };
 const CONFIG_EMAIL = `window.CONFIG.email.habilitado = true;
+window.CONFIG.email.proveedor = "emailjs";
 window.CONFIG.email.serviceId = "service_prueba1";
 window.CONFIG.email.publicKey = "publica_prueba1";
 window.CONFIG.email.destinatarios = [
@@ -317,6 +318,44 @@ const browser = await chromium.launch();
   ok((await page.locator(".detalle-email").textContent()).includes("Victor: enviado"), "detalle por destinatario en el historial");
   await page.screenshot({ path: path.join(SALIDA, "10-historial-detalle-email.png") });
   configLocalServida = null;
+  await ctx.close();
+}
+
+// ---------- 3b. Email con la función propia /api/enviar (proveedor "norteia") ----------
+{
+  console.log("Email (función propia /api/enviar simulada)");
+  const ctx = await browser.newContext({ viewport: { width: 1024, height: 768 }, serviceWorkers: "block" });
+  const page = await ctx.newPage();
+  configExtra = "window.CONFIG.email.habilitado = true;";
+  const envios = [];
+  await page.route("**/api/enviar", async (r) => {
+    const cab = r.request().headers();
+    envios.push({ clave: cab["x-clave-dispositivo"], body: JSON.parse(r.request().postData()) });
+    if (cab["x-clave-dispositivo"] !== "clave-de-prueba-123") return r.fulfill({ status: 401, contentType: "application/json", body: '{"error":"Clave de envío de la tablet incorrecta o ausente"}' });
+    return r.fulfill({ status: 200, contentType: "application/json", body: '{"ok":true}' });
+  });
+  await page.goto(URL_APP);
+  await abrirHistorial(page);
+  ok(await page.locator("#clave-envio").isVisible(), "el historial pide la clave de envío de la tablet");
+  await page.screenshot({ path: path.join(SALIDA, "10b-historial-clave-envio.png") });
+  await page.locator("#clave-envio").fill("clave-de-prueba-123");
+  await clic(page.getByRole("button", { name: "Guardar" }));
+  ok((await page.locator(".clave-estado").textContent()) === "Clave guardada en esta tablet", "clave guardada en la tablet");
+  ok(!(await page.evaluate(() => JSON.stringify(window.CONFIG))).includes("clave-de-prueba-123"), "la clave no queda en la configuración pública");
+  await page.goto(URL_APP);
+  await page.locator(".campo-nombre").fill("Taller Ficticio Prueba");
+  await clic(page.getByRole("button", { name: "Empezar" }));
+  await contestarClinica(page);
+  await page.waitForTimeout(600);
+  ok(envios.length === 0, "sin consentimiento no llama a /api/enviar");
+  await clic(page.getByRole("button", { name: "Enviar este resumen a NorteIA" }));
+  await page.waitForFunction(() => /Email: enviado \(1\/1\)/.test(document.querySelector(".estado-email").textContent));
+  ok(envios.length === 1 && envios[0].clave === "clave-de-prueba-123", "una sola petición con la clave de la tablet en la cabecera");
+  const b = envios[0] && envios[0].body;
+  ok(b && b.destino === "equipo" && b.nombre_cliente === "Taller Ficticio Prueba" && b.revision === "1", "cuerpo con destino, cliente y revisión");
+  ok(b && !("to_email" in b) && !("template_id" in b), "sin correos ni plantillas en la petición");
+  await page.screenshot({ path: path.join(SALIDA, "10c-resultado-envio-propio.png") });
+  configExtra = "";
   await ctx.close();
 }
 

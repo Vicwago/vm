@@ -14,7 +14,7 @@ Sube **esta carpeta** (`auditoria-norteia/`) a **Netlify** (arrastrar y soltar e
 
 ## 3. Configurar
 
-**Cómo calcula (v1.7):**
+**Cómo calcula (v1.8):**
 - **Tiempo:** lo que suman las respuestas, con tope: nunca más horas al día de las que caben en la jornada de las personas que se ocupan (8 h por persona). Si se supera, el resultado lo avisa.
 - **Coste:** cada hora a **11,75 €**, lo mínimo que cuesta a cualquier negocio (SMI 2026: 17.094 €/año, RD 126/2026, más la Seguridad Social de la empresa ×1,32, entre las 1.920 h/año que cuenta el cálculo). Está en `CONFIG.costeHora`.
 - **Cifra principal:** lo que esas tareas les cuestan hoy (horas y euros al año), que sale de sus propias respuestas.
@@ -33,7 +33,7 @@ Para que la tablet recoja la nueva versión, **sube `CACHE_VERSION` en `sw.js`**
   - Tras descargar el CSV, la app propone borrar las visitas de la tablet.
   - **Cambiar el PIN:** en `CONFIG.historial.pinHuella` va la huella SHA-256 del texto `norteia:` seguido del PIN. Por ejemplo, para el PIN 1234 se calcula la huella de `norteia:1234`. Pídeselo a Luis o a Claude si no sabes generarla.
 - **Aviso legal y privacidad:** el pie de la bienvenida y del resultado enlaza a las páginas de norteia.es (`CONFIG.legal`).
-- **Seguridad:** `vercel.json` publica las cabeceras de seguridad (CSP solo con recursos propios y `api.emailjs.com`, sin iframes, `nosniff`, `Referrer-Policy`, `Permissions-Policy`). El zoom está permitido.
+- **Seguridad:** `vercel.json` publica las cabeceras de seguridad (CSP solo con recursos propios, `/api/enviar` y `api.emailjs.com` para la alternativa, sin iframes, `nosniff`, `Referrer-Policy`, `Permissions-Policy`). El zoom está permitido.
 
 ## Sectores (pestañas)
 
@@ -48,35 +48,48 @@ Clínicas · Talleres · Gestorías · Peluquerías · Barberías · Spas y est�
 
 ---
 
-## Apéndice: envío automático por email (EmailJS, plan gratis)
+## Apéndice: envío automático por email (función propia `/api/enviar` + Resend)
 
-Cuando el email está activado, en el resultado aparece el botón **«Enviar este resumen a NorteIA»** con un aviso de privacidad. Nunca está marcado de antemano: el resumen solo sale si el negocio lo acepta. Entonces se envía a Victor y a Luis, cada uno con su propia plantilla.
+Cuando el email está activado, en el resultado aparece el botón **«Enviar este resumen a NorteIA»** con un aviso de privacidad. Nunca está marcado de antemano: el resumen solo sale si el negocio lo acepta.
 
-- **Con el email desactivado no se guarda ninguna cola:** al activarlo no se envía nada de lo hecho antes. Si había colas de versiones anteriores, se marcan como «no enviar».
-- **Antes de activarlo:** revisar el aviso de privacidad (art. 13 RGPD) y valorar enviar desde una función serverless propia con límite de peticiones en lugar de exponer los identificadores de EmailJS (recomendación de la auditoría de Luis, A3). Si no hay conexión, queda **pendiente**. Se reintenta con la app abierta o la próxima vez que se abra. Si la app está cerrada, no se envía nada.
+Cómo funciona (recomendación de la auditoría de Luis, A3): la tablet manda el resumen a **`/api/enviar`**, una función de Vercel en este mismo proyecto (`api/enviar.js`). La función comprueba la **clave de la tablet**, el origen, el tamaño y un límite de 10 envíos por minuto, y lo envía con **Resend** a los correos de NorteIA. **La clave de Resend y los correos de destino nunca están en la web:** viven en las variables de entorno de Vercel.
 
-- **"Enviado"** significa *aceptado por EmailJS*. **No confirma** que haya llegado a la bandeja de entrada.
-- **Presupuesto del plan Free:** 200 peticiones al mes. Cada auditoría usa 2, así que salen unas 80 auditorías al mes con margen. Las pruebas y los reintentos también cuentan.
-- **Ojo al activar:** las visitas hechas mientras el email estaba desactivado se quedaron pendientes y se enviarán todas. Antes de activarlo, borra el historial de pruebas si no quieres que se envíen.
+- **Con el email desactivado no se guarda ninguna cola:** al activarlo no se envía nada de lo hecho antes.
+- Si no hay conexión, queda **pendiente** y se reintenta (1, 5, 15, 60 y 360 min) con la app abierta o al volver a abrirla.
+- **"Enviado"** significa *aceptado por Resend*. No confirma que haya llegado a la bandeja de entrada.
+- **Sin duplicados:** cada envío lleva una clave de idempotencia (ID + revisión + contenido), así que un reintento tras un corte no manda el mismo email dos veces.
+- **Plan gratis de Resend:** 3.000 emails al mes y 100 al día. Cada visita es 1 email (con varios destinatarios).
 
-### Pasos (los hace Victor; nada se configura automáticamente)
+### Lo que hay que preparar (una vez)
 
-1. Crea una cuenta **Free** en https://www.emailjs.com (no contrates un plan de pago).
-2. **[DECIDIR]** Conecta un **buzón de trabajo de NorteIA**, no tu Gmail personal: *Email Services → Add New Service → Connect account*. Copia el **Service ID**.
-3. En *Email Templates* crea la plantilla `auditoria_victor` y, en **To Email**, escribe la dirección real de Victor. Duplícala como `auditoria_luis` con la dirección de Luis. **[DECIDIR]** Confirma las dos direcciones. Nunca uses `{{to_email}}`.
-4. Configura las dos plantillas así:
-   - **From Name:** `NorteIA · Auditoría rápida`
-   - **From Email:** el que viene por defecto
-   - **Reply-To:** vacío o el buzón de trabajo
-   - **CC/BCC:** vacíos
-   - **Subject:** `[NorteIA] {{nombre_cliente}} · {{fecha_local}} · {{tipo_envio}}`
-   - **Body:** el texto de abajo
-5. Copia los dos **Template ID** y la **Public Key** (*Account*). **Nunca** copies la Private Key, contraseñas ni tokens.
-6. Copia `config.local.example.js` como **`config.local.js`** y rellénalo, y pon `configLocal: true` en `CONFIG.email` de `config.js` (si no, la app no lo carga). Ese archivo ya está en `.gitignore`, así que **no se sube a GitHub**. Publícalo junto al resto de la carpeta.
+1. **Cuenta de Resend** (https://resend.com, plan Free).
+2. **Verificar el dominio `norteia.es`** en Resend (*Domains → Add domain*) y añadir en el DNS del dominio los registros que indica (DKIM y SPF; DMARC recomendado). Sin dominio verificado, Resend solo entrega al email con el que se creó la cuenta.
+3. **API key** en Resend con permiso **Sending access** (solo envío), limitada al dominio `norteia.es`.
+4. En **Vercel → proyecto `norteia-auditoria` → Settings → Environment Variables** (entorno *Production*):
 
-   Ojo: aunque no esté en el repositorio, quien inspeccione la web puede leerlo. Por eso solo lleva identificadores públicos. Esos identificadores permiten gastar la cuota de envíos. Si ese riesgo no es aceptable, hace falta un backend.
-7. Haz una auditoría **ficticia** con un nombre reconocible y comprueba las dos bandejas (también la carpeta de spam).
-8. Prueba el modo avión, cerrar y reabrir la app y un fallo parcial (checklist de abajo). Después pon `habilitado: true`, sube `CACHE_VERSION` y publica.
+| Variable | Valor | Secreta |
+|---|---|---|
+| `RESEND_API_KEY` | la API key del paso 3 | sí |
+| `CLAVE_DISPOSITIVO` | una clave larga aleatoria (p. ej. 32 caracteres) que se teclea una vez en la tablet | sí |
+| `EMAIL_REMITENTE` | `NorteIA · Estimaciones <estimaciones@norteia.es>` (del dominio verificado) | no |
+| `EMAIL_DESTINO` | correos separados por comas, p. ej. `victor@…,luis@…` | no |
+| `ORIGENES_PERMITIDOS` | `https://norteia-auditoria.vercel.app` | no |
+
+5. Pon `habilitado: true` en `CONFIG.email` de `config.js`, sube `CACHE_VERSION` en `sw.js` y publica (las variables nuevas solo se aplican en un despliegue nuevo).
+6. En la tablet: abre el historial (5 toques al logo + PIN), escribe la **clave de envío** (`CLAVE_DISPOSITIVO`) y pulsa **Guardar**. Queda guardada solo en esa tablet.
+7. Haz una visita **ficticia** con un nombre reconocible, acepta el envío y comprueba las bandejas (también spam).
+
+**Si algo falla**, el historial lo muestra por destinatario: «Clave de envío de la tablet incorrecta o ausente» (paso 6), «Envío sin configurar en el servidor» (paso 4), «Servicio de email: …» (dominio o remitente, pasos 2-3). Esos errores no se reintentan solos: corrígelos y pulsa «Reintentar pendientes».
+
+**Si se pierde o se roba una tablet:** cambia `CLAVE_DISPOSITIVO` en Vercel y vuelve a desplegar; las demás tablets necesitarán la clave nueva.
+
+### Alternativa sin servidor: EmailJS
+
+Sigue disponible con `proveedor: "emailjs"`, pero expone los identificadores en la web (cualquiera podría gastar la cuota). Solo si no se puede usar la función propia.
+
+1. Crea una cuenta **Free** en https://www.emailjs.com y conecta un **buzón de trabajo de NorteIA**. Copia el **Service ID**.
+2. Crea una plantilla por destinatario con su dirección real en **To Email** (nunca `{{to_email}}`), asunto `[NorteIA] {{nombre_cliente}} · {{fecha_local}} · {{tipo_envio}}` y el body de abajo.
+3. Copia `config.local.example.js` como **`config.local.js`** (está en `.gitignore`), rellena Service ID, Public Key y Template ID, y pon `proveedor: "emailjs"` y `configLocal: true` en `CONFIG.email`. **Nunca** copies la Private Key.
 
 **Body de las dos plantillas** (texto; en HTML, usa `<pre>` o `white-space: pre-line` para conservar los saltos de línea):
 
@@ -110,9 +123,9 @@ Puede recibirse con retraso si la visita se realizó sin conexión.
 Si hay varias revisiones del mismo ID, utilizar la de número más alto.
 ```
 
-**Duplicados:** si se corta la conexión justo después de que EmailJS acepte el envío, el reintento puede mandar el mismo email dos veces. Por eso el ID y la revisión van en cada email.
+**Duplicados (solo EmailJS):** si se corta la conexión justo después de que EmailJS acepte el envío, el reintento puede mandar el mismo email dos veces. Por eso el ID y la revisión van en cada email.
 
-**Privacidad [DECIDIR]:** el acceso por 5 toques solo oculta la pantalla, no protege los datos. Usa el bloqueo de la tablet. Antes de usar datos reales, decide cuánto tiempo se guardan en la tablet y en EmailJS (el historial de EmailJS se puede desactivar en cada plantilla). Si activas `capturarContacto` (persona, cargo, email y teléfono del cliente), revisa antes el aviso `avisoContacto` y la base jurídica. Esta app no garantiza por sí sola el cumplimiento del RGPD.
+**Privacidad [DECIDIR]:** el acceso por 5 toques solo oculta la pantalla, no protege los datos. Usa el bloqueo de la tablet. Antes de usar datos reales, decide cuánto tiempo se guardan en la tablet y en el proveedor de email (Resend guarda un registro de los envíos). Si activas `capturarContacto` (persona, cargo, email y teléfono del cliente), revisa antes el aviso `avisoContacto` y la base jurídica. Esta app no garantiza por sí sola el cumplimiento del RGPD.
 
 ---
 
@@ -123,7 +136,7 @@ node --test                 # motor + cola de email con mocks (sin red)
 node tests/e2e.mjs          # Chromium con Playwright: flujo, offline, email simulado, multi-nicho; capturas en tests/salida/
 ```
 
-Las pruebas con mocks **no** comprueban que el email llegue a las bandejas. Esa prueba es manual (paso 7).
+Las pruebas con mocks **no** comprueban que el email llegue a las bandejas. Esa prueba es manual (paso 7 de «Lo que hay que preparar»).
 
 La checklist para pasar en la tablet real está en [`CHECKLIST.md`](CHECKLIST.md).
 
@@ -138,6 +151,7 @@ La checklist para pasar en la tablet real está en [`CHECKLIST.md`](CHECKLIST.md
 | `motor.js` | Cálculo, validación de nichos, textos, resumen, CSV e instantánea del email |
 | `app.js` | Pantallas e interacción |
 | `almacen.js` | Historial en el dispositivo (`localStorage`, clave `norteia_auditorias_v1`) |
-| `email.js` | Cola de envíos, reintentos y transporte REST a EmailJS |
+| `email.js` | Cola de envíos, reintentos y transporte (función propia `/api/enviar` o EmailJS) |
+| `api/enviar.js` | Función de Vercel que valida y envía cada resumen con Resend |
 | `sw.js` | Caché offline (`CACHE_VERSION`) |
 | `assets/qr.js` | Generador de QR local (Kazuhiko Arase, licencia MIT) |

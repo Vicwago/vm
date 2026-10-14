@@ -977,3 +977,12 @@ h1, h2, .boton, .atajo, .slider-valor, .cifra-num, .nicho-tarjeta, .telefono {
   .cifra-num { font-size: 64px; }
   .resultado-grid { grid-template-columns: 1fr; }
 }
+
+/* Clave de envío de la tablet (historial) */
+.clave-envio { margin: 10px 0 4px; display: flex; flex-direction: column; gap: 6px; }
+.clave-envio label { font-size: 18px; font-weight: 600; color: var(--texto); }
+.clave-fila { display: flex; gap: 12px; align-items: center; }
+.clave-campo { flex: 0 1 360px; min-height: 60px; font-size: 22px; padding: 0 16px; border: 1px solid var(--borde-control); border-radius: 12px; background: var(--superficie); color: var(--texto); }
+.clave-campo:focus { outline: none; border-color: var(--principal); box-shadow: 0 0 0 4px var(--principal-suave); }
+.clave-ayuda { margin: 0; font-size: 16px; color: var(--texto-suave); }
+.clave-estado { font-weight: 600; color: var(--texto); }
