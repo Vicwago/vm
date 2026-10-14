@@ -894,3 +894,86 @@ h1, h2, .boton, .atajo, .slider-valor, .cifra-num, .nicho-tarjeta, .telefono {
   .bienvenida { gap: 12px; }
   .logo-boton img { height: 76px; }
 }
+
+/* ---------- v1.7: auditoría de Luis ---------- */
+
+/* Solo para lectores de pantalla */
+.solo-lectores {
+  position: absolute !important;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0, 0, 0, 0);
+  white-space: nowrap; border: 0;
+}
+
+/* Aviso cuando las respuestas superan la jornada de quienes hacen las tareas */
+.aviso-limite {
+  margin: 0 0 8px;
+  padding: 10px 14px;
+  border-left: 4px solid var(--borde-control);
+  background: var(--superficie-2);
+  border-radius: 10px;
+  font-size: 18px;
+  color: var(--texto-secundario);
+}
+
+/* Consentimiento antes de enviar el resumen a NorteIA */
+.consentimiento {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  flex-wrap: wrap;
+  padding: 14px 18px;
+  border: 1px solid var(--borde);
+  border-radius: 16px;
+  background: var(--superficie);
+}
+.boton-consentimiento { gap: 10px; font-size: 22px; }
+.boton-consentimiento .icono { width: 24px; height: 24px; color: currentColor; }
+.boton-consentimiento[aria-pressed="true"] { color: var(--exito); border-color: var(--exito); background: var(--superficie); }
+.consentimiento-aviso { flex: 1 1 320px; margin: 0; font-size: 16px; color: var(--texto-suave); }
+.consentimiento-aviso a { color: var(--principal); }
+
+/* Enlaces de aviso legal y privacidad */
+.enlaces-legales { margin: 0; font-size: 15px; color: var(--texto-suave); }
+.enlaces-legales a { color: var(--texto-suave); text-decoration: underline; text-underline-offset: 3px; display: inline-block; padding: 6px 0; }
+.esquina-version .enlaces-legales { margin-bottom: 2px; }
+
+.botonera-historial { margin-top: 14px; }
+
+/* PIN del historial */
+.pin-caja { max-width: 440px; text-align: center; }
+.pin-caja h2 { margin: 0 0 6px; font-size: 30px; }
+.dialogo-caja .pin-texto { font-size: 19px; font-weight: 400; color: var(--texto-secundario); margin: 0 0 18px; }
+.pin-puntos { display: flex; justify-content: center; gap: 16px; margin-bottom: 6px; }
+.pin-punto { width: 18px; height: 18px; border-radius: 50%; border: 2px solid var(--borde-control); }
+.pin-punto.lleno { background: var(--texto); border-color: var(--texto); }
+.dialogo-caja .pin-error { min-height: 26px; margin: 4px 0 8px; font-size: 18px; color: var(--error); }
+.pin-teclado { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 18px; }
+.pin-tecla {
+  min-height: var(--toque);
+  border-radius: 16px;
+  border: 1px solid var(--borde-control);
+  background: var(--superficie);
+  font-family: var(--fuente-marca);
+  font-size: 30px;
+  font-weight: 600;
+  color: var(--texto);
+  cursor: pointer;
+}
+.pin-tecla:active { background: var(--principal-claro); border-color: var(--principal); }
+.pin-borrar { display: grid; place-items: center; }
+.pin-borrar .icono { width: 28px; height: 28px; color: var(--texto-suave); }
+.pin-caja .dialogo-botones { justify-content: center; }
+
+/* Pantallas bajas (móvil en horizontal): se puede desplazar y se compacta */
+@media (max-height: 620px) {
+  .pantalla { overflow-y: auto; -webkit-overflow-scrolling: touch; }
+  .bienvenida { justify-content: flex-start; }
+  .nichos.pestanas { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+  .pregunta-titulo, .pregunta-titulo.largo { font-size: 30px; }
+  .tarjeta-pregunta { padding: 18px 20px; gap: 14px; }
+  .dos-partes { grid-template-columns: 1fr; }
+  .cifra-num { font-size: 64px; }
+  .resultado-grid { grid-template-columns: 1fr; }
+}

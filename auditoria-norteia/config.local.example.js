@@ -4,7 +4,8 @@
  * 1. Copia este archivo como "config.local.js" (en la misma carpeta).
  *    config.local.js está en .gitignore: nunca se sube al repositorio.
  * 2. Rellena los identificadores PÚBLICOS de EmailJS (Service ID, Template IDs y Public Key).
- * 3. Pon habilitado: true solo después de hacer la prueba de la sección 17 del README.
+ * 3. En config.js pon CONFIG.email.configLocal = true (si no, la app no carga este archivo).
+ * 4. Pon habilitado: true solo después de hacer la prueba de la sección 17 del README.
  *
  * OJO: este archivo se publica con la web, así que cualquiera que inspeccione la app
  * puede verlo. Solo puede contener identificadores públicos. NUNCA pongas aquí la

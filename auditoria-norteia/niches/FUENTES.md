@@ -2,11 +2,14 @@
 
 Los valores de cada sector se cambian en su archivo de `niches/` (bloque `parametros` y `marca` de cada slider) sin tocar código. Consultado en octubre de 2026.
 
-## Coste por hora: salario mínimo para todos los sectores
+## Coste por hora: salario mínimo más Seguridad Social
 
-Desde la versión 1.4, todos los sectores calculan con el **salario mínimo interprofesional de 2026**: 17.094 €/año (1.221 € × 14 pagas, [RD 126/2026](https://www.fieldfisher.com/es-es/locations/espana/actualidad/salario-minimo-interprofesional-2026)) entre la jornada máxima anual (1.826 h) = **9,36 €/h** (`CONFIG.costeHora`).
+Todos los sectores calculan cada hora a **11,75 €** (`CONFIG.costeHora`):
+- **Salario:** salario mínimo interprofesional de 2026, 17.094 €/año (1.221 € × 14 pagas, [RD 126/2026](https://www.fieldfisher.com/es-es/locations/espana/actualidad/salario-minimo-interprofesional-2026), BOE del 19-02-2026).
+- **Seguridad Social de la empresa:** ×1,32 (contingencias comunes, desempleo, FOGASA, formación, MEI y accidentes ≈ 32 %).
+- **Horas:** entre las 1.920 h/año que cuenta el propio cálculo (5 días × 48 semanas × 8 h), para que el coste y las horas sean coherentes.
 
-Es deliberadamente conservador: ningún negocio paga menos por hora, así que el ahorro mostrado es el mínimo. La app lo indica junto a la cifra («como mínimo») y en el pie del resultado. El coste real, con cotizaciones o con salarios de convenio, suele quedar entre 13 y 16 €/h según el sector (referencia para la conversación de venta):
+Es lo mínimo que cuesta a cualquier negocio una hora de su equipo. El coste real de cada sector, según convenio, suele ser mayor (referencia para la conversación de venta; no se muestra en la app):
 
 | Sector | Coste real orientativo | Base |
 |---|---|---|
@@ -17,6 +20,10 @@ Es deliberadamente conservador: ningún negocio paga menos por hora, así que el
 | Veterinarias | 13-16 €/h | [Convenio estatal](https://www.redaccionmedica.com/salud-animal/20260723/acuerdo-definitivo-para-el-nuevo-convenio-estatal-de-centros-servicios-veterinarios/347961_0.html) |
 | Inmobiliarias | ≈ 13-14 €/h | [Convenio, CCOO](https://www.ccoo-servicios.es/archivos/20240710_Firma-Conv-gestio-mediacio-Inmobiliaria.pdf) |
 | Restaurantes, academias | ≈ 13-14 €/h | Estimaciones propias (tablas sin verificar) |
+
+## Rango recuperable
+
+Lo recuperable se muestra en condicional y como rango orientativo (clínicas 45-65 %, resto 40-60 %). No hay una medición propia que respalde una cifra exacta (auditoría de Luis, A2). Cuando la haya, conviene sustituir el rango por datos de casos reales.
 
 ## Volúmenes y "habitual" de los sliders
 

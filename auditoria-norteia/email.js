@@ -186,6 +186,8 @@
      * Devuelve true si hay trabajo nuevo.
      */
     function prepararRegistro(registro, instantanea) {
+      // Con el email desactivado no se crea ninguna cola (nada se enviará al activarlo)
+      if (!cfg().habilitado) return false;
       var email = registro.email && Array.isArray(registro.email.revisiones) ? registro.email : { revisiones: [] };
       registro.email = email;
       var h = huella(instantanea);
@@ -593,16 +595,41 @@
       return todos;
     }
 
+    function resuelto(x) { return x.estado === "enviado" || x.estado === "no_enviar"; }
+
     function tienePendientes(registro) {
       var revs = (registro.email && registro.email.revisiones) || [];
       return revs.some(function (rev) {
-        return rev.destinos.length === 0 || rev.destinos.some(function (x) { return x.estado !== "enviado"; });
+        return rev.destinos.length === 0 || rev.destinos.some(function (x) { return !resuelto(x); });
       });
+    }
+
+    // Lo que quedó en cola con el email desactivado (versiones anteriores) no se envía nunca
+    function marcarNoEnviarSiDesactivado() {
+      if (cfg().habilitado) return;
+      var lista = d.almacen.leer();
+      var cambios = false;
+      lista.forEach(function (reg) {
+        ((reg.email && reg.email.revisiones) || []).forEach(function (rev) {
+          rev.destinos.forEach(function (x) {
+            if (x.estado === "pendiente" || x.estado === "requiere_revision") {
+              x.estado = "no_enviar";
+              x.ultimoError = "Creado con el email desactivado: no se envía";
+              x.siguienteIntento = null;
+              cambios = true;
+            }
+          });
+        });
+      });
+      if (cambios) d.almacen.escribir(lista);
     }
 
     function resumenRegistro(registro) {
       var revs = registro && registro.email && registro.email.revisiones;
-      if (!revs || revs.length === 0) return { clase: "antiguo", texto: "Anterior a envío automático", pendiente: false };
+      if (!revs || revs.length === 0) return { clase: "antiguo", texto: "Sin envío por email", pendiente: false };
+      if (destinosDe(registro).every(function (x) { return x.estado === "no_enviar"; })) {
+        return { clase: "antiguo", texto: "Email: no enviado (desactivado)", pendiente: false };
+      }
       var c = cfg();
       var ultima = revs[revs.length - 1];
       var total = ultima.destinos.length;
@@ -610,7 +637,7 @@
       var todos = destinosDe(registro);
       var pendiente = tienePendientes(registro);
       var antiguo = pendiente && revs.some(function (rev) {
-        return rev.destinos.some(function (x) { return x.estado !== "enviado"; }) && d.ahora() - (Date.parse(rev.creadaEn) || 0) > AVISO_ANTIGUO_MS;
+        return rev.destinos.some(function (x) { return !resuelto(x); }) && d.ahora() - (Date.parse(rev.creadaEn) || 0) > AVISO_ANTIGUO_MS;
       });
       var r = { pendiente: pendiente, enviados: enviados, total: total, antiguo: antiguo, desactivado: !c.habilitado };
       if (!pendiente) { r.clase = "ok"; r.texto = "Email: enviado (" + enviados + "/" + total + ")"; return r; }
@@ -676,6 +703,7 @@
           if (raiz.document.visibilityState === "visible") procesar();
         });
       }
+      marcarNoEnviarSiDesactivado();
       return procesar();
     }
 

@@ -2,7 +2,7 @@
  * NICHO: BARBERÍAS (completo).
  * Tareas medidas: llamadas, WhatsApp/Instagram y citas que se confirman o recolocan a mano.
  * Dolores: parar un corte para contestar el móvil y los huecos por no-shows.
- * Valores [DECIDIR]: coste/hora, % de ahorro y marcas "habitual" de los sliders.
+ * Valores ajustables: rango de recuperación (parametros) y marcas "habitual" de los sliders.
  */
 self.NICHOS = self.NICHOS || {};
 self.NICHOS.barberias = {
@@ -11,11 +11,11 @@ self.NICHOS.barberias = {
   icono: "scissors-line-dashed",
   completo: true,
   tituloApp: "Estimación rápida de tiempo perdido",
-  subtituloBienvenida: "10 preguntas. 3 minutos. Y sabrá cuánto tiempo y dinero se le va a la barbería en tareas que se pueden automatizar.",
+  subtituloBienvenida: "10 preguntas. 3 minutos. Y sabréis cuánto tiempo y dinero se os va en tareas que se pueden automatizar.",
   campoNombre: "Nombre de la barbería (opcional)",
   articuloCliente: "la barbería",
 
-  parametros: { porcentajeAhorro: 0.60, diasSemana: 5, semanasAno: 48 }, // % de ahorro [DECIDIR] · coste/hora: salario mínimo + Seguridad Social (CONFIG.costeHora)
+  parametros: { porcentajeAhorroMin: 0.40, porcentajeAhorro: 0.60, diasSemana: 5, semanasAno: 48 }, // rango orientativo de recuperación; coste/hora en CONFIG.costeHora
 
   preguntas: [
     { clave: "tipo", titulo: "Tipo de barbería", tipo: "opcion",
@@ -32,17 +32,17 @@ self.NICHOS.barberias = {
     { clave: "mensajes", titulo: "WhatsApps o mensajes de Instagram al día («¿tienes hueco hoy?»)", tipo: "slider",
       slider: { min: 0, max: 60, marca: 15 },
       sub: { clave: "minMensaje", titulo: "Minutos por mensaje", opciones: [1, 2, 3] } },
-    { clave: "recolocar", titulo: "Citas que confirman, recuerdan o recolocan a mano al día", tipo: "slider",
+    { clave: "recolocar", titulo: "Citas que confirmáis, recordáis o recolocáis a mano al día", tipo: "slider",
       slider: { min: 0, max: 40, marca: 8 },
       sub: { clave: "minRecolocar", titulo: "Minutos por cita", opciones: [1, 2, 3] } },
-    { clave: "personas", titulo: "Personas (barberos incluidos) que contestan teléfono y mensajes", tipo: "opcion",
+    { clave: "personas", titulo: "Personas (barberos incluidos) que contestáis teléfono y mensajes", tipo: "opcion",
       opciones: [
         { valor: 1, etiqueta: "1" },
         { valor: 2, etiqueta: "2" },
         { valor: 3, etiqueta: "3" },
         { valor: 4, etiqueta: "4 o más" }
       ] },
-    { clave: "interrupciones", titulo: "¿Paran un corte para contestar el móvil?", tipo: "opcion",
+    { clave: "interrupciones", titulo: "¿Paráis un corte para contestar el móvil?", tipo: "opcion",
       opciones: [
         { valor: "casi_nunca", etiqueta: "Casi nunca" },
         { valor: "a_veces", etiqueta: "A veces" },
@@ -71,7 +71,7 @@ self.NICHOS.barberias = {
         { valor: "no_prioritario", etiqueta: "No prioritario" }
       ] },
     { clave: "percepcion", titulo: "Horas/día estimadas del equipo en estas tareas", tipo: "opcion",
-      nota: "Su sensación, sin calcular",
+      nota: "Vuestra sensación, sin calcular",
       opciones: [
         { valor: "lt2", etiqueta: "Menos de 2 horas" },
         { valor: "2-4", etiqueta: "De 2 a 4 horas" },
@@ -81,6 +81,8 @@ self.NICHOS.barberias = {
   ],
 
   calculo: {
+    // Tope: nunca más horas al día de las que caben en la jornada de las personas que se ocupan
+    techo: { clave: "personas", horasPorUnidad: 8 },
     lineas: [
       { cantidad: "llamadas", minutos: "minLlamada" },
       { cantidad: "mensajes", minutos: "minMensaje" },
@@ -105,28 +107,28 @@ self.NICHOS.barberias = {
     },
     variantes: {
       A: {
-        titular: "{nombreCliente}, podéis recuperar {horas} horas y {euros} al año.",
-        titularSinNombre: "Podéis recuperar {horas} horas y {euros} al año.",
-        subtitulo: "Hoy dedicáis unas {horasAno} horas al año a llamadas, mensajes y a cuadrar citas. Eso son {jornadasAno} jornadas completas y {costeAno} al año.",
+        titular: "{nombreCliente}, hoy se os van {horasAno} horas y {costeAno} al año en tareas repetitivas.",
+        titularSinNombre: "Hoy se os van {horasAno} horas y {costeAno} al año en tareas repetitivas.",
+        subtitulo: "Es lo que suman vuestras respuestas en llamadas, mensajes y cuadrar citas: {jornadasAno} jornadas completas al año. Automatizando parte de ese trabajo, podríais recuperar entre {horasMin} y {horasMax} horas al año, entre {eurosMin} y {eurosMax}.",
         impulso: "Y vosotros mismos habéis dicho que os interesa que los clientes reserven solos desde el móvil. Eso es justo lo que se puede automatizar.",
-        cta: "Agenda una cita con NorteIA para saber cómo"
+        cta: "Pedid una cita con NorteIA para ver cómo"
       },
       B: {
-        titular: "Podéis recuperar {horas} horas y {euros} al año.",
-        subtitulo: "Hoy se van unas {horasAno} horas al año en llamadas, mensajes y cuadrar citas: {costeAno} al año. Aunque no sea una prioridad ahora mismo, es tiempo que podríais dedicar a cortar.",
+        titular: "Hoy se os van {horasAno} horas y {costeAno} al año en tareas repetitivas.",
+        subtitulo: "Son {jornadasAno} jornadas completas al año en llamadas, mensajes y cuadrar citas. Aunque no sea una prioridad ahora mismo, automatizando parte podríais recuperar entre {horasMin} y {horasMax} horas al año para dedicarlas a cortar.",
         impulso: "Sin compromiso: en una cita corta os enseñamos qué se puede automatizar y qué no.",
-        cta: "Agenda una cita con NorteIA para saber cómo"
+        cta: "Pedid una cita con NorteIA para ver cómo"
       },
       C: {
-        titular: "Aunque no sea prioritario: {horas} horas y {euros} al año.",
-        subtitulo: "Es lo que dedicáis a tareas repetitivas que se pueden automatizar, según vuestras propias respuestas. Unas {horasAno} horas al año, {costeAno} en total.",
+        titular: "Aunque no sea prioritario: {horasAno} horas y {costeAno} al año.",
+        subtitulo: "Es lo que hoy se os va en llamadas, mensajes y cuadrar citas, según vuestras propias respuestas. Automatizando parte, podríais recuperar entre {eurosMin} y {eurosMax} al año.",
         impulso: "Si algún día queréis recuperar ese tiempo, ya sabéis cuánto hay en juego.",
-        cta: "Agenda una cita con NorteIA para saber cómo"
+        cta: "Pedid una cita con NorteIA para ver cómo"
       }
     },
-    etiquetasCifras: { horas: "horas recuperables al año", euros: "recuperables al año, como mínimo" },
+    etiquetasCifras: { horas: "horas al año en estas tareas", euros: "lo que os cuestan hoy, al año" },
     volumenBajo: "Con estas cifras el volumen de tareas es bajo. Aun así, un diagnóstico puede encontrar otras oportunidades.",
-    ctaVolumenBajo: "Agenda una cita con NorteIA para saber cómo",
+    ctaVolumenBajo: "Pedid una cita con NorteIA para ver cómo",
     contraste: {
       titulo: "Vuestra sensación frente a la realidad",
       etiquetaPercepcion: "Lo que pensáis",
@@ -145,7 +147,7 @@ self.NICHOS.barberias = {
       { prioridad: 3, icono: "smartphone", si: { clave: "software", en: ["si_poco", "no", "no_se"] },
         texto: "Si todo va por teléfono o WhatsApp, cada cita os interrumpe. Un enlace de reserva con recordatorios lo resuelve." }
     ],
-    pie: "Estimación calculada con el salario mínimo más la Seguridad Social de la empresa ({costeHora} €/h, SMI 2026) y un {porcentajeAhorroPct} % de recuperación media por automatización. Con el coste real de vuestro equipo, el ahorro es mayor."
+    pie: "Estimación orientativa a partir de vuestras respuestas. Cada hora se calcula a {costeHora} €, lo mínimo que cuesta a la empresa (salario mínimo más Seguridad Social). Lo que se puede recuperar depende de cada caso y se concreta en el diagnóstico."
   },
 
   resumen: {

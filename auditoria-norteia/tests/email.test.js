@@ -204,15 +204,29 @@ test("configuración incompleta: no hay peticiones con placeholders y queda pend
   assert.equal(e.E.resumenRegistro(e.reg(ID)).texto, "Email: enviado (2/2)");
 });
 
-test("habilitado: false pausa sin perder la cola; al activarlo se envía", async () => {
+test("habilitado: false no crea cola: al activarlo no se envía lo de antes (A3)", async () => {
   const e = entorno({ email: { habilitado: false } });
-  e.nuevo(ID);
+  assert.equal(e.nuevo(ID), false);
+  assert.equal(e.reg(ID).email, undefined);
   await e.E.procesar();
   assert.equal(e.llamadas.length, 0);
-  assert.equal(e.E.contarPendientes().total, 1);
+  assert.equal(e.E.contarPendientes().total, 0);
   e.ctx.CONFIG.email.habilitado = true;
   await e.E.procesar();
-  assert.equal(e.llamadas.length, 2);
+  assert.equal(e.llamadas.length, 0, "nada guardado con el email apagado sale al activarlo");
+});
+
+test("colas antiguas creadas con el email apagado se marcan como «no enviar» al iniciar (A3)", async () => {
+  const e = entorno();
+  e.nuevo(ID); // cola creada (como en versiones anteriores)
+  e.ctx.CONFIG.email.habilitado = false;
+  await e.E.iniciar();
+  assert.equal(e.destino(ID, "victor").estado, "no_enviar");
+  assert.equal(e.E.resumenRegistro(e.reg(ID)).texto, "Email: no enviado (desactivado)");
+  assert.equal(e.E.contarPendientes().total, 0);
+  e.ctx.CONFIG.email.habilitado = true;
+  await e.E.procesar();
+  assert.equal(e.llamadas.length, 0);
 });
 
 test("una ruta ya asignada no se redirige en silencio si cambia la configuración", async () => {
@@ -252,7 +266,7 @@ test("429 sin motivo: límite temporal que respeta Retry-After (no se trata como
 });
 
 test("cambios antes de enviar sustituyen la instantánea (sigue siendo INICIAL)", async () => {
-  const e = entorno({ email: { habilitado: false } });
+  const e = entorno();
   e.nuevo(ID);
   assert.equal(e.nuevo(ID, { llamadas: 30 }), true);
   const revs = e.reg(ID).email.revisiones;
@@ -349,7 +363,7 @@ test("registros anteriores sin bloque email no se envían", async () => {
   e.A.escribir([{ id: "viejo", fecha: "2026-01-01T00:00:00Z", nicho: "clinicas", respuestas: {}, calculo: {} }]);
   await e.E.procesar();
   assert.equal(e.llamadas.length, 0);
-  assert.equal(e.E.resumenRegistro(e.reg("viejo")).texto, "Anterior a envío automático");
+  assert.equal(e.E.resumenRegistro(e.reg("viejo")).texto, "Sin envío por email");
 });
 
 test("resumen demasiado grande (> 45 KB): no se trunca, queda con error visible", async () => {
@@ -368,7 +382,7 @@ test("resumen demasiado grande (> 45 KB): no se trunca, queda con error visible"
 });
 
 test("aviso de pendientes con más de 24 horas", async () => {
-  const e = entorno({ email: { habilitado: false } });
+  const e = entorno();
   e.nuevo(ID);
   e.reloj += 25 * 3600 * 1000;
   const c = e.E.contarPendientes();

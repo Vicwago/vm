@@ -7,7 +7,7 @@
 (function (raiz) {
   "use strict";
 
-  var PARAMETROS_DEFECTO = { costeHora: 14, porcentajeAhorro: 0.65, diasSemana: 5, semanasAno: 48 };
+  var PARAMETROS_DEFECTO = { costeHora: 11.75, porcentajeAhorroMin: 0.40, porcentajeAhorro: 0.60, diasSemana: 5, semanasAno: 48 };
   var ZONA = "Europe/Madrid";
 
   // ---------- Formatos (es-ES) ----------
@@ -120,6 +120,7 @@
     var propios = (nicho && nicho.parametros) || {};
     var reglas = {
       costeHora: function (v) { return v > 0; },
+      porcentajeAhorroMin: function (v) { return v > 0 && v <= 1; },
       porcentajeAhorro: function (v) { return v > 0 && v <= 1; },
       diasSemana: function (v) { return v > 0 && v <= 7; },
       semanasAno: function (v) { return v > 0 && v <= 53; }
@@ -130,6 +131,8 @@
       else if (numeroValido(config[k], reglas[k])) p[k] = config[k];
       else p[k] = PARAMETROS_DEFECTO[k];
     });
+    // Rango orientativo: mínimo <= máximo (porcentajeAhorro es el extremo alto)
+    if (!(p.porcentajeAhorroMin <= p.porcentajeAhorro)) p.porcentajeAhorroMin = p.porcentajeAhorro;
     return p;
   }
 
@@ -223,6 +226,8 @@
       if (!claves[l.minutos]) err("línea de cálculo con minutos desconocidos: " + l.minutos);
     });
 
+    if (calculo.techo && (!calculo.techo.clave || !claves[calculo.techo.clave])) err("calculo.techo.clave no existe");
+
     var perc = calculo.percepcion;
     if (!perc || !perc.clave || !claves[perc.clave]) err("calculo.percepcion.clave no existe");
     else {
@@ -282,24 +287,38 @@
   // ---------- Cálculo (sección 6) ----------
 
   function calcular(nicho, respuestas, params) {
-    var minutosDia = 0;
+    var minutosRespuestas = 0;
     (nicho.calculo.lineas || []).forEach(function (l) {
       var cantidad = Number(respuestas[l.cantidad]) || 0;
       var minutos = Number(respuestas[l.minutos]) || 0;
-      minutosDia += cantidad * minutos;
+      minutosRespuestas += cantidad * minutos;
     });
+    // Tope: no más horas al día de las que caben en la jornada de quienes hacen estas tareas
+    var minutosDia = minutosRespuestas;
+    var horasDiaMaximo = null;
+    var techo = nicho.calculo.techo;
+    if (techo && techo.clave && Number(respuestas[techo.clave]) > 0) {
+      horasDiaMaximo = Number(respuestas[techo.clave]) * (techo.horasPorUnidad || 8);
+      minutosDia = Math.min(minutosRespuestas, horasDiaMaximo * 60);
+    }
     var horasDia = minutosDia / 60;
     var horasSemana = horasDia * params.diasSemana;
     var horasAno = horasSemana * params.semanasAno;
     var costeAno = horasAno * params.costeHora;
+    var pMin = params.porcentajeAhorroMin != null ? params.porcentajeAhorroMin : params.porcentajeAhorro;
     return {
       minutosDia: minutosDia,
+      minutosRespuestas: minutosRespuestas,
+      limitado: minutosDia < minutosRespuestas,
+      horasDiaMaximo: horasDiaMaximo,
       horasDia: horasDia,
       horasSemana: horasSemana,
       horasAno: horasAno,
       costeAno: costeAno,
       horasRecuperables: horasAno * params.porcentajeAhorro,
       eurosRecuperables: costeAno * params.porcentajeAhorro,
+      horasRecuperablesMin: horasAno * pMin,
+      eurosRecuperablesMin: costeAno * pMin,
       jornadasAno: horasAno / 8,
       estadoPercepcion: estadoPercepcion(nicho, respuestas, horasDia)
     };
@@ -323,6 +342,22 @@
     if (rango.max != null && horasDia >= rango.max) return "mayor";
     if (horasDia < rango.min) return "menor";
     return "coincide";
+  }
+
+  var AVISO_LIMITE = "Vuestras respuestas suman {horasDiaRespuestas} horas al día, más de lo que cabe en la jornada de quienes hacen estas tareas. Hemos contado como máximo {horasDiaMaximo} horas al día.";
+
+  function minimo(a, b) { return a != null && isFinite(a) ? a : b; }
+
+  // Nota cuando las respuestas superan la jornada de quienes hacen estas tareas
+  function textoLimite(c) {
+    if (!c.limitado) return "";
+    return " · limitado a la jornada de quienes se ocupan (las respuestas sumaban " + fmtDecimal(c.minutosRespuestas / 60, 1) + " h/día)";
+  }
+
+  function rangoPct(p) {
+    var max = fmtNatural(p.porcentajeAhorro * 100);
+    var min = p.porcentajeAhorroMin != null ? fmtNatural(p.porcentajeAhorroMin * 100) : max;
+    return min === max ? max : min + "-" + max;
   }
 
   var TEXTO_ESTADO = { mayor: "la realidad es mayor", coincide: "coincide", menor: "la realidad es menor" };
@@ -350,6 +385,13 @@
       percepcionTexto: rango ? rango.texto : "",
       nombreCliente: registro.nombreCliente || "",
       porcentajeAhorroPct: fmtNatural(p.porcentajeAhorro * 100),
+      rangoPct: rangoPct(p),
+      horasMin: fmtEntero(minimo(c.horasRecuperablesMin, c.horasRecuperables)),
+      horasMax: fmtEntero(c.horasRecuperables),
+      eurosMin: fmtEuros(minimo(c.eurosRecuperablesMin, c.eurosRecuperables)),
+      eurosMax: fmtEuros(c.eurosRecuperables),
+      horasDiaRespuestas: fmtDecimal((c.minutosRespuestas != null ? c.minutosRespuestas : c.minutosDia) / 60, 1),
+      horasDiaMaximo: c.horasDiaMaximo != null ? fmtNatural(c.horasDiaMaximo) : "",
       costeHora: fmtNatural(p.costeHora),
       telefono: (registro.contactoNorteIA && registro.contactoNorteIA.telefono) || config.telefono,
       enlaceCal: (registro.contactoNorteIA && registro.contactoNorteIA.enlaceCal) || config.enlaceCal,
@@ -381,9 +423,10 @@
       impulso: rellenar(v.impulso, vars),
       cta: rellenar(bajo ? (res.ctaVolumenBajo || v.cta) : v.cta, vars),
       cifras: {
-        horas: { valor: registro.calculo.horasRecuperables, texto: vars.horas, etiqueta: (res.etiquetasCifras && res.etiquetasCifras.horas) || "" },
-        euros: { valor: registro.calculo.eurosRecuperables, texto: vars.euros, etiqueta: (res.etiquetasCifras && res.etiquetasCifras.euros) || "" }
+        horas: { valor: registro.calculo.horasAno, texto: vars.horasAno, formato: "entero", etiqueta: (res.etiquetasCifras && res.etiquetasCifras.horas) || "" },
+        euros: { valor: registro.calculo.costeAno, texto: vars.costeAno, formato: "euros", etiqueta: (res.etiquetasCifras && res.etiquetasCifras.euros) || "" }
       },
+      avisoLimite: registro.calculo.limitado ? rellenar(res.avisoLimite || AVISO_LIMITE, vars) : "",
       contraste: {
         titulo: rellenar(contraste.titulo, vars),
         etiquetaPercepcion: rellenar(contraste.etiquetaPercepcion, vars),
@@ -451,10 +494,10 @@
     });
     L.push("");
     L.push("RESULTADO");
-    L.push("- Tiempo en estas tareas: " + fmtEntero(c.minutosDia) + " min/día (" + fmtDecimal(c.horasDia, 1) + " h/día)");
-    L.push("- Horas perdidas al año: " + fmtEntero(c.horasAno) + " h");
-    L.push("- Coste anual (" + fmtNatural(p.costeHora) + " €/h): " + fmtEuros(c.costeAno));
-    L.push("- Recuperable (" + vars.porcentajeAhorroPct + " %): " + fmtHorasRecuperables(c.horasRecuperables) + " h y " + agrupar(redondear10(c.eurosRecuperables)) + " €/año");
+    L.push("- Tiempo en estas tareas: " + fmtEntero(c.minutosDia) + " min/día (" + fmtDecimal(c.horasDia, 1) + " h/día)" + textoLimite(c));
+    L.push("- Horas al año en estas tareas: " + fmtEntero(c.horasAno) + " h");
+    L.push("- Coste actual al año (" + fmtNatural(p.costeHora) + " €/h): " + fmtEuros(c.costeAno));
+    L.push("- Recuperable orientativo (" + vars.rangoPct + " %): entre " + vars.horasMin + " y " + vars.horasMax + " h, entre " + vars.eurosMin + " y " + vars.eurosMax + " al año");
     L.push("- Percepción vs realidad: " + (TEXTO_ESTADO[c.estadoPercepcion] || "sin dato"));
     L.push("");
     L.push("PRÓXIMO PASO: cita con " + vars.empresa + " -> " + vars.enlaceCal + " / " + vars.telefono);
@@ -553,16 +596,15 @@
   function textoCalculoCompleto(registro) {
     var c = registro.calculo;
     var p = registro.parametros;
-    var pct = fmtNatural(p.porcentajeAhorro * 100);
     return [
-      "Tiempo en estas tareas: " + fmtEntero(c.minutosDia) + " min/día (" + fmtDecimal(c.horasDia, 1) + " h/día)",
+      "Tiempo en estas tareas: " + fmtEntero(c.minutosDia) + " min/día (" + fmtDecimal(c.horasDia, 1) + " h/día)" + textoLimite(c),
       "Horas a la semana: " + fmtDecimal(c.horasSemana, 1) + " h",
       "Horas al año: " + fmtEntero(c.horasAno) + " h",
-      "Coste anual: " + fmtEuros(c.costeAno),
-      "Recuperable (" + pct + " %): " + fmtHorasRecuperables(c.horasRecuperables) + " h y " + agrupar(redondear10(c.eurosRecuperables)) + " €/año",
+      "Coste actual al año: " + fmtEuros(c.costeAno),
+      "Recuperable orientativo (" + rangoPct(p) + " %): entre " + fmtEntero(minimo(c.horasRecuperablesMin, c.horasRecuperables)) + " y " + fmtEntero(c.horasRecuperables) + " h, entre " + fmtEuros(minimo(c.eurosRecuperablesMin, c.eurosRecuperables)) + " y " + fmtEuros(c.eurosRecuperables) + " al año",
       "Jornadas de 8 horas al año: " + fmtEntero(c.jornadasAno),
       "Percepción vs realidad: " + (c.estadoPercepcion ? c.estadoPercepcion + " (" + TEXTO_ESTADO[c.estadoPercepcion] + ")" : "sin dato"),
-      "Parámetros: " + fmtNatural(p.costeHora) + " €/h · " + pct + " % de ahorro · " + fmtNatural(p.diasSemana) + " días/semana · " + fmtNatural(p.semanasAno) + " semanas/año"
+      "Parámetros: " + fmtNatural(p.costeHora) + " €/h (salario mínimo + Seguridad Social) · " + rangoPct(p) + " % recuperable orientativo · " + fmtNatural(p.diasSemana) + " días/semana · " + fmtNatural(p.semanasAno) + " semanas/año"
     ].join("\n");
   }
 

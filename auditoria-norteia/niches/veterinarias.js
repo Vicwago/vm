@@ -2,7 +2,7 @@
  * NICHO: CLÍNICAS VETERINARIAS (completo).
  * Tareas medidas: llamadas, mensajes y recordatorios de vacunas/desparasitación hechos a mano.
  * Dolores: llamadas perdidas en consulta y quién atiende fuera de horario.
- * Valores [DECIDIR]: coste/hora, % de ahorro y marcas "habitual" de los sliders.
+ * Valores ajustables: rango de recuperación (parametros) y marcas "habitual" de los sliders.
  */
 self.NICHOS = self.NICHOS || {};
 self.NICHOS.veterinarias = {
@@ -11,11 +11,11 @@ self.NICHOS.veterinarias = {
   icono: "paw-print",
   completo: true,
   tituloApp: "Estimación rápida de tiempo perdido",
-  subtituloBienvenida: "10 preguntas. 3 minutos. Y sabrá cuánto tiempo y dinero se le va a la clínica en tareas que se pueden automatizar.",
+  subtituloBienvenida: "10 preguntas. 3 minutos. Y sabréis cuánto tiempo y dinero se os va en tareas que se pueden automatizar.",
   campoNombre: "Nombre de la clínica veterinaria (opcional)",
   articuloCliente: "la clínica",
 
-  parametros: { porcentajeAhorro: 0.60, diasSemana: 5, semanasAno: 48 }, // % de ahorro [DECIDIR] · coste/hora: salario mínimo + Seguridad Social (CONFIG.costeHora)
+  parametros: { porcentajeAhorroMin: 0.40, porcentajeAhorro: 0.60, diasSemana: 5, semanasAno: 48 }, // rango orientativo de recuperación; coste/hora en CONFIG.costeHora
 
   preguntas: [
     { clave: "tipo", titulo: "Tipo de centro veterinario", tipo: "opcion",
@@ -42,7 +42,7 @@ self.NICHOS.veterinarias = {
         { valor: 3, etiqueta: "3" },
         { valor: 4, etiqueta: "4 o más" }
       ] },
-    { clave: "perdidas", titulo: "¿Llamadas sin contestar mientras atienden en consulta?", tipo: "opcion",
+    { clave: "perdidas", titulo: "¿Se quedan llamadas sin contestar mientras atendéis en consulta?", tipo: "opcion",
       opciones: [
         { valor: "casi_nunca", etiqueta: "Casi nunca" },
         { valor: "a_veces", etiqueta: "A veces" },
@@ -70,7 +70,7 @@ self.NICHOS.veterinarias = {
         { valor: "no_prioritario", etiqueta: "No prioritario" }
       ] },
     { clave: "percepcion", titulo: "Horas/día estimadas del equipo en estas tareas", tipo: "opcion",
-      nota: "Su sensación, sin calcular",
+      nota: "Vuestra sensación, sin calcular",
       opciones: [
         { valor: "lt2", etiqueta: "Menos de 2 horas" },
         { valor: "2-4", etiqueta: "De 2 a 4 horas" },
@@ -80,6 +80,8 @@ self.NICHOS.veterinarias = {
   ],
 
   calculo: {
+    // Tope: nunca más horas al día de las que caben en la jornada de las personas que se ocupan
+    techo: { clave: "personas", horasPorUnidad: 8 },
     lineas: [
       { cantidad: "llamadas", minutos: "minLlamada" },
       { cantidad: "mensajes", minutos: "minMensaje" },
@@ -104,28 +106,28 @@ self.NICHOS.veterinarias = {
     },
     variantes: {
       A: {
-        titular: "{nombreCliente}, podéis recuperar {horas} horas y {euros} al año.",
-        titularSinNombre: "Podéis recuperar {horas} horas y {euros} al año.",
-        subtitulo: "Hoy vuestro equipo dedica unas {horasAno} horas al año a llamadas, mensajes y recordatorios. Eso son {jornadasAno} jornadas completas y {costeAno} al año.",
+        titular: "{nombreCliente}, hoy se os van {horasAno} horas y {costeAno} al año en tareas repetitivas.",
+        titularSinNombre: "Hoy se os van {horasAno} horas y {costeAno} al año en tareas repetitivas.",
+        subtitulo: "Es lo que suman vuestras respuestas en llamadas, mensajes y recordatorios: {jornadasAno} jornadas completas al año. Automatizando parte de ese trabajo, podríais recuperar entre {horasMin} y {horasMax} horas al año, entre {eurosMin} y {eurosMax}.",
         impulso: "Y vosotros mismos habéis dicho que os interesa que los recordatorios y las respuestas salgan solos. Eso es justo lo que se puede automatizar.",
-        cta: "Agenda una cita con NorteIA para saber cómo"
+        cta: "Pedid una cita con NorteIA para ver cómo"
       },
       B: {
-        titular: "Podéis recuperar {horas} horas y {euros} al año.",
-        subtitulo: "Hoy se van unas {horasAno} horas al año en llamadas, mensajes y recordatorios: {costeAno} al año. Aunque no sea una prioridad ahora mismo, es tiempo que vuestro equipo podría dedicar a los animales.",
+        titular: "Hoy se os van {horasAno} horas y {costeAno} al año en tareas repetitivas.",
+        subtitulo: "Son {jornadasAno} jornadas completas al año en llamadas, mensajes y recordatorios. Aunque no sea una prioridad ahora mismo, automatizando parte podríais recuperar entre {horasMin} y {horasMax} horas al año para dedicarlas a los animales.",
         impulso: "Sin compromiso: en una cita corta os enseñamos qué se puede automatizar y qué no.",
-        cta: "Agenda una cita con NorteIA para saber cómo"
+        cta: "Pedid una cita con NorteIA para ver cómo"
       },
       C: {
-        titular: "Aunque no sea prioritario: {horas} horas y {euros} al año.",
-        subtitulo: "Es lo que vuestro equipo dedica a tareas repetitivas que se pueden automatizar, según vuestras propias respuestas. Unas {horasAno} horas al año, {costeAno} en total.",
+        titular: "Aunque no sea prioritario: {horasAno} horas y {costeAno} al año.",
+        subtitulo: "Es lo que hoy se os va en llamadas, mensajes y recordatorios, según vuestras propias respuestas. Automatizando parte, podríais recuperar entre {eurosMin} y {eurosMax} al año.",
         impulso: "Si algún día queréis recuperar ese tiempo, ya sabéis cuánto hay en juego.",
-        cta: "Agenda una cita con NorteIA para saber cómo"
+        cta: "Pedid una cita con NorteIA para ver cómo"
       }
     },
-    etiquetasCifras: { horas: "horas recuperables al año", euros: "recuperables al año, como mínimo" },
+    etiquetasCifras: { horas: "horas al año en estas tareas", euros: "lo que os cuestan hoy, al año" },
     volumenBajo: "Con estas cifras el volumen de tareas es bajo. Aun así, un diagnóstico puede encontrar otras oportunidades.",
-    ctaVolumenBajo: "Agenda una cita con NorteIA para saber cómo",
+    ctaVolumenBajo: "Pedid una cita con NorteIA para ver cómo",
     contraste: {
       titulo: "Vuestra sensación frente a la realidad",
       etiquetaPercepcion: "Lo que pensáis",
@@ -144,7 +146,7 @@ self.NICHOS.veterinarias = {
       { prioridad: 3, icono: "syringe", si: { clave: "software", en: ["si_manual", "no", "no_se"] },
         texto: "Recordatorios de vacunas a mano: trabajo que se olvida y visitas que no se hacen. Se puede automatizar con los datos que ya tenéis." }
     ],
-    pie: "Estimación calculada con el salario mínimo más la Seguridad Social de la empresa ({costeHora} €/h, SMI 2026) y un {porcentajeAhorroPct} % de recuperación media por automatización. Con el coste real de vuestro equipo, el ahorro es mayor."
+    pie: "Estimación orientativa a partir de vuestras respuestas. Cada hora se calcula a {costeHora} €, lo mínimo que cuesta a la empresa (salario mínimo más Seguridad Social). Lo que se puede recuperar depende de cada caso y se concreta en el diagnóstico."
   },
 
   resumen: {

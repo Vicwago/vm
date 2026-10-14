@@ -14,7 +14,11 @@ Sube **esta carpeta** (`auditoria-norteia/`) a **Netlify** (arrastrar y soltar e
 
 ## 3. Configurar
 
-**Coste por hora:** todos los sectores calculan con el **salario mínimo** (SMI 2026: 17.094 €/año ÷ 1.826 h = **9,36 €/h**, en `CONFIG.costeHora`). Es el mínimo que cuesta una hora del equipo, así que el ahorro que se muestra es el mínimo, y el resultado lo dice («como mínimo» y en el pie). Si un sector necesita otro valor, añade `costeHora` en su bloque `parametros`.
+**Cómo calcula (v1.7):**
+- **Tiempo:** lo que suman las respuestas, con tope: nunca más horas al día de las que caben en la jornada de las personas que se ocupan (8 h por persona). Si se supera, el resultado lo avisa.
+- **Coste:** cada hora a **11,75 €**, lo mínimo que cuesta a cualquier negocio (SMI 2026: 17.094 €/año, RD 126/2026, más la Seguridad Social de la empresa ×1,32, entre las 1.920 h/año que cuenta el cálculo). Está en `CONFIG.costeHora`.
+- **Cifra principal:** lo que esas tareas les cuestan hoy (horas y euros al año), que sale de sus propias respuestas.
+- **Lo recuperable:** se muestra en condicional y como rango orientativo (40-60 %; clínicas 45-65 %), nunca como promesa. Se ajusta en `porcentajeAhorroMin` y `porcentajeAhorro` de `config.js` o del bloque `parametros` de cada sector.
 
 Edita **`config.js`** con cualquier editor de texto: coste/hora, % de ahorro, enlace de la cita, teléfono, contacto, preguntas extra y sectores visibles. Después vuelve a publicar.
 
@@ -24,7 +28,12 @@ Para que la tablet recoja la nueva versión, **sube `CACHE_VERSION` en `sw.js`**
 - **Botón «Agenda una cita»:** lleva al formulario de contacto de norteia.es (`CONFIG.enlaceCal`). Si más adelante usáis Cal.com, cambia ese enlace.
 - **Contacto y redes de NorteIA:** se configuran en `CONFIG.contactoNorteIA` (web, email, WhatsApp, Instagram, LinkedIn) y en `CONFIG.telefono`. Salen en la barra de cita del resultado; los campos vacíos no se muestran.
 - **Iconos:** iconos de línea (Lucide, licencia ISC) en `assets/iconos.js`, pintados con el color de la marca. En cada sector, `icono` es el nombre del icono.
-- **Historial oculto:** toca el logo 5 veces seguidas en la bienvenida. Desde ahí puedes descargar el CSV, reintentar los emails y borrar el historial.
+- **Historial oculto (con PIN):** toca el logo 5 veces seguidas en la bienvenida e introduce el PIN de 4 cifras (el inicial se comunica aparte, no está en el repositorio). Desde ahí se descarga el CSV, se reintentan los emails y se borra el historial.
+  - Las visitas se borran solas a los **30 días** (`CONFIG.historial.diasRetencion`).
+  - Tras descargar el CSV, la app propone borrar las visitas de la tablet.
+  - **Cambiar el PIN:** en `CONFIG.historial.pinHuella` va la huella SHA-256 del texto `norteia:` seguido del PIN. Por ejemplo, para el PIN 1234 se calcula la huella de `norteia:1234`. Pídeselo a Luis o a Claude si no sabes generarla.
+- **Aviso legal y privacidad:** el pie de la bienvenida y del resultado enlaza a las páginas de norteia.es (`CONFIG.legal`).
+- **Seguridad:** `vercel.json` publica las cabeceras de seguridad (CSP solo con recursos propios y `api.emailjs.com`, sin iframes, `nosniff`, `Referrer-Policy`, `Permissions-Policy`). El zoom está permitido.
 
 ## Sectores (pestañas)
 
@@ -41,7 +50,10 @@ Clínicas · Talleres · Gestorías · Peluquerías · Barberías · Spas y est�
 
 ## Apéndice: envío automático por email (EmailJS, plan gratis)
 
-Al llegar al resultado, la auditoría se guarda en la tablet y se envía sola a Victor y a Luis, cada uno con su propia plantilla. Si no hay conexión, queda **pendiente**. Se reintenta con la app abierta o la próxima vez que se abra. Si la app está cerrada, no se envía nada.
+Cuando el email está activado, en el resultado aparece el botón **«Enviar este resumen a NorteIA»** con un aviso de privacidad. Nunca está marcado de antemano: el resumen solo sale si el negocio lo acepta. Entonces se envía a Victor y a Luis, cada uno con su propia plantilla.
+
+- **Con el email desactivado no se guarda ninguna cola:** al activarlo no se envía nada de lo hecho antes. Si había colas de versiones anteriores, se marcan como «no enviar».
+- **Antes de activarlo:** revisar el aviso de privacidad (art. 13 RGPD) y valorar enviar desde una función serverless propia con límite de peticiones en lugar de exponer los identificadores de EmailJS (recomendación de la auditoría de Luis, A3). Si no hay conexión, queda **pendiente**. Se reintenta con la app abierta o la próxima vez que se abra. Si la app está cerrada, no se envía nada.
 
 - **"Enviado"** significa *aceptado por EmailJS*. **No confirma** que haya llegado a la bandeja de entrada.
 - **Presupuesto del plan Free:** 200 peticiones al mes. Cada auditoría usa 2, así que salen unas 80 auditorías al mes con margen. Las pruebas y los reintentos también cuentan.
@@ -60,7 +72,7 @@ Al llegar al resultado, la auditoría se guarda en la tablet y se envía sola a 
    - **Subject:** `[NorteIA] {{nombre_cliente}} · {{fecha_local}} · {{tipo_envio}}`
    - **Body:** el texto de abajo
 5. Copia los dos **Template ID** y la **Public Key** (*Account*). **Nunca** copies la Private Key, contraseñas ni tokens.
-6. Copia `config.local.example.js` como **`config.local.js`** y rellénalo. Ese archivo ya está en `.gitignore`, así que **no se sube a GitHub**. Publícalo junto al resto de la carpeta.
+6. Copia `config.local.example.js` como **`config.local.js`** y rellénalo, y pon `configLocal: true` en `CONFIG.email` de `config.js` (si no, la app no lo carga). Ese archivo ya está en `.gitignore`, así que **no se sube a GitHub**. Publícalo junto al resto de la carpeta.
 
    Ojo: aunque no esté en el repositorio, quien inspeccione la web puede leerlo. Por eso solo lleva identificadores públicos. Esos identificadores permiten gastar la cuota de envíos. Si ese riesgo no es aceptable, hace falta un backend.
 7. Haz una auditoría **ficticia** con un nombre reconocible y comprueba las dos bandejas (también la carpeta de spam).

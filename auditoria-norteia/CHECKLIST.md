@@ -19,10 +19,11 @@ Marca cada punto en la tablet, no en el ordenador.
 - [ ] La pantalla no se apaga durante la visita.
 
 ## Cálculo (con calculadora)
-- [ ] 25×3 + 20×2 + 10×2 = 135 min/día → 540 h/año. Con el salario mínimo (9,36 €/h): 5.050 €/año; recuperable al 65 %: **351 h y 3.290 €** (3.285,36 € internos, redondeado a 10).
+- [ ] 25×3 + 20×2 + 10×2 = 135 min/día → **540 h/año y 6.350 €/año** a 11,75 €/h; recuperable orientativo (45-65 %): entre 243 y 351 h, entre 2.860 € y 4.120 €.
 - [ ] Todo a 0: sale el texto de volumen bajo, sin cifras.
-- [ ] Máximos (100×5, 100×3, 40×4) = 960 min/día → 3.840 h/año y 35.940 €/año, y las cifras caben sin cortarse.
-- [ ] El resultado deja claro que es «como mínimo» y que se calcula con el salario mínimo.
+- [ ] Máximos (100×5, 100×3, 40×4) con «4 o más» personas = 960 min/día → 3.840 h/año y 45.120 €/año, y las cifras caben sin cortarse.
+- [ ] Los mismos máximos con 1 persona: se limita a 8 h/día y el resultado lo avisa.
+- [ ] La cifra principal es el coste actual; lo recuperable sale en condicional y como rango, y el pie explica que la hora se calcula con el salario mínimo más la Seguridad Social.
 - [ ] Con `costeHora: 20` en el nicho o en `config.js`, los euros cambian.
 
 ## Resultado
@@ -36,7 +37,8 @@ Marca cada punto en la tablet, no en el ordenador.
 
 ## Guardado
 - [ ] El resumen se copia y se pega bien en WhatsApp o en Notas. «Compartir» abre la hoja del sistema.
-- [ ] El historial aparece con 5 toques al logo y muestra las visitas.
+- [ ] El historial pide el PIN tras 5 toques al logo; con un PIN incorrecto no se abre.
+- [ ] Tras descargar el CSV, la app propone borrar las visitas.
 - [ ] El CSV se abre en Excel con las tildes y las columnas bien.
 - [ ] «Borrar historial» pide doble confirmación y vacía la lista.
 - [ ] Cerrar y reabrir la app no pierde el historial.
@@ -65,7 +67,7 @@ Marca cada punto en la tablet, no en el ordenador.
 
 ## Decisiones pendientes [DECIDIR]
 
-1. Porcentaje recuperable (65 % clínicas, 60 % el resto). El coste/hora ya es el salario mínimo (9,36 €/h).
+1. Rango recuperable orientativo (clínicas 45-65 %, resto 40-60 %). El coste/hora es el salario mínimo más la Seguridad Social (11,75 €/h).
 2. Destino de la cita (ahora el formulario de contacto de norteia.es) y teléfono que se muestra (ahora el de Víctor).
 3. Preguntas extra (desactivadas por defecto).
 4. Redes sociales de NorteIA (Instagram, LinkedIn) en `CONFIG.contactoNorteIA` cuando existan.

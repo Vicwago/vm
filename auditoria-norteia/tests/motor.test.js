@@ -80,10 +80,10 @@ test("cada nicho calcula, genera resultado, resumen, CSV e instantánea de email
   });
 });
 
-test("todos los sectores calculan con el salario mínimo + Seguridad Social (12,36 €/h)", () => {
+test("todos los sectores calculan con el salario mínimo + Seguridad Social (11,75 €/h)", () => {
   const coste = {};
   IDS.forEach((id) => { coste[id] = M.parametrosEfectivos(ctx.CONFIG, ctx.NICHOS[id]).costeHora; });
-  IDS.forEach((id) => assert.equal(coste[id], 12.36, id));
+  IDS.forEach((id) => assert.equal(coste[id], 11.75, id));
   IDS.forEach((id) => {
     const n = ctx.NICHOS[id];
     assert.match(n.resultado.pie, /salario mínimo/, id + ": el pie lo deja claro");
@@ -143,8 +143,11 @@ test("coste/hora 20 € cambia los euros; parámetros del nicho pisan a CONFIG",
   const nicho = Object.assign({}, CL, { parametros: { costeHora: 20 } });
   const p = M.parametrosEfectivos(ctx.CONFIG, nicho);
   assert.equal(p.costeHora, 20);
-  assert.equal(p.porcentajeAhorro, 0.65);
+  assert.equal(p.porcentajeAhorro, 0.60, "sin rango propio, el de CONFIG");
+  assert.equal(p.porcentajeAhorroMin, 0.40);
   assert.equal(M.calcular(nicho, EJEMPLO, p).costeAno, 10800);
+  const pc = M.parametrosEfectivos(ctx.CONFIG, CL);
+  assert.deepEqual([pc.porcentajeAhorroMin, pc.porcentajeAhorro], [0.45, 0.65]);
   const sinPropios = M.parametrosEfectivos({ costeHora: 14, porcentajeAhorro: 0.65, diasSemana: 5, semanasAno: 48 }, { parametros: {} });
   assert.equal(sinPropios.costeHora, 14);
 });
@@ -153,8 +156,34 @@ test("CONFIG no válida usa los valores por defecto y avisa", () => {
   const c = { costeHora: 0, porcentajeAhorro: 1.5, diasSemana: 5, semanasAno: 48 };
   const avisos = M.validarConfigGlobal(c);
   assert.equal(avisos.length, 2);
-  assert.equal(c.costeHora, 14);
-  assert.equal(c.porcentajeAhorro, 0.65);
+  assert.equal(c.costeHora, 11.75);
+  assert.equal(c.porcentajeAhorro, 0.60);
+});
+
+test("A1: las horas nunca superan la jornada de las personas que se ocupan", () => {
+  const p = M.parametrosEfectivos(ctx.CONFIG, CL);
+  const max = Object.assign({}, EJEMPLO, { llamadas: 100, minLlamada: 5, mensajes: 100, minMensaje: 3, gestiones: 40, minGestion: 4 });
+  const una = M.calcular(CL, Object.assign({}, max, { personas: 1 }), p);
+  assert.equal(una.minutosRespuestas, 960);
+  assert.equal(una.horasDia, 8, "1 persona: máximo 8 h/día");
+  assert.equal(una.limitado, true);
+  const t = M.textosResultado(CL, registro(Object.assign({}, max, { personas: 1 })), ctx.CONFIG);
+  assert.match(t.avisoLimite, /16,0 horas al día.*como máximo 8 horas al día/);
+  assert.match(M.textoResumen(CL, registro(Object.assign({}, max, { personas: 1 })), ctx.CONFIG), /limitado a la jornada/);
+  const cuatro = M.calcular(CL, Object.assign({}, max, { personas: 4 }), p);
+  assert.equal(cuatro.horasDia, 16);
+  assert.equal(cuatro.limitado, false);
+  assert.equal(M.textosResultado(CL, registro(EJEMPLO), ctx.CONFIG).avisoLimite, "");
+});
+
+test("A1: en ningún sector se pueden obtener más horas de las que caben en la jornada", () => {
+  IDS.forEach((id) => {
+    const n = ctx.NICHOS[id];
+    const r = { personas: 1 };
+    n.preguntas.forEach((q) => { if (q.tipo === "slider") { r[q.clave] = q.slider.max; if (q.sub) r[q.sub.clave] = Math.max.apply(null, q.sub.opciones); } });
+    const c = M.calcular(n, r, M.parametrosEfectivos(ctx.CONFIG, n));
+    assert.ok(c.horasDia <= 8, id + ": " + c.horasDia);
+  });
 });
 
 test("contraste de percepción: mayor, coincide, menor y bordes", () => {
@@ -171,15 +200,22 @@ test("contraste de percepción: mayor, coincide, menor y bordes", () => {
 
 test("variantes A/B/C según el interés y titular sin nombre sin comas", () => {
   const varia = (interes, nombre) => M.textosResultado(CL, registro(Object.assign({}, EJEMPLO, { interes }), { nombreCliente: nombre }), ctx.CONFIG);
-  assert.equal(varia("mucho", "Clínica Sol").titular, "Clínica Sol, podéis recuperar 351 horas y 4.340 € al año.");
-  assert.equal(varia("bastante", "").titular, "Podéis recuperar 351 horas y 4.340 € al año.");
+  assert.equal(varia("mucho", "Clínica Sol").titular, "Clínica Sol, hoy se os van 540 horas y 6.350 € al año en tareas repetitivas.");
+  assert.equal(varia("bastante", "").titular, "Hoy se os van 540 horas y 6.350 € al año en tareas repetitivas.");
   assert.equal(varia("poco", "X").variante, "B");
-  assert.equal(varia("no_prioritario", "X").titular, "Aunque no sea prioritario: 351 horas y 4.340 € al año.");
+  assert.equal(varia("no_prioritario", "X").titular, "Aunque no sea prioritario: 540 horas y 6.350 € al año.");
   const a = varia("mucho", "");
-  assert.equal(a.subtitulo, "Hoy vuestro equipo dedica unas 540 horas al año a llamadas, mensajes y gestiones de citas. Eso son 68 jornadas completas y 6.670 € al año.");
-  assert.equal(a.contraste.texto, "Vuestra intuición es buena: 2,3 horas al día, justo lo que pensabais. Lo que quizá no habíais visto es lo que cuesta al año: 6.670 €.");
-  assert.equal(a.pie, "Estimación calculada con el salario mínimo más la Seguridad Social de la empresa (12,36 €/h, SMI 2026) y un 65 % de recuperación media por automatización. Con el coste real de vuestro equipo, el ahorro es mayor.");
-  assert.equal(a.cifras.euros.etiqueta, "recuperables al año, como mínimo");
+  assert.equal(a.subtitulo, "Es lo que suman vuestras respuestas en llamadas, mensajes y gestiones de citas: 68 jornadas completas al año. Automatizando parte de ese trabajo, podríais recuperar entre 243 y 351 horas al año, entre 2.860 € y 4.120 €.");
+  assert.equal(a.contraste.texto, "Vuestra intuición es buena: 2,3 horas al día, justo lo que pensabais. Lo que quizá no habíais visto es lo que cuesta al año: 6.350 €.");
+  assert.equal(a.pie, "Estimación orientativa a partir de vuestras respuestas. Cada hora se calcula a 11,75 €, lo mínimo que cuesta a la empresa (salario mínimo más Seguridad Social). Lo que se puede recuperar depende de cada caso y se concreta en el diagnóstico.");
+  assert.equal(a.cifras.horas.texto, "540");
+  assert.equal(a.cifras.euros.texto, "6.350 €");
+  assert.equal(a.cifras.euros.etiqueta, "lo que os cuestan hoy, al año");
+  // A2: nada de promesas sin medir
+  IDS.forEach((id) => {
+    const txt = JSON.stringify(ctx.NICHOS[id].resultado);
+    assert.ok(!/como mínimo|recuperación media|el ahorro es mayor|Podéis recuperar/.test(txt), id + ": sin promesas sin medir");
+  });
 });
 
 test("señales: máximo 2, por prioridad", () => {
@@ -195,7 +231,7 @@ test("señales: máximo 2, por prioridad", () => {
 test("resumen copiable con el formato exacto de la sección 9.2", () => {
   const texto = M.textoResumen(CL, registro(EJEMPLO), ctx.CONFIG);
   const esperado = [
-    "ESTIMACIÓN RÁPIDA NORTEIA",
+    "ESTIMACIÓN RÁPIDA NORTEIA - CLÍNICA",
     "Fecha: 14/10/2026 10:42",
     "Sector: Clínicas",
     "Clínica: Clínica Dental Ejemplo",
@@ -214,9 +250,9 @@ test("resumen copiable con el formato exacto de la sección 9.2", () => {
     "",
     "RESULTADO",
     "- Tiempo en estas tareas: 135 min/día (2,3 h/día)",
-    "- Horas perdidas al año: 540 h",
-    "- Coste anual (12,36 €/h): 6.670 €",
-    "- Recuperable (65 %): 351 h y 4.340 €/año",
+    "- Horas al año en estas tareas: 540 h",
+    "- Coste actual al año (11,75 €/h): 6.350 €",
+    "- Recuperable orientativo (45-65 %): entre 243 y 351 h, entre 2.860 € y 4.120 € al año",
     "- Percepción vs realidad: coincide",
     "",
     "PRÓXIMO PASO: cita con NorteIA -> https://norteia.es/contacto?objetivo=orientacion&utm_source=auditoria-tablet / +34 637 90 58 66"
@@ -249,7 +285,7 @@ test("CSV genérico: BOM, columnas exactas, separador ; y comillas duplicadas", 
   assert.equal(c[0], '"14/10/2026 10:42"');
   assert.equal(c[1], '"clinicas"');
   assert.equal(c[2], '"Clínica ""La Paz"""');
-  assert.deepEqual(c.slice(3, 11), ["135", "540", "6674.4", "351", "4338.36", '"coincide"', "12.36", "0.65"]);
+  assert.deepEqual(c.slice(3, 11), ["135", "540", "6345", "351", "4124.25", '"coincide"', "11.75", "0.65"]);
   assert.equal(c[11], '"tipo=dental|llamadas=25|minLlamada=3|mensajes=20|minMensaje=2|gestiones=10|minGestion=2|personas=2|repetidas=muchas|perdidas=a_veces|software=si|interes=mucho|percepcion=2-4"');
 });
 
@@ -307,10 +343,10 @@ test("instantánea de email: 10 respuestas, interés, cálculo y contacto 'No re
   assert.equal(lineas[9], "10. Horas/día estimadas del equipo en estas tareas: De 2 a 4 horas");
   assert.match(inst.respuestas_texto, /2\. Llamadas al día: 25\n {3}Minutos por llamada: 3 min\n {3}Total: 75 min\/día/);
   assert.equal(inst.interes_texto, "Mucho (variante A)");
-  assert.match(inst.calculo_texto, /Recuperable \(65 %\): 351 h y 4\.340 €\/año/);
-  assert.match(inst.calculo_texto, /Coste anual: 6\.670 €/);
+  assert.match(inst.calculo_texto, /Recuperable orientativo \(45-65 %\): entre 243 y 351 h, entre 2\.860 € y 4\.120 € al año/);
+  assert.match(inst.calculo_texto, /Coste actual al año: 6\.350 €/);
   assert.match(inst.calculo_texto, /Jornadas de 8 horas al año: 68/);
-  assert.match(inst.calculo_texto, /Parámetros: 12,36 €\/h · 65 % de ahorro · 5 días\/semana · 48 semanas\/año/);
+  assert.match(inst.calculo_texto, /Parámetros: 11,75 €\/h \(salario mínimo \+ Seguridad Social\) · 45-65 % recuperable orientativo · 5 días\/semana · 48 semanas\/año/);
   assert.equal(inst.contacto_texto, "No recogido");
   assert.match(inst.proximo_paso, /norteia\.es\/contacto/);
 });
@@ -320,7 +356,7 @@ test("instantánea: 0, 'No' y 'No lo sé' se conservan; ausentes = 'No recogido'
   const inst = M.instantaneaEmail(CL, registro(r, { nombreCliente: "" }), ctx.CONFIG);
   assert.match(inst.respuestas_texto, /2\. Llamadas al día: 0\n/);
   assert.match(inst.respuestas_texto, /8\. ¿Programa de gestión de citas\?: No lo sé/);
-  assert.match(inst.respuestas_texto, /7\. ¿Llamadas sin contestar atendiendo pacientes\?: No recogido/);
+  assert.match(inst.respuestas_texto, /7\. ¿Se quedan llamadas sin contestar mientras atendéis a pacientes\?: No recogido/);
   assert.equal(inst.interes_texto, "No es prioritario (variante C)");
   assert.equal(inst.nombre_cliente, "Cliente sin nombre (K7F3Q2)");
 });

@@ -2,7 +2,8 @@
 <html lang="es">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="description" content="Estimación rápida del tiempo y el dinero que un negocio dedica a tareas repetitivas que se pueden automatizar. NorteIA, A Coruña.">
   <meta name="theme-color" content="#F7F3EA">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -17,7 +18,7 @@
 </head>
 <body>
   <!-- Contenedor único: app.js dibuja aquí cada pantalla -->
-  <main id="app" aria-live="polite"></main>
+  <main id="app"></main>
 
   <!-- Aviso de orientación (solo en vertical, por CSS) -->
   <div class="aviso-giro" role="alert">
@@ -35,9 +36,8 @@
 
   <noscript>Esta aplicación necesita JavaScript.</noscript>
 
-  <!-- Orden de carga: config, config local (opcional), almacén, motor, librería QR, correo, app. Los nichos los carga app.js desde niches/index.js -->
+  <!-- Orden de carga: config, nichos (lista), almacén, motor, QR, iconos, correo, app. app.js carga los nichos y, si CONFIG.email.configLocal, config.local.js -->
   <script src="config.js"></script>
-  <script src="config.local.js" onerror="void 0"></script>
   <script src="niches/index.js"></script>
   <script src="almacen.js"></script>
   <script src="motor.js"></script>

@@ -21,10 +21,22 @@
     pregunta: "Pregunta {n} de {total}",
     calculando: "Calculando…",
     revisar: "Revisar respuestas",
-    guardarResumen: "Guardar resumen",
+    guardarResumen: "Ver y compartir resumen",
     nuevaAuditoria: "Nueva estimación",
-    llamaAhora: "O llama ahora: {telefono}",
-    escaneaQR: "Escanea para agendar desde tu móvil",
+    llamaAhora: "O llamadnos: {telefono}",
+    escaneaQR: "Escanead el código para pedir cita desde el móvil",
+    avisoLegal: "Aviso legal",
+    privacidad: "Privacidad",
+    enviarResumen: "Enviar este resumen a NorteIA",
+    resumenEnviado: "Resumen enviado a NorteIA",
+    pinTitulo: "Historial protegido",
+    pinTexto: "Introduce el PIN para ver las visitas guardadas en esta tablet.",
+    pinError: "PIN incorrecto",
+    borrar: "Borrar",
+    borrarTrasExportar: "CSV descargado. ¿Borrar ya las visitas de esta tablet?",
+    mantener: "Mantenerlas",
+    nombreNegocio: "Nombre del negocio",
+    progreso: "Progreso del cuestionario",
     sinConexionCTA: "Sin conexión ahora. Podéis llamar al {telefono} o lo agendamos desde otro dispositivo.",
     habitual: "habitual",
     leyendaSlider: "en un día normal",
@@ -79,6 +91,7 @@
     bloqueoHasta: 0,
     filtro: "todos",
     toquesLogo: [],
+    pinHasta: 0,
     wakeLock: null
   };
 
@@ -93,7 +106,7 @@
       if (k === "clase") el.className = v;
       else if (k === "texto") el.textContent = v;
       else if (k.slice(0, 2) === "on") el.addEventListener(k.slice(2), v);
-      else if (k === "estilo") el.setAttribute("style", v);
+      else if (k === "estilo") el.style.cssText = v;
       else el.setAttribute(k, v === true ? "" : v);
     });
     (hijos || []).forEach(function (hijo) {
@@ -172,8 +185,13 @@
 
   // ---------- Diálogo ----------
 
+  var resolverDialogo = null;
+
   function confirmar(texto, botones) {
+    // Un único diálogo a la vez: si había otro abierto, se da por cancelado
+    if (resolverDialogo) { var anterior = resolverDialogo; resolverDialogo = null; anterior(false); }
     return new Promise(function (resolver) {
+      resolverDialogo = resolver;
       var dlg = document.getElementById("dialogo");
       var cont = document.getElementById("dialogo-botones");
       document.getElementById("dialogo-texto").textContent = texto;
@@ -181,6 +199,7 @@
       botones.forEach(function (b, i) {
         var el = boton(b.texto, b.clase || "boton-secundario", function () {
           dlg.hidden = true;
+          resolverDialogo = null;
           resolver(b.valor);
         });
         cont.appendChild(el);
@@ -255,8 +274,141 @@
     estado.toquesLogo.push(ahora);
     if (estado.toquesLogo.length >= 5) {
       estado.toquesLogo = [];
-      mostrarHistorial();
+      pedirPin(mostrarHistorial);
     }
+  }
+
+  // ---------- PIN del historial ----------
+
+  function huellaPin(pin) {
+    try {
+      if (!(window.crypto && window.crypto.subtle && window.TextEncoder)) return Promise.resolve(null);
+      return window.crypto.subtle.digest("SHA-256", new TextEncoder().encode("norteia:" + pin)).then(function (buf) {
+        return Array.prototype.map.call(new Uint8Array(buf), function (b) { return ("0" + b.toString(16)).slice(-2); }).join("");
+      });
+    } catch (e) { return Promise.resolve(null); }
+  }
+
+  // Pide el PIN antes de abrir el historial (5 minutos de margen tras acertarlo)
+  function pedirPin(alAcertar) {
+    var huella = CONFIG.historial && CONFIG.historial.pinHuella;
+    if (!huella || Date.now() < estado.pinHasta) { alAcertar(); return; }
+    var digitos = "";
+    var puntos = h("div", { clase: "pin-puntos", "aria-hidden": "true" });
+    var error = h("p", { clase: "pin-error", role: "alert" });
+    var capa;
+    function pintar() {
+      puntos.textContent = "";
+      for (var i = 0; i < 4; i++) puntos.appendChild(h("span", { clase: "pin-punto" + (i < digitos.length ? " lleno" : "") }));
+    }
+    function cerrar() { if (capa && capa.parentNode) capa.parentNode.removeChild(capa); }
+    function comprobar() {
+      huellaPin(digitos).then(function (hx) {
+        if (hx && hx === huella) {
+          estado.pinHasta = Date.now() + 5 * 60000;
+          cerrar();
+          alAcertar();
+        } else {
+          error.textContent = T.pinError;
+          digitos = "";
+          pintar();
+        }
+      });
+    }
+    function pulsar(d) {
+      if (digitos.length >= 4) return;
+      error.textContent = "";
+      digitos += d;
+      pintar();
+      if (digitos.length === 4) comprobar();
+    }
+    var teclas = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "", "0", "borrar"];
+    var teclado = h("div", { clase: "pin-teclado" }, teclas.map(function (k) {
+      if (!k) return h("span");
+      if (k === "borrar") {
+        return h("button", { type: "button", clase: "pin-tecla pin-borrar", "aria-label": T.borrar, onclick: function () {
+          digitos = digitos.slice(0, -1); pintar();
+        } }, [icono("arrow-left")]);
+      }
+      return h("button", { type: "button", clase: "pin-tecla", onclick: function () { pulsar(k); } }, [k]);
+    }));
+    capa = h("div", { clase: "dialogo", role: "dialog", "aria-modal": "true", "aria-label": T.pinTitulo }, [
+      h("div", { clase: "dialogo-caja pin-caja" }, [
+        h("h2", { texto: T.pinTitulo }),
+        h("p", { clase: "pin-texto", texto: T.pinTexto }),
+        puntos, error, teclado,
+        h("div", { clase: "dialogo-botones" }, [boton(T.cancelar, "boton-secundario", cerrar)])
+      ])
+    ]);
+    pintar();
+    document.body.appendChild(capa);
+  }
+
+  // ---------- Enlaces legales ----------
+
+  function enlacesLegales() {
+    var l = CONFIG.legal || {};
+    var partes = [];
+    if (l.avisoLegal) partes.push(h("a", { href: l.avisoLegal, target: "_blank", rel: "noopener", texto: T.avisoLegal }));
+    if (l.privacidad) partes.push(h("a", { href: l.privacidad, target: "_blank", rel: "noopener", texto: T.privacidad }));
+    if (!partes.length) return null;
+    var p = h("p", { clase: "enlaces-legales" });
+    partes.forEach(function (a, i) { if (i) p.appendChild(document.createTextNode(" · ")); p.appendChild(a); });
+    return p;
+  }
+
+  // ---------- Email: preparación y consentimiento ----------
+
+  function prepararEmail(registro) {
+    try {
+      E.prepararRegistro(registro, M.instantaneaEmail(nichoPorId(registro.nicho) || estado.nicho, registro, CONFIG));
+    } catch (e) {
+      console.error("No se pudo preparar el email", e);
+    }
+  }
+
+  // El resumen solo se envía a NorteIA si el negocio lo acepta (nunca preseleccionado)
+  function bloqueConsentimiento(registro) {
+    if (!E.estadoGeneral().habilitado || !(CONFIG.email && CONFIG.email.pedirConsentimiento)) return null;
+    var btn;
+    function pintarBoton() {
+      var hecho = !!registro.consentimientoEnvio;
+      btn.textContent = "";
+      btn.appendChild(icono(hecho ? "check" : "arrow-right"));
+      btn.appendChild(h("span", { texto: hecho ? T.resumenEnviado : T.enviarResumen }));
+      btn.setAttribute("aria-pressed", String(hecho));
+      btn.disabled = hecho;
+    }
+    btn = h("button", { type: "button", clase: "boton boton-secundario boton-consentimiento", onclick: function () {
+      if (!libre() || registro.consentimientoEnvio) return;
+      registro.consentimientoEnvio = new Date().toISOString();
+      prepararEmail(registro);
+      estado.guardado = A.guardarRegistro(registro);
+      E.procesar();
+      pintarBoton();
+      refrescarEmail();
+    } });
+    pintarBoton();
+    var l = CONFIG.legal || {};
+    return h("div", { clase: "consentimiento" }, [
+      btn,
+      h("p", { clase: "consentimiento-aviso" }, [
+        (CONFIG.email.avisoEnvio || "") + " ",
+        l.privacidad ? h("a", { href: l.privacidad, target: "_blank", rel: "noopener", texto: T.privacidad }) : null
+      ])
+    ]);
+  }
+
+  // Borra las visitas más antiguas que CONFIG.historial.diasRetencion (salvo email pendiente)
+  function purgarAntiguos() {
+    var dias = CONFIG.historial && Number(CONFIG.historial.diasRetencion);
+    if (!(dias > 0)) return;
+    var limite = Date.now() - dias * 86400000;
+    var lista = A.leer();
+    var quedan = lista.filter(function (r) {
+      return (Date.parse(r.fecha) || 0) >= limite || E.resumenRegistro(r).pendiente;
+    });
+    if (quedan.length !== lista.length) A.escribir(quedan);
   }
 
   function mostrarBienvenida() {
@@ -268,7 +420,7 @@
     var titulo = h("h1", { texto: n ? n.tituloApp : "" });
     var subtitulo = h("p", { clase: "subtitulo", texto: n ? n.subtituloBienvenida : "" });
     var campo = h("input", {
-      clase: "campo-nombre seleccionable", type: "text", maxlength: "150",
+      clase: "campo-nombre seleccionable", type: "text", maxlength: "150", id: "campo-nombre",
       autocomplete: "off", autocapitalize: "words", spellcheck: "false", autocorrect: "off",
       placeholder: n ? n.campoNombre : "", "aria-label": n ? n.campoNombre : ""
     });
@@ -291,6 +443,7 @@
             subtitulo.textContent = nicho.subtituloBienvenida;
             campo.placeholder = nicho.campoNombre;
             campo.setAttribute("aria-label", nicho.campoNombre);
+            etiquetaCampo.textContent = nicho.campoNombre;
           }
         }, [icono(nicho.icono), h("span", { clase: "nombre-nicho", texto: nicho.nombre }),
             nicho.completo ? null : h("span", { clase: "etiqueta-completar", texto: "[COMPLETAR]" })]);
@@ -300,7 +453,8 @@
 
     var contacto = eg.capturarContacto ? bloqueContacto() : null;
 
-    var esquina = h("div", { clase: "esquina-version" }, [h("div", { texto: "v" + CONFIG.versionApp })]);
+    var esquina = h("div", { clase: "esquina-version" }, [enlacesLegales(), h("div", { texto: "v" + CONFIG.versionApp })]);
+    var etiquetaCampo = h("label", { clase: "solo-lectores", "for": "campo-nombre", texto: n ? n.campoNombre : T.nombreNegocio });
     if (String(CONFIG.enlaceCal || "").indexOf("PENDIENTE") >= 0) {
       esquina.appendChild(h("div", { clase: "alerta", texto: "config: enlace pendiente" }));
     }
@@ -323,6 +477,7 @@
       titulo,
       subtitulo,
       selector,
+      n ? etiquetaCampo : null,
       n ? campo : h("p", { clase: "mensaje-error-nichos", texto: T.sinNichos }),
       contacto ? contacto.elemento : null,
       empezar,
@@ -428,8 +583,8 @@
     return 3;
   }
 
-  function grupoOpciones(opciones, valorActual, alElegir, extraClase, etiquetar, columnas, conLetra) {
-    var cont = h("div", { clase: "opciones" + (extraClase ? " " + extraClase : ""), role: "group" });
+  function grupoOpciones(opciones, valorActual, alElegir, extraClase, etiquetar, columnas, conLetra, nombreGrupo) {
+    var cont = h("div", { clase: "opciones" + (extraClase ? " " + extraClase : ""), role: "group", "aria-label": nombreGrupo || null });
     cont.style.setProperty("--columnas", String(columnas || columnasPara(opciones.length)));
     var botones = [];
     opciones.forEach(function (op, idx) {
@@ -558,7 +713,7 @@
           grupoOpciones(p.sub.opciones, estado.respuestas[p.sub.clave], function (v) {
             estado.respuestas[p.sub.clave] = v;
             actualizar();
-          }, "compactas", function (op) { return op + " " + (p.sub.unidad || "min"); }, 1, false)
+          }, "compactas", function (op) { return op + " " + (p.sub.unidad || "min"); }, 1, false, p.sub.titulo)
         ]);
         contenido = h("div", { clase: "dos-partes" }, [slider, sub]);
       } else {
@@ -568,7 +723,7 @@
       contenido = grupoOpciones(p.opciones, estado.respuestas[p.clave], function (v) {
         estado.respuestas[p.clave] = v;
         actualizar();
-      }, null, null, null, true);
+      }, null, null, null, true, p.titulo);
     }
 
     var seccion = h("section", { clase: "pantalla pregunta", "aria-label": f(T.pregunta, { n: i + 1, total: total }) }, [
@@ -578,7 +733,7 @@
           if (i === 0) mostrarBienvenida(); else mostrarPregunta(i - 1);
         }, { "aria-label": T.atras }),
         h("div", { clase: "progreso" }, [
-          h("div", { clase: "progreso-segmentos", role: "progressbar", "aria-valuemin": "0", "aria-valuemax": String(total), "aria-valuenow": String(i + 1) },
+          h("div", { clase: "progreso-segmentos", role: "progressbar", "aria-label": T.progreso, "aria-valuemin": "0", "aria-valuemax": String(total), "aria-valuenow": String(i + 1) },
             estado.preguntas.map(function (q, k) {
               return h("span", { clase: "segmento" + (k < i ? " hecho" : k === i ? " actual" : "") });
             })),
@@ -638,11 +793,9 @@
     var registro = construirRegistro();
     var existente = A.obtener(registro.id) || (estado.registro && estado.registro.id === registro.id ? estado.registro : null);
     if (existente && existente.email) registro.email = existente.email;
-    try {
-      E.prepararRegistro(registro, M.instantaneaEmail(estado.nicho, registro, CONFIG));
-    } catch (e) {
-      console.error("No se pudo preparar el email", e);
-    }
+    if (existente && existente.consentimientoEnvio) registro.consentimientoEnvio = existente.consentimientoEnvio;
+    // El email solo se prepara si está activo y, si se pide consentimiento, si ya se aceptó
+    if (!(CONFIG.email && CONFIG.email.pedirConsentimiento) || registro.consentimientoEnvio) prepararEmail(registro);
     estado.guardado = A.guardarRegistro(registro);
     estado.registro = registro;
     E.procesar();
@@ -671,7 +824,7 @@
       qr.addData(texto);
       qr.make();
       var n = qr.getModuleCount();
-      var margen = 2;
+      var margen = 4;
       var d = "";
       for (var y = 0; y < n; y++) {
         for (var x = 0; x < n; x++) {
@@ -749,7 +902,7 @@
     } else {
       var numHoras = h("span", { clase: "cifra-num", texto: t.cifras.horas.texto });
       var numEuros = h("span", { clase: "cifra-num", texto: t.cifras.euros.texto });
-      animables.push({ el: numHoras, valor: t.cifras.horas.valor, formato: M.fmtHorasRecuperables });
+      animables.push({ el: numHoras, valor: t.cifras.horas.valor, formato: M.fmtEntero });
       animables.push({ el: numEuros, valor: t.cifras.euros.valor, formato: M.fmtEuros });
       var gancho = h("div", { clase: "panel gancho" }, [
         h("h1", { texto: t.titular, "data-foco": "1", tabindex: "-1" }),
@@ -758,6 +911,7 @@
           h("div", { clase: "cifra" }, [numEuros, h("span", { clase: "cifra-etq", texto: t.cifras.euros.etiqueta })])
         ]),
         h("p", { texto: t.subtitulo }),
+        t.avisoLimite ? h("p", { clase: "aviso-limite", texto: t.avisoLimite }) : null,
         h("p", { clase: "impulso", texto: t.impulso }),
         t.senales.length ? h("ul", { clase: "senales" }, t.senales.map(function (s) {
           return h("li", {}, [icono(s.icono, "icono-senal"), h("span", { texto: s.texto })]);
@@ -790,7 +944,10 @@
       boton(T.guardarResumen, "boton-discreto", function () { if (libre()) mostrarResumen(estado.registro, "resultado"); }),
       boton(T.nuevaAuditoria, "boton-discreto", nuevaAuditoria)
     ]));
+    var consentimiento = bloqueConsentimiento(registro);
+    if (consentimiento) contenido.appendChild(consentimiento);
     contenido.appendChild(h("p", { clase: "pie-resultado", texto: t.pie }));
+    contenido.appendChild(enlacesLegales());
     if (E.estadoGeneral().habilitado) contenido.appendChild(lineaEstadoEmail(registro.id));
 
     // Barra inferior fija: la cita siempre visible
@@ -876,6 +1033,21 @@
     a.click();
     document.body.removeChild(a);
     setTimeout(function () { URL.revokeObjectURL(url); }, 4000);
+  }
+
+  // Tras exportar el historial, propone borrarlo de la tablet (los datos ya están en el CSV)
+  function ofrecerBorrarTrasExportar() {
+    if (!(CONFIG.historial && CONFIG.historial.ofrecerBorrarTrasExportar)) return;
+    confirmar(T.borrarTrasExportar, [
+      { texto: T.mantener, clase: "boton-secundario", valor: false },
+      { texto: T.siBorrar, clase: "boton-peligro", valor: true }
+    ]).then(function (si) {
+      if (!si) return;
+      E.cancelarTodo();
+      A.borrarTodo();
+      estado.filtro = "todos";
+      mostrarHistorial();
+    });
   }
 
   function detalleEmail(registro) {
@@ -981,7 +1153,7 @@
         h("span", { clase: "insignia" }, [n ? icono(n.icono, "icono-mini") : null, n ? n.nombre : r.nicho]),
         h("span", { texto: M.fmtFecha(r.fecha) }),
         h("span", { texto: r.nombreCliente || "Sin nombre" }),
-        h("span", { clase: "cifras-fila", texto: M.fmtEntero(c.horasAno) + " h / " + M.fmtEuros(c.eurosRecuperables) }),
+        h("span", { clase: "cifras-fila", texto: M.fmtEntero(c.horasAno) + " h / " + M.fmtEuros(c.costeAno) }),
         h("span", { clase: "email-fila", "data-email-registro": r.id, "data-base": "email-fila" })
       ])]));
     });
@@ -994,8 +1166,8 @@
       h("p", { clase: "estado-general-email", "data-estado-general": "1", role: "status" }),
       filtros,
       ul,
-      h("div", { clase: "botonera", estilo: "margin-top:14px" }, [
-        boton(T.descargarCSVTodo, "boton-principal", descargarCSV, { disabled: !lista.length }),
+      h("div", { clase: "botonera botonera-historial" }, [
+        boton(T.descargarCSVTodo, "boton-principal", function () { descargarCSV(); ofrecerBorrarTrasExportar(); }, { disabled: !lista.length }),
         boton(T.reintentar, "boton-secundario", function () {
           if (!libre()) return;
           E.reintentarPendientes();
@@ -1036,14 +1208,17 @@
   function arrancar() {
     M.validarConfigGlobal(CONFIG).forEach(function (a) { console.warn("CONFIG: " + a); });
     if (String(CONFIG.enlaceCal || "").indexOf("PENDIENTE") >= 0) console.warn("CONFIG.enlaceCal contiene PENDIENTE: pon el enlace real de Cal.com");
-    var eg = E.estadoGeneral();
-    if (eg.habilitado && !eg.configOk) console.warn("Email habilitado pero sin configurar: " + eg.motivo);
 
     E.suscribir(refrescarEmail);
     window.addEventListener("online", refrescarEmail);
     window.addEventListener("offline", refrescarEmail);
 
-    cargarNichos().then(function () {
+    // config.local.js (identificadores de EmailJS) solo se carga si está activado: sin peticiones 404
+    var previo = CONFIG.email && CONFIG.email.configLocal ? cargarScript("config.local.js") : Promise.resolve();
+    previo.then(cargarNichos).then(function () {
+      var eg = E.estadoGeneral();
+      if (eg.habilitado && !eg.configOk) console.warn("Email habilitado pero sin configurar: " + eg.motivo);
+      purgarAntiguos();
       mostrarBienvenida();
       E.iniciar();
     }).catch(function (e) {
