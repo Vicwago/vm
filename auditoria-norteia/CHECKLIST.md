@@ -29,9 +29,9 @@ Marca cada punto en la tablet, no en el ordenador.
 - [ ] Salen los tres estados del contraste (mayor, coincide, menor) cambiando la respuesta 10.
 - [ ] Sin nombre de clínica, el titular no tiene comas ni huecos raros.
 - [ ] Las líneas de apoyo (preguntas 6, 7 y 8) salen solo cuando toca, y como mucho 2.
-- [ ] El botón de cita abre Cal.com con conexión; sin conexión avisa y no falla.
+- [ ] El botón de cita abre el formulario de contacto de norteia.es con conexión; sin conexión avisa y no falla.
 - [ ] El teléfono se puede tocar y marca el número correcto.
-- [ ] El QR se escanea con un móvil y lleva a Cal.com.
+- [ ] El QR se escanea con un móvil y lleva al formulario de contacto de norteia.es.
 
 ## Guardado
 - [ ] El resumen se copia y se pega bien en WhatsApp o en Notas. «Compartir» abre la hoja del sistema.
@@ -65,10 +65,10 @@ Marca cada punto en la tablet, no en el ordenador.
 ## Decisiones pendientes [DECIDIR]
 
 1. Coste por hora (14 €) y porcentaje recuperable (65 %).
-2. Enlace real de Cal.com y teléfono que se muestra.
+2. Destino de la cita (ahora el formulario de contacto de norteia.es) y teléfono que se muestra (ahora el de Víctor).
 3. Preguntas extra (desactivadas por defecto).
-4. Logo: confirmar que el redibujado coincide con el oficial (o sustituirlo por el SVG original). Contacto y redes en `CONFIG.contactoNorteIA` (WhatsApp, Instagram, LinkedIn de empresa).
-5. Colores: principal `#2E00F5` (azul del logo) y acento de la cita `#F28C28` (en `styles.css`, `:root`).
+4. Redes sociales de NorteIA (Instagram, LinkedIn) en `CONFIG.contactoNorteIA` cuando existan.
+5. Botón de cita en naranja (`#F28C28`) o en el azul de la marca (`#343BDF`), en `styles.css`, `:root`.
 6. Buzón remitente de EmailJS y direcciones reales de Victor y Luis.
 7. Coste/hora y «habitual» de cada sector (ver `niches/FUENTES.md`).
 8. Activar `capturarContacto` y aprobar el texto de privacidad, la retención local y la del proveedor.

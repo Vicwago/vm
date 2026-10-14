@@ -14,12 +14,13 @@ Sube **esta carpeta** (`auditoria-norteia/`) a **Netlify** (arrastrar y soltar e
 
 ## 3. Configurar
 
-Edita **`config.js`** con cualquier editor de texto: coste/hora, % de ahorro, enlace de Cal.com, teléfono, preguntas extra y nichos visibles. Después vuelve a publicar.
+Edita **`config.js`** con cualquier editor de texto: coste/hora, % de ahorro, enlace de la cita, teléfono, contacto, preguntas extra y sectores visibles. Después vuelve a publicar.
 
 Para que la tablet recoja la nueva versión, **sube `CACHE_VERSION` en `sw.js`** (por ejemplo `v1.1.0` → `v1.1.1`) y abre la app una vez con internet. Actualizar no borra el historial ni los emails pendientes.
 
-- **Logo:** `assets/logo-norteia.svg` (azul) y `assets/logo-norteia-blanco.svg` están redibujados en vectorial a partir del logo oficial. Si tenéis el SVG original, sustituid los archivos con el mismo nombre. Para usar un PNG, guárdalo como `assets/logo-norteia.png` y pon `logo: "assets/logo-norteia.png"` en `config.js`. Los iconos de la app son `assets/icon-192.png` y `assets/icon-512.png` (estrella NorteIA).
-- **Contacto y redes de NorteIA:** se configuran en `CONFIG.contactoNorteIA` (web, email, WhatsApp, Instagram, LinkedIn). Salen en la barra de cita del resultado; los campos vacíos no se muestran.
+- **Marca:** el logo es el oficial de norteia.es (`assets/logo-norteia.svg`, oscuro, y `assets/logo-norteia-blanco.svg`). Los colores (acento `#343BDF`) y la tipografía Outfit también vienen de la web; la tipografía está guardada en `assets/fonts/` para que funcione sin conexión. El icono de la app es la estrella del logo.
+- **Botón «Agenda una cita»:** lleva al formulario de contacto de norteia.es (`CONFIG.enlaceCal`). Si más adelante usáis Cal.com, cambia ese enlace.
+- **Contacto y redes de NorteIA:** se configuran en `CONFIG.contactoNorteIA` (web, email, WhatsApp, Instagram, LinkedIn) y en `CONFIG.telefono`. Salen en la barra de cita del resultado; los campos vacíos no se muestran.
 - **Historial oculto:** toca el logo 5 veces seguidas en la bienvenida. Desde ahí puedes descargar el CSV, reintentar los emails y borrar el historial.
 
 ## Sectores (pestañas)

@@ -203,7 +203,7 @@ test("resumen copiable con el formato exacto de la sección 9.2", () => {
     "- Recuperable (65 %): 351 h y 4.910 €/año",
     "- Percepción vs realidad: coincide",
     "",
-    "PRÓXIMO PASO: cita con NorteIA -> https://cal.com/PENDIENTE-USUARIO/diagnostico / +34 637 90 58 66"
+    "PRÓXIMO PASO: cita con NorteIA -> https://norteia.es/contacto?objetivo=orientacion&utm_source=auditoria-tablet / +34 637 90 58 66"
   ].join("\n");
   assert.equal(texto, esperado);
 });
@@ -296,7 +296,7 @@ test("instantánea de email: 10 respuestas, interés, cálculo y contacto 'No re
   assert.match(inst.calculo_texto, /Jornadas de 8 horas al año: 68/);
   assert.match(inst.calculo_texto, /Parámetros: 14 €\/h · 65 % de ahorro · 5 días\/semana · 48 semanas\/año/);
   assert.equal(inst.contacto_texto, "No recogido");
-  assert.match(inst.proximo_paso, /cal\.com/);
+  assert.match(inst.proximo_paso, /norteia\.es\/contacto/);
 });
 
 test("instantánea: 0, 'No' y 'No lo sé' se conservan; ausentes = 'No recogido'; sin nombre = ID corto", () => {

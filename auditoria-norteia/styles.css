@@ -1,14 +1,19 @@
 /* Auditoría rápida NorteIA — tablet en horizontal, letra grande, toques grandes */
 
+/* Tipografía de marca (Outfit, licencia OFL), servida desde la app para funcionar sin conexión */
+@font-face { font-family: "Outfit"; src: url("assets/fonts/Outfit-Regular.woff2") format("woff2"); font-weight: 400; font-display: swap; }
+@font-face { font-family: "Outfit"; src: url("assets/fonts/Outfit-SemiBold.woff2") format("woff2"); font-weight: 600 800; font-display: swap; }
+
+/* Colores de norteia.es */
 :root {
-  --fondo: #F7F9FB;
+  --fondo: #FBFBF8;
   --superficie: #FFFFFF;
-  --texto: #14202B;
-  --texto-suave: #5A6773;
-  --borde: #D5DDE5;
-  --principal: #2E00F5;        /* azul eléctrico NorteIA (logo) */
-  --principal-oscuro: #2200B8;
-  --principal-claro: #ECE8FF;
+  --texto: #1B2429;
+  --texto-suave: #646E74;
+  --borde: #D9DDDC;
+  --principal: #343BDF;        /* acento de norteia.es */
+  --principal-oscuro: #272CB0;
+  --principal-claro: #ECEDFC;
   --acento: #F28C28;
   --acento-oscuro: #C96A0E;
   --acento-texto: #1E1206;
@@ -36,6 +41,7 @@ html, body {
   color: var(--texto);
   font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   line-height: 1.35;
+  --fuente-marca: "Outfit", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   overscroll-behavior: none;
   -webkit-text-size-adjust: 100%;
 }
@@ -74,6 +80,11 @@ input, textarea, .seleccionable, .seleccionable * {
 
 /* Títulos que reciben el foco al cambiar de pantalla (para lectores de pantalla): sin marco visible */
 [data-foco][tabindex="-1"]:focus { outline: none; }
+
+/* Títulos, cifras y botones con la tipografía de la marca */
+h1, h2, .boton, .opcion, .atajo, .slider-valor, .cifra-num, .nicho-tarjeta, .telefono, .progreso-texto {
+  font-family: var(--fuente-marca);
+}
 
 /* ---------- Pantallas ---------- */
 

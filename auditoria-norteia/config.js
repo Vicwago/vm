@@ -9,7 +9,7 @@
 window.CONFIG = {
   // Marca
   nombreEmpresa: "NorteIA",
-  logo: "assets/logo-norteia.svg", // logo NorteIA (azul). Para usar un PNG: "assets/logo-norteia.png"
+  logo: "assets/logo-norteia.svg", // logo oficial de norteia.es (oscuro). Variante: assets/logo-norteia-blanco.svg
 
   // Cálculo (cada nicho puede pisar estos valores en su bloque "parametros")
   costeHora: 14,            // [DECIDIR] euros por hora de trabajo del equipo
@@ -18,16 +18,18 @@ window.CONFIG = {
   semanasAno: 48,
 
   // Cita y contacto
-  enlaceCal: "https://cal.com/PENDIENTE-USUARIO/diagnostico", // [DECIDIR] enlace Cal.com real
-  telefono: "+34 637 90 58 66",                               // teléfono de NorteIA
+  // Destino del botón "Agenda una cita": formulario de contacto de norteia.es (orientación).
+  // Si más adelante usáis Cal.com, poned aquí ese enlace.
+  enlaceCal: "https://norteia.es/contacto?objetivo=orientacion&utm_source=auditoria-tablet",
+  telefono: "+34 637 90 58 66",   // Víctor (Luis: +34 623 75 84 13)
 
   // Datos de NorteIA que se muestran en el resultado (vacío = no se muestra)
   contactoNorteIA: {
     web: "https://www.norteia.es",
-    email: "victor@norteia.es",
+    email: "contacto@norteia.es",
     whatsapp: "34637905866", // número con prefijo, sin espacios (vacío = no se muestra)
-    instagram: "",  // [DECIDIR] URL completa del perfil
-    linkedin: ""    // [DECIDIR] URL de la página de empresa (o https://www.linkedin.com/in/victormago)
+    instagram: "",  // norteia.es no enlaza redes; añadir la URL cuando exista
+    linkedin: ""    // ídem
   },
 
   // Preguntas extra (solo 2)
@@ -44,7 +46,7 @@ window.CONFIG = {
   modoDesarrollo: false,          // true = muestra nichos incompletos con etiqueta [COMPLETAR]
 
   // Varios
-  versionApp: "1.2",
+  versionApp: "1.3",
   pantallaCalculandoMs: 1200
 };
 
