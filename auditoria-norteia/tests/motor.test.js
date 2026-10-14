@@ -203,7 +203,7 @@ test("resumen copiable con el formato exacto de la sección 9.2", () => {
     "- Recuperable (65 %): 351 h y 4.910 €/año",
     "- Percepción vs realidad: coincide",
     "",
-    "PRÓXIMO PASO: cita con NorteIA -> https://cal.com/PENDIENTE-USUARIO/diagnostico / +34 600 000 000"
+    "PRÓXIMO PASO: cita con NorteIA -> https://cal.com/PENDIENTE-USUARIO/diagnostico / +34 637 90 58 66"
   ].join("\n");
   assert.equal(texto, esperado);
 });

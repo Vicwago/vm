@@ -19,13 +19,13 @@ window.CONFIG = {
 
   // Cita y contacto
   enlaceCal: "https://cal.com/PENDIENTE-USUARIO/diagnostico", // [DECIDIR] enlace Cal.com real
-  telefono: "+34 600 000 000",                                // [DECIDIR] teléfono real de NorteIA o de Cochet
+  telefono: "+34 637 90 58 66",                               // teléfono de NorteIA
 
   // Datos de NorteIA que se muestran en el resultado (vacío = no se muestra)
   contactoNorteIA: {
     web: "https://www.norteia.es",
     email: "victor@norteia.es",
-    whatsapp: "",   // [DECIDIR] número con prefijo, sin espacios, p. ej. "34600000000"
+    whatsapp: "34637905866", // número con prefijo, sin espacios (vacío = no se muestra)
     instagram: "",  // [DECIDIR] URL completa del perfil
     linkedin: ""    // [DECIDIR] URL de la página de empresa (o https://www.linkedin.com/in/victormago)
   },
