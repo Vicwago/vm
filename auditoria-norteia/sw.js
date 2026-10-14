@@ -4,7 +4,7 @@
  * Cambiar CACHE_VERSION no borra el historial ni la cola de emails (viven en localStorage).
  * Solo se interceptan peticiones GET del propio sitio: los POST de email nunca pasan por la caché.
  */
-var CACHE_VERSION = "v1.8.1";
+var CACHE_VERSION = "v1.8.2";
 var CACHE = "norteia-auditoria-" + CACHE_VERSION;
 
 importScripts("niches/index.js");

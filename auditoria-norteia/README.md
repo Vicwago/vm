@@ -28,7 +28,7 @@ Para que la tablet recoja la nueva versión, **sube `CACHE_VERSION` en `sw.js`**
 - **Botón «Agenda una cita»:** lleva al formulario de contacto de norteia.es (`CONFIG.enlaceCal`). Si más adelante usáis Cal.com, cambia ese enlace.
 - **Contacto y redes de NorteIA:** se configuran en `CONFIG.contactoNorteIA` (web, email, WhatsApp, Instagram, LinkedIn) y en `CONFIG.telefono`. Salen en la barra de cita del resultado; los campos vacíos no se muestran.
 - **Iconos:** iconos de línea (Lucide, licencia ISC) en `assets/iconos.js`, pintados con el color de la marca. En cada sector, `icono` es el nombre del icono.
-- **Historial oculto (con PIN):** toca el logo 5 veces seguidas en la bienvenida e introduce el PIN de 4 cifras (el inicial se comunica aparte, no está en el repositorio). Desde ahí se descarga el CSV, se reintentan los emails y se borra el historial.
+- **Historial oculto (con PIN):** toca el logo 5 veces seguidas en la bienvenida (o abre la dirección de la app terminada en `#historial`) e introduce el PIN de 4 cifras (el inicial se comunica aparte, no está en el repositorio). Desde ahí se descarga el CSV, se reintentan los emails y se borra el historial.
   - Las visitas se borran solas a los **30 días** (`CONFIG.historial.diasRetencion`).
   - Tras descargar el CSV, la app propone borrar las visitas de la tablet.
   - **Cambiar el PIN:** en `CONFIG.historial.pinHuella` va la huella SHA-256 del texto `norteia:` seguido del PIN. Por ejemplo, para el PIN 1234 se calcula la huella de `norteia:1234`. Pídeselo a Luis o a Claude si no sabes generarla.

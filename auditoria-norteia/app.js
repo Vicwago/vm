@@ -276,7 +276,7 @@
 
   function tocarLogo() {
     var ahora = Date.now();
-    estado.toquesLogo = estado.toquesLogo.filter(function (t) { return ahora - t < 3000; });
+    estado.toquesLogo = estado.toquesLogo.filter(function (t) { return ahora - t < 5000; });
     estado.toquesLogo.push(ahora);
     if (estado.toquesLogo.length >= 5) {
       estado.toquesLogo = [];
@@ -1234,6 +1234,13 @@
 
   // ---------- Arranque ----------
 
+  // Acceso directo al historial: .../#historial abre el teclado del PIN (alternativa a los 5 toques)
+  function abrirHistorialPorEnlace() {
+    if (location.hash !== "#historial") return;
+    try { history.replaceState(null, "", location.pathname + location.search); } catch (e) { location.hash = ""; }
+    pedirPin(mostrarHistorial);
+  }
+
   function arrancar() {
     M.validarConfigGlobal(CONFIG).forEach(function (a) { console.warn("CONFIG: " + a); });
     if (String(CONFIG.enlaceCal || "").indexOf("PENDIENTE") >= 0) console.warn("CONFIG.enlaceCal contiene PENDIENTE: pon el enlace real de Cal.com");
@@ -1250,6 +1257,8 @@
       purgarAntiguos();
       mostrarBienvenida();
       E.iniciar();
+      abrirHistorialPorEnlace();
+      window.addEventListener("hashchange", abrirHistorialPorEnlace);
     }).catch(function (e) {
       console.error(e);
       raizApp.textContent = "Error al cargar la aplicación. Recarga la página.";
