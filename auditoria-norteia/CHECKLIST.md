@@ -68,7 +68,7 @@ Marca cada punto en la tablet, no en el ordenador.
 2. Destino de la cita (ahora el formulario de contacto de norteia.es) y teléfono que se muestra (ahora el de Víctor).
 3. Preguntas extra (desactivadas por defecto).
 4. Redes sociales de NorteIA (Instagram, LinkedIn) en `CONFIG.contactoNorteIA` cuando existan.
-5. Botón de cita en naranja (`#F28C28`) o en el azul de la marca (`#343BDF`), en `styles.css`, `:root`.
+5. Colores: toda la app usa la paleta de norteia.es (`styles.css`, `:root`). Solo el rojo de errores y de «Borrar» queda fuera de la paleta.
 6. Buzón remitente de EmailJS y direcciones reales de Victor y Luis.
 7. Coste/hora y «habitual» de cada sector (ver `niches/FUENTES.md`).
 8. Activar `capturarContacto` y aprobar el texto de privacidad, la retención local y la del proveedor.

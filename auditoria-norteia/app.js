@@ -663,7 +663,7 @@
       fondo.setAttribute("fill", "#fff");
       var path = document.createElementNS(ns, "path");
       path.setAttribute("d", d);
-      path.setAttribute("fill", "#14202B");
+      path.setAttribute("fill", "#1B2429");
       svg.appendChild(fondo);
       svg.appendChild(path);
       return svg;
