@@ -15,7 +15,7 @@ self.NICHOS.inmobiliarias = {
   campoNombre: "Nombre de la inmobiliaria (opcional)",
   articuloCliente: "la inmobiliaria",
 
-  parametros: { porcentajeAhorro: 0.60, diasSemana: 5, semanasAno: 48 }, // % de ahorro [DECIDIR] · coste/hora: salario mínimo (CONFIG.costeHora)
+  parametros: { porcentajeAhorro: 0.60, diasSemana: 5, semanasAno: 48 }, // % de ahorro [DECIDIR] · coste/hora: salario mínimo + Seguridad Social (CONFIG.costeHora)
 
   preguntas: [
     { clave: "tipo", titulo: "Tipo de inmobiliaria", tipo: "opcion",
@@ -143,7 +143,7 @@ self.NICHOS.inmobiliarias = {
       { prioridad: 3, icono: "folder-open", si: { clave: "software", en: ["no", "no_se"] },
         texto: "Sin CRM, los contactos se quedan en el correo y el móvil de cada uno. Se pueden ordenar en un solo sitio." }
     ],
-    pie: "Estimación calculada con el salario mínimo ({costeHora} €/h, SMI 2026) y un {porcentajeAhorroPct} % de recuperación media por automatización. Con el coste real de vuestro equipo, el ahorro es mayor."
+    pie: "Estimación calculada con el salario mínimo más la Seguridad Social de la empresa ({costeHora} €/h, SMI 2026) y un {porcentajeAhorroPct} % de recuperación media por automatización. Con el coste real de vuestro equipo, el ahorro es mayor."
   },
 
   resumen: {

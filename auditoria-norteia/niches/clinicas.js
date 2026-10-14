@@ -165,7 +165,7 @@ self.NICHOS.clinicas = {
       { prioridad: 5, icono: "folder-open", si: { clave: "software", en: ["no", "no_se"] },
         texto: "Sin un programa de gestión de citas claro, todo depende de las personas. Se puede ordenar sin cambiar de programa." }
     ],
-    pie: "Estimación calculada con el salario mínimo ({costeHora} €/h, SMI 2026) y un {porcentajeAhorroPct} % de recuperación media por automatización. Con el coste real de vuestro equipo, el ahorro es mayor."
+    pie: "Estimación calculada con el salario mínimo más la Seguridad Social de la empresa ({costeHora} €/h, SMI 2026) y un {porcentajeAhorroPct} % de recuperación media por automatización. Con el coste real de vuestro equipo, el ahorro es mayor."
   },
 
   // Resumen copiable (texto plano). [clave, etiqueta, opciones]

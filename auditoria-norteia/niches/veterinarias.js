@@ -15,7 +15,7 @@ self.NICHOS.veterinarias = {
   campoNombre: "Nombre de la clínica veterinaria (opcional)",
   articuloCliente: "la clínica",
 
-  parametros: { porcentajeAhorro: 0.60, diasSemana: 5, semanasAno: 48 }, // % de ahorro [DECIDIR] · coste/hora: salario mínimo (CONFIG.costeHora)
+  parametros: { porcentajeAhorro: 0.60, diasSemana: 5, semanasAno: 48 }, // % de ahorro [DECIDIR] · coste/hora: salario mínimo + Seguridad Social (CONFIG.costeHora)
 
   preguntas: [
     { clave: "tipo", titulo: "Tipo de centro veterinario", tipo: "opcion",
@@ -144,7 +144,7 @@ self.NICHOS.veterinarias = {
       { prioridad: 3, icono: "syringe", si: { clave: "software", en: ["si_manual", "no", "no_se"] },
         texto: "Recordatorios de vacunas a mano: trabajo que se olvida y visitas que no se hacen. Se puede automatizar con los datos que ya tenéis." }
     ],
-    pie: "Estimación calculada con el salario mínimo ({costeHora} €/h, SMI 2026) y un {porcentajeAhorroPct} % de recuperación media por automatización. Con el coste real de vuestro equipo, el ahorro es mayor."
+    pie: "Estimación calculada con el salario mínimo más la Seguridad Social de la empresa ({costeHora} €/h, SMI 2026) y un {porcentajeAhorroPct} % de recuperación media por automatización. Con el coste real de vuestro equipo, el ahorro es mayor."
   },
 
   resumen: {

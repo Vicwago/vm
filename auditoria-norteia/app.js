@@ -27,6 +27,7 @@
     escaneaQR: "Escanea para agendar desde tu móvil",
     sinConexionCTA: "Sin conexión ahora. Podéis llamar al {telefono} o lo agendamos desde otro dispositivo.",
     habitual: "habitual",
+    leyendaSlider: "en un día normal",
     copiar: "Copiar resumen",
     copiado: "Copiado",
     compartir: "Compartir",
@@ -120,8 +121,9 @@
     return true;
   }
 
-  function boton(texto, clase, accion, extra) {
-    return h("button", Object.assign({ type: "button", clase: "boton " + clase, onclick: accion }, extra || {}), [texto]);
+  function boton(contenido, clase, accion, extra) {
+    return h("button", Object.assign({ type: "button", clase: "boton " + clase, onclick: accion }, extra || {}),
+      Array.isArray(contenido) ? contenido : [contenido]);
   }
 
   function rutaLogo() { return CONFIG.logo || "assets/logo-norteia.svg"; }
@@ -426,11 +428,11 @@
     return 3;
   }
 
-  function grupoOpciones(opciones, valorActual, alElegir, extraClase, etiquetar, columnas) {
+  function grupoOpciones(opciones, valorActual, alElegir, extraClase, etiquetar, columnas, conLetra) {
     var cont = h("div", { clase: "opciones" + (extraClase ? " " + extraClase : ""), role: "group" });
     cont.style.setProperty("--columnas", String(columnas || columnasPara(opciones.length)));
     var botones = [];
-    opciones.forEach(function (op) {
+    opciones.forEach(function (op, idx) {
       var valor = typeof op === "object" ? op.valor : op;
       var etiqueta = etiquetar ? etiquetar(op) : op.etiqueta;
       var b = h("button", {
@@ -440,7 +442,11 @@
           b.setAttribute("aria-pressed", "true");
           alElegir(valor);
         }
-      }, [etiqueta]);
+      }, [
+        conLetra ? h("span", { clase: "opcion-letra", "aria-hidden": "true", texto: String.fromCharCode(65 + idx) }) : null,
+        h("span", { clase: "opcion-texto", texto: etiqueta }),
+        icono("check", "opcion-check")
+      ]);
       botones.push(b);
       cont.appendChild(b);
     });
@@ -518,13 +524,17 @@
 
     var menos = h("button", { type: "button", clase: "slider-paso", "aria-label": "Restar uno", onclick: function () {
       fijar(valor == null ? (marca != null ? marca : s.min) : valor - 1);
-    } }, ["−"]);
+    } }, [icono("minus")]);
     var mas = h("button", { type: "button", clase: "slider-paso", "aria-label": "Sumar uno", onclick: function () {
       fijar(valor == null ? (marca != null ? marca : s.min) : valor + 1);
-    } }, ["+"]);
+    } }, [icono("plus")]);
 
     pintar();
-    return h("div", { clase: "slider" }, [display, h("div", { clase: "slider-fila" }, [menos, pista, mas]), filaAtajos]);
+    return h("div", { clase: "slider" }, [
+      h("div", { clase: "slider-cabecera" }, [display, h("span", { clase: "slider-leyenda", texto: T.leyendaSlider })]),
+      h("div", { clase: "slider-fila" }, [menos, pista, mas]),
+      filaAtajos
+    ]);
   }
 
   function mostrarPregunta(i) {
@@ -533,7 +543,7 @@
     var total = estado.preguntas.length;
     var esUltima = i === total - 1;
 
-    var siguiente = boton((esUltima ? T.verResultado : T.siguiente) + " →", "boton-principal boton-siguiente", function () {
+    var siguiente = boton([h("span", { texto: esUltima ? T.verResultado : T.siguiente }), icono("arrow-right")], "boton-principal boton-siguiente", function () {
       if (!contestada(p) || !libre()) return;
       if (esUltima) verResultado(); else mostrarPregunta(i + 1);
     });
@@ -548,7 +558,7 @@
           grupoOpciones(p.sub.opciones, estado.respuestas[p.sub.clave], function (v) {
             estado.respuestas[p.sub.clave] = v;
             actualizar();
-          }, "compactas", function (op) { return op + " " + (p.sub.unidad || "min"); }, 1)
+          }, "compactas", function (op) { return op + " " + (p.sub.unidad || "min"); }, 1, false)
         ]);
         contenido = h("div", { clase: "dos-partes" }, [slider, sub]);
       } else {
@@ -558,26 +568,32 @@
       contenido = grupoOpciones(p.opciones, estado.respuestas[p.clave], function (v) {
         estado.respuestas[p.clave] = v;
         actualizar();
-      });
+      }, null, null, null, true);
     }
 
     var seccion = h("section", { clase: "pantalla pregunta", "aria-label": f(T.pregunta, { n: i + 1, total: total }) }, [
       h("header", { clase: "barra-superior" }, [
-        boton("← " + T.atras, "boton-secundario boton-atras", function () {
+        boton([icono("arrow-left"), h("span", { texto: T.atras })], "boton-atras", function () {
           if (!libre()) return;
           if (i === 0) mostrarBienvenida(); else mostrarPregunta(i - 1);
-        }),
+        }, { "aria-label": T.atras }),
         h("div", { clase: "progreso" }, [
-          h("div", { clase: "progreso-pista", role: "progressbar", "aria-valuemin": "0", "aria-valuemax": String(total), "aria-valuenow": String(i + 1) }, [
-            h("div", { clase: "progreso-relleno", estilo: "width:" + ((i + 1) / total * 100) + "%" })
-          ]),
+          h("div", { clase: "progreso-segmentos", role: "progressbar", "aria-valuemin": "0", "aria-valuemax": String(total), "aria-valuenow": String(i + 1) },
+            estado.preguntas.map(function (q, k) {
+              return h("span", { clase: "segmento" + (k < i ? " hecho" : k === i ? " actual" : "") });
+            })),
           h("span", { clase: "progreso-texto", texto: f(T.pregunta, { n: i + 1, total: total }) })
-        ])
+        ]),
+        h("span", { clase: "chip-sector" }, [icono(estado.nicho.icono), h("span", { texto: estado.nicho.nombre })])
       ]),
       h("div", { clase: "pregunta-cuerpo" }, [
-        h("h1", { clase: "pregunta-titulo" + (p.titulo.length > 60 ? " largo" : ""), texto: p.titulo, tabindex: "-1", "data-foco": "1" }),
-        p.nota ? h("p", { clase: "pregunta-nota", texto: p.nota }) : null,
-        contenido
+        h("div", { clase: "tarjeta-pregunta" + (p.tipo === "slider" ? " con-slider" : "") }, [
+          h("div", { clase: "pregunta-encabezado" }, [
+            h("h1", { clase: "pregunta-titulo" + (p.titulo.length > 60 ? " largo" : ""), texto: p.titulo, tabindex: "-1", "data-foco": "1" }),
+            p.nota ? h("p", { clase: "pregunta-nota", texto: p.nota }) : null
+          ]),
+          contenido
+        ])
       ]),
       h("footer", { clase: "pie-pregunta" }, [siguiente])
     ]);
@@ -720,7 +736,7 @@
     var contenido = h("div", { clase: "resultado-contenido" });
 
     contenido.appendChild(h("header", { clase: "resultado-cabecera" }, [
-      boton("← " + T.revisar, "boton-secundario boton-atras", function () {
+      boton([icono("arrow-left"), h("span", { texto: T.revisar })], "boton-atras", function () {
         if (!libre()) return;
         mostrarPregunta(estado.preguntas.length - 1);
       }),
@@ -972,7 +988,7 @@
 
     var seccion = h("section", { clase: "pantalla historial" }, [
       h("div", { clase: "cabecera-pantalla" }, [
-        boton("← " + T.volver, "boton-secundario boton-atras", function () { if (libre()) mostrarBienvenida(); }),
+        boton([icono("arrow-left"), h("span", { texto: T.volver })], "boton-atras", function () { if (libre()) mostrarBienvenida(); }),
         h("h1", { texto: T.historial + " (" + lista.length + ")", tabindex: "-1", "data-foco": "1" })
       ]),
       h("p", { clase: "estado-general-email", "data-estado-general": "1", role: "status" }),

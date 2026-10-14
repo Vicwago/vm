@@ -15,7 +15,7 @@ self.NICHOS.barberias = {
   campoNombre: "Nombre de la barbería (opcional)",
   articuloCliente: "la barbería",
 
-  parametros: { porcentajeAhorro: 0.60, diasSemana: 5, semanasAno: 48 }, // % de ahorro [DECIDIR] · coste/hora: salario mínimo (CONFIG.costeHora)
+  parametros: { porcentajeAhorro: 0.60, diasSemana: 5, semanasAno: 48 }, // % de ahorro [DECIDIR] · coste/hora: salario mínimo + Seguridad Social (CONFIG.costeHora)
 
   preguntas: [
     { clave: "tipo", titulo: "Tipo de barbería", tipo: "opcion",
@@ -145,7 +145,7 @@ self.NICHOS.barberias = {
       { prioridad: 3, icono: "smartphone", si: { clave: "software", en: ["si_poco", "no", "no_se"] },
         texto: "Si todo va por teléfono o WhatsApp, cada cita os interrumpe. Un enlace de reserva con recordatorios lo resuelve." }
     ],
-    pie: "Estimación calculada con el salario mínimo ({costeHora} €/h, SMI 2026) y un {porcentajeAhorroPct} % de recuperación media por automatización. Con el coste real de vuestro equipo, el ahorro es mayor."
+    pie: "Estimación calculada con el salario mínimo más la Seguridad Social de la empresa ({costeHora} €/h, SMI 2026) y un {porcentajeAhorroPct} % de recuperación media por automatización. Con el coste real de vuestro equipo, el ahorro es mayor."
   },
 
   resumen: {

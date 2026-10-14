@@ -80,10 +80,10 @@ test("cada nicho calcula, genera resultado, resumen, CSV e instantánea de email
   });
 });
 
-test("todos los sectores calculan con el salario mínimo (SMI 2026: 9,36 €/h)", () => {
+test("todos los sectores calculan con el salario mínimo + Seguridad Social (12,36 €/h)", () => {
   const coste = {};
   IDS.forEach((id) => { coste[id] = M.parametrosEfectivos(ctx.CONFIG, ctx.NICHOS[id]).costeHora; });
-  IDS.forEach((id) => assert.equal(coste[id], 9.36, id));
+  IDS.forEach((id) => assert.equal(coste[id], 12.36, id));
   IDS.forEach((id) => {
     const n = ctx.NICHOS[id];
     assert.match(n.resultado.pie, /salario mínimo/, id + ": el pie lo deja claro");
@@ -171,14 +171,14 @@ test("contraste de percepción: mayor, coincide, menor y bordes", () => {
 
 test("variantes A/B/C según el interés y titular sin nombre sin comas", () => {
   const varia = (interes, nombre) => M.textosResultado(CL, registro(Object.assign({}, EJEMPLO, { interes }), { nombreCliente: nombre }), ctx.CONFIG);
-  assert.equal(varia("mucho", "Clínica Sol").titular, "Clínica Sol, podéis recuperar 351 horas y 3.290 € al año.");
-  assert.equal(varia("bastante", "").titular, "Podéis recuperar 351 horas y 3.290 € al año.");
+  assert.equal(varia("mucho", "Clínica Sol").titular, "Clínica Sol, podéis recuperar 351 horas y 4.340 € al año.");
+  assert.equal(varia("bastante", "").titular, "Podéis recuperar 351 horas y 4.340 € al año.");
   assert.equal(varia("poco", "X").variante, "B");
-  assert.equal(varia("no_prioritario", "X").titular, "Aunque no sea prioritario: 351 horas y 3.290 € al año.");
+  assert.equal(varia("no_prioritario", "X").titular, "Aunque no sea prioritario: 351 horas y 4.340 € al año.");
   const a = varia("mucho", "");
-  assert.equal(a.subtitulo, "Hoy vuestro equipo dedica unas 540 horas al año a llamadas, mensajes y gestiones de citas. Eso son 68 jornadas completas y 5.050 € al año.");
-  assert.equal(a.contraste.texto, "Vuestra intuición es buena: 2,3 horas al día, justo lo que pensabais. Lo que quizá no habíais visto es lo que cuesta al año: 5.050 €.");
-  assert.equal(a.pie, "Estimación calculada con el salario mínimo (9,36 €/h, SMI 2026) y un 65 % de recuperación media por automatización. Con el coste real de vuestro equipo, el ahorro es mayor.");
+  assert.equal(a.subtitulo, "Hoy vuestro equipo dedica unas 540 horas al año a llamadas, mensajes y gestiones de citas. Eso son 68 jornadas completas y 6.670 € al año.");
+  assert.equal(a.contraste.texto, "Vuestra intuición es buena: 2,3 horas al día, justo lo que pensabais. Lo que quizá no habíais visto es lo que cuesta al año: 6.670 €.");
+  assert.equal(a.pie, "Estimación calculada con el salario mínimo más la Seguridad Social de la empresa (12,36 €/h, SMI 2026) y un 65 % de recuperación media por automatización. Con el coste real de vuestro equipo, el ahorro es mayor.");
   assert.equal(a.cifras.euros.etiqueta, "recuperables al año, como mínimo");
 });
 
@@ -215,8 +215,8 @@ test("resumen copiable con el formato exacto de la sección 9.2", () => {
     "RESULTADO",
     "- Tiempo en estas tareas: 135 min/día (2,3 h/día)",
     "- Horas perdidas al año: 540 h",
-    "- Coste anual (9,36 €/h): 5.050 €",
-    "- Recuperable (65 %): 351 h y 3.290 €/año",
+    "- Coste anual (12,36 €/h): 6.670 €",
+    "- Recuperable (65 %): 351 h y 4.340 €/año",
     "- Percepción vs realidad: coincide",
     "",
     "PRÓXIMO PASO: cita con NorteIA -> https://norteia.es/contacto?objetivo=orientacion&utm_source=auditoria-tablet / +34 637 90 58 66"
@@ -249,7 +249,7 @@ test("CSV genérico: BOM, columnas exactas, separador ; y comillas duplicadas", 
   assert.equal(c[0], '"14/10/2026 10:42"');
   assert.equal(c[1], '"clinicas"');
   assert.equal(c[2], '"Clínica ""La Paz"""');
-  assert.deepEqual(c.slice(3, 11), ["135", "540", "5054.4", "351", "3285.36", '"coincide"', "9.36", "0.65"]);
+  assert.deepEqual(c.slice(3, 11), ["135", "540", "6674.4", "351", "4338.36", '"coincide"', "12.36", "0.65"]);
   assert.equal(c[11], '"tipo=dental|llamadas=25|minLlamada=3|mensajes=20|minMensaje=2|gestiones=10|minGestion=2|personas=2|repetidas=muchas|perdidas=a_veces|software=si|interes=mucho|percepcion=2-4"');
 });
 
@@ -307,10 +307,10 @@ test("instantánea de email: 10 respuestas, interés, cálculo y contacto 'No re
   assert.equal(lineas[9], "10. Horas/día estimadas del equipo en estas tareas: De 2 a 4 horas");
   assert.match(inst.respuestas_texto, /2\. Llamadas al día: 25\n {3}Minutos por llamada: 3 min\n {3}Total: 75 min\/día/);
   assert.equal(inst.interes_texto, "Mucho (variante A)");
-  assert.match(inst.calculo_texto, /Recuperable \(65 %\): 351 h y 3\.290 €\/año/);
-  assert.match(inst.calculo_texto, /Coste anual: 5\.050 €/);
+  assert.match(inst.calculo_texto, /Recuperable \(65 %\): 351 h y 4\.340 €\/año/);
+  assert.match(inst.calculo_texto, /Coste anual: 6\.670 €/);
   assert.match(inst.calculo_texto, /Jornadas de 8 horas al año: 68/);
-  assert.match(inst.calculo_texto, /Parámetros: 9,36 €\/h · 65 % de ahorro · 5 días\/semana · 48 semanas\/año/);
+  assert.match(inst.calculo_texto, /Parámetros: 12,36 €\/h · 65 % de ahorro · 5 días\/semana · 48 semanas\/año/);
   assert.equal(inst.contacto_texto, "No recogido");
   assert.match(inst.proximo_paso, /norteia\.es\/contacto/);
 });

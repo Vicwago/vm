@@ -16,7 +16,7 @@ self.NICHOS.restaurantes = {
   campoNombre: "Nombre del restaurante (opcional)",
   articuloCliente: "el restaurante",
 
-  parametros: { porcentajeAhorro: 0.60, diasSemana: 6, semanasAno: 48 }, // 6 días de apertura · coste/hora: salario mínimo (CONFIG.costeHora)
+  parametros: { porcentajeAhorro: 0.60, diasSemana: 6, semanasAno: 48 }, // 6 días de apertura · coste/hora: salario mínimo + Seguridad Social (CONFIG.costeHora)
 
   preguntas: [
     { clave: "tipo", titulo: "Tipo de local", tipo: "opcion",
@@ -145,7 +145,7 @@ self.NICHOS.restaurantes = {
       { prioridad: 3, icono: "calendar-days", si: { clave: "software", en: ["no", "no_se"] },
         texto: "Si las reservas solo entran por teléfono, cada una interrumpe el servicio. Una reserva online lo resuelve." }
     ],
-    pie: "Estimación calculada con el salario mínimo ({costeHora} €/h, SMI 2026) y un {porcentajeAhorroPct} % de recuperación media por automatización. Con el coste real de vuestro equipo, el ahorro es mayor."
+    pie: "Estimación calculada con el salario mínimo más la Seguridad Social de la empresa ({costeHora} €/h, SMI 2026) y un {porcentajeAhorroPct} % de recuperación media por automatización. Con el coste real de vuestro equipo, el ahorro es mayor."
   },
 
   resumen: {

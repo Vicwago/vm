@@ -15,7 +15,7 @@ self.NICHOS.peluquerias = {
   campoNombre: "Nombre de la peluquería (opcional)",
   articuloCliente: "la peluquería",
 
-  parametros: { porcentajeAhorro: 0.60, diasSemana: 5, semanasAno: 48 }, // % de ahorro [DECIDIR] · coste/hora: salario mínimo (CONFIG.costeHora)
+  parametros: { porcentajeAhorro: 0.60, diasSemana: 5, semanasAno: 48 }, // % de ahorro [DECIDIR] · coste/hora: salario mínimo + Seguridad Social (CONFIG.costeHora)
 
   preguntas: [
     { clave: "tipo", titulo: "Tipo de peluquería", tipo: "opcion",
@@ -145,7 +145,7 @@ self.NICHOS.peluquerias = {
       { prioridad: 3, icono: "calendar-days", si: { clave: "software", en: ["si_poco", "papel", "no_se"] },
         texto: "Si cada cita pasa por una persona, el salón depende del teléfono. Una reserva online con recordatorios quita llamadas y huecos." }
     ],
-    pie: "Estimación calculada con el salario mínimo ({costeHora} €/h, SMI 2026) y un {porcentajeAhorroPct} % de recuperación media por automatización. Con el coste real de vuestro equipo, el ahorro es mayor."
+    pie: "Estimación calculada con el salario mínimo más la Seguridad Social de la empresa ({costeHora} €/h, SMI 2026) y un {porcentajeAhorroPct} % de recuperación media por automatización. Con el coste real de vuestro equipo, el ahorro es mayor."
   },
 
   resumen: {

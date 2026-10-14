@@ -15,7 +15,7 @@ self.NICHOS.spas = {
   campoNombre: "Nombre del centro (opcional)",
   articuloCliente: "el centro",
 
-  parametros: { porcentajeAhorro: 0.60, diasSemana: 5, semanasAno: 48 }, // % de ahorro [DECIDIR] · coste/hora: salario mínimo (CONFIG.costeHora)
+  parametros: { porcentajeAhorro: 0.60, diasSemana: 5, semanasAno: 48 }, // % de ahorro [DECIDIR] · coste/hora: salario mínimo + Seguridad Social (CONFIG.costeHora)
 
   preguntas: [
     { clave: "tipo", titulo: "Tipo de centro", tipo: "opcion",
@@ -145,7 +145,7 @@ self.NICHOS.spas = {
       { prioridad: 3, icono: "calendar-days", si: { clave: "software", en: ["si_poco", "no", "no_se"] },
         texto: "Si cada cita pasa por el teléfono, la recepción no para. Una reserva online con recordatorios lo ordena." }
     ],
-    pie: "Estimación calculada con el salario mínimo ({costeHora} €/h, SMI 2026) y un {porcentajeAhorroPct} % de recuperación media por automatización. Con el coste real de vuestro equipo, el ahorro es mayor."
+    pie: "Estimación calculada con el salario mínimo más la Seguridad Social de la empresa ({costeHora} €/h, SMI 2026) y un {porcentajeAhorroPct} % de recuperación media por automatización. Con el coste real de vuestro equipo, el ahorro es mayor."
   },
 
   resumen: {

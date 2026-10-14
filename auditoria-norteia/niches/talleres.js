@@ -15,7 +15,7 @@ self.NICHOS.talleres = {
   campoNombre: "Nombre del taller (opcional)",
   articuloCliente: "el taller",
 
-  parametros: { porcentajeAhorro: 0.60, diasSemana: 5, semanasAno: 48 }, // % de ahorro [DECIDIR] · coste/hora: salario mínimo (CONFIG.costeHora)
+  parametros: { porcentajeAhorro: 0.60, diasSemana: 5, semanasAno: 48 }, // % de ahorro [DECIDIR] · coste/hora: salario mínimo + Seguridad Social (CONFIG.costeHora)
 
   preguntas: [
     { clave: "tipo", titulo: "Tipo de taller", tipo: "opcion",
@@ -143,7 +143,7 @@ self.NICHOS.talleres = {
       { prioridad: 3, icono: "folder-open", si: { clave: "software", en: ["no", "no_se"] },
         texto: "Sin un programa de gestión claro, citas, órdenes y avisos dependen de las personas. Se puede ordenar paso a paso." }
     ],
-    pie: "Estimación calculada con el salario mínimo ({costeHora} €/h, SMI 2026) y un {porcentajeAhorroPct} % de recuperación media por automatización. Con el coste real de vuestro equipo, el ahorro es mayor."
+    pie: "Estimación calculada con el salario mínimo más la Seguridad Social de la empresa ({costeHora} €/h, SMI 2026) y un {porcentajeAhorroPct} % de recuperación media por automatización. Con el coste real de vuestro equipo, el ahorro es mayor."
   },
 
   resumen: {

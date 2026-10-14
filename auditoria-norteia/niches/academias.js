@@ -15,7 +15,7 @@ self.NICHOS.academias = {
   campoNombre: "Nombre de la academia o autoescuela (opcional)",
   articuloCliente: "la academia",
 
-  parametros: { porcentajeAhorro: 0.60, diasSemana: 5, semanasAno: 44 }, // curso con vacaciones · coste/hora: salario mínimo (CONFIG.costeHora)
+  parametros: { porcentajeAhorro: 0.60, diasSemana: 5, semanasAno: 44 }, // curso con vacaciones · coste/hora: salario mínimo + Seguridad Social (CONFIG.costeHora)
 
   preguntas: [
     { clave: "tipo", titulo: "Tipo de centro", tipo: "opcion",
@@ -142,7 +142,7 @@ self.NICHOS.academias = {
       { prioridad: 3, icono: "folder-open", si: { clave: "software", en: ["excel", "no_se"] },
         texto: "Con alumnos, grupos y cobros en Excel o papel, todo depende de una persona. Se puede ordenar paso a paso." }
     ],
-    pie: "Estimación calculada con el salario mínimo ({costeHora} €/h, SMI 2026) y un {porcentajeAhorroPct} % de recuperación media por automatización. Con el coste real de vuestro equipo, el ahorro es mayor."
+    pie: "Estimación calculada con el salario mínimo más la Seguridad Social de la empresa ({costeHora} €/h, SMI 2026) y un {porcentajeAhorroPct} % de recuperación media por automatización. Con el coste real de vuestro equipo, el ahorro es mayor."
   },
 
   resumen: {
