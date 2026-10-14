@@ -72,7 +72,7 @@ window.CONFIG = {
 // envío, que se introduce una vez en el historial (protegido con PIN).
 // Con el email desactivado no se guarda ninguna cola de envío.
 window.CONFIG.email = {
-  habilitado: false,
+  habilitado: true,
   proveedor: "norteia",       // "norteia" = /api/enviar (recomendado) · "emailjs" = alternativa sin servidor
   endpoint: "/api/enviar",
   pedirConsentimiento: true,  // el envío solo sale si el negocio lo acepta en la pantalla de resultado

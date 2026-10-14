@@ -23,6 +23,7 @@ const TIPOS = { ".html": "text/html; charset=utf-8", ".js": "text/javascript; ch
 // config.local.js "publicado" (simula el archivo real en el hosting; los route de Playwright no ven las peticiones del service worker)
 let configLocalServida = null;
 let configExtra = ""; // se añade al final de config.js (simula cambios de configuración)
+// Las pruebas parten con el email desactivado; cada sección de email lo activa
 // PIN propio de las pruebas (el real no está en el repositorio)
 const PIN = "1357";
 const PIN_TEST = 'window.CONFIG.historial.pinHuella = "' + crypto.createHash("sha256").update("norteia:" + PIN).digest("hex") + '";\n';
@@ -40,7 +41,7 @@ const servidor = http.createServer((req, res) => {
   }
   if (ruta === "/config.js") {
     res.writeHead(200, Object.assign({ "Content-Type": "text/javascript; charset=utf-8", "Cache-Control": "no-cache" }, CABECERAS));
-    res.end(fs.readFileSync(path.join(RAIZ, "config.js"), "utf8") + "\n" + (configLocalServida ? "window.CONFIG.email.configLocal = true;\n" : "") + PIN_TEST + configExtra);
+    res.end(fs.readFileSync(path.join(RAIZ, "config.js"), "utf8") + "\n" + "window.CONFIG.email.habilitado = false;\n" + (configLocalServida ? "window.CONFIG.email.configLocal = true;\n" : "") + PIN_TEST + configExtra);
     return;
   }
   const archivo = path.join(RAIZ, ruta);

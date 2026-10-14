@@ -384,7 +384,8 @@ test("no hay identificadores reales de EmailJS en el repositorio", () => {
   const cfg = fs.readFileSync(path.join(RAIZ, "config.js"), "utf8");
   assert.match(cfg, /serviceId: ""/);
   assert.match(cfg, /publicKey: ""/);
-  assert.match(cfg, /habilitado: false/);
+  // Activado solo con la función propia (sin identificadores en la web)
+  if (/habilitado: true/.test(cfg)) assert.match(cfg, /proveedor: "norteia"/);
   const ignore = fs.readFileSync(path.join(RAIZ, ".gitignore"), "utf8");
   assert.match(ignore, /^config\.local\.js$/m);
 });
