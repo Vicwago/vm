@@ -8,14 +8,14 @@ self.NICHOS = self.NICHOS || {};
 self.NICHOS.spas = {
   id: "spas",
   nombre: "Spas y estética",
-  icono: "🧖",
+  icono: "flower-2",
   completo: true,
-  tituloApp: "Auditoría rápida de tiempo perdido",
+  tituloApp: "Estimación rápida de tiempo perdido",
   subtituloBienvenida: "10 preguntas. 3 minutos. Y sabrá cuánto tiempo y dinero se le va al centro en tareas que se pueden automatizar.",
   campoNombre: "Nombre del centro (opcional)",
   articuloCliente: "el centro",
 
-  parametros: { costeHora: 13, porcentajeAhorro: 0.60, diasSemana: 5, semanasAno: 48 }, // [DECIDIR]
+  parametros: { porcentajeAhorro: 0.60, diasSemana: 5, semanasAno: 48 }, // % de ahorro [DECIDIR] · coste/hora: salario mínimo (CONFIG.costeHora)
 
   preguntas: [
     { clave: "tipo", titulo: "Tipo de centro", tipo: "opcion",
@@ -63,7 +63,7 @@ self.NICHOS.spas = {
         { valor: "no", etiqueta: "No" },
         { valor: "no_se", etiqueta: "No lo sé" }
       ] },
-    { clave: "interes", titulo: "Si recuperaran tiempo y los clientes reservaran y resolvieran dudas a cualquier hora, ¿interés?", tipo: "opcion",
+    { clave: "interes", titulo: "Si recuperaseis tiempo en la gestión de citas de clientes y pudieran resolver dudas automáticamente, ¿en qué nivel os interesaría?", tipo: "opcion",
       opciones: [
         { valor: "mucho", etiqueta: "Mucho" },
         { valor: "bastante", etiqueta: "Bastante" },
@@ -124,7 +124,7 @@ self.NICHOS.spas = {
         cta: "Agenda una cita con NorteIA para saber cómo"
       }
     },
-    etiquetasCifras: { horas: "horas recuperables al año", euros: "recuperables al año" },
+    etiquetasCifras: { horas: "horas recuperables al año", euros: "recuperables al año, como mínimo" },
     volumenBajo: "Con estas cifras el volumen de tareas es bajo. Aun así, un diagnóstico puede encontrar otras oportunidades.",
     ctaVolumenBajo: "Agenda una cita con NorteIA para saber cómo",
     contraste: {
@@ -138,18 +138,18 @@ self.NICHOS.spas = {
       menor: "Vuestra sensación era algo mayor ({percepcionTexto}), pero los números hablan: {horasDiaCalc} horas al día, que son {horasAno} horas al año. Hay margen de sobra para recuperar."
     },
     senales: [
-      { prioridad: 1, icono: "📅", si: { clave: "noShows", en: ["3-5", "5+"] },
+      { prioridad: 1, icono: "calendar-x", si: { clave: "noShows", en: ["3-5", "5+"] },
         texto: "Cada hueco por un cliente que no viene es una cabina vacía. Los recordatorios automáticos los reducen." },
-      { prioridad: 2, icono: "🎟️", si: { clave: "bonos", en: ["excel", "memoria", "no_controlado"] },
+      { prioridad: 2, icono: "ticket", si: { clave: "bonos", en: ["excel", "memoria", "no_controlado"] },
         texto: "Bonos y tarjetas regalo a mano: sesiones olvidadas y clientes que no vuelven. Se puede avisar solo de las sesiones pendientes." },
-      { prioridad: 3, icono: "🗓️", si: { clave: "software", en: ["si_poco", "no", "no_se"] },
+      { prioridad: 3, icono: "calendar-days", si: { clave: "software", en: ["si_poco", "no", "no_se"] },
         texto: "Si cada cita pasa por el teléfono, la recepción no para. Una reserva online con recordatorios lo ordena." }
     ],
-    pie: "Estimación basada en vuestras respuestas. Ahorro calculado sobre un {porcentajeAhorroPct} % de recuperación media por automatización."
+    pie: "Estimación calculada con el salario mínimo ({costeHora} €/h, SMI 2026) y un {porcentajeAhorroPct} % de recuperación media por automatización. Con el coste real de vuestro equipo, el ahorro es mayor."
   },
 
   resumen: {
-    titulo: "AUDITORÍA RÁPIDA NORTEIA - SPA Y ESTÉTICA",
+    titulo: "ESTIMACIÓN RÁPIDA NORTEIA - SPA Y ESTÉTICA",
     etiquetaNombre: "Centro",
     cabecera: [["tipo", "Tipo"]],
     lineas: [

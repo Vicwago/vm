@@ -7,6 +7,7 @@ config.*.real.js
 .env
 .env.*
 *.env
+estimaciones-norteia-*.csv
 auditorias-norteia-*.csv
 exports/
 

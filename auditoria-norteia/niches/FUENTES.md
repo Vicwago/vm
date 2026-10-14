@@ -1,23 +1,22 @@
 # De dónde salen los valores de cada sector
 
-Todos los valores de esta tabla son **[DECIDIR]**: puntos de partida razonables para cambiar en cada archivo de `niches/` (bloque `parametros` y `marca` de cada slider) sin tocar código. Consultado en octubre de 2026.
+Los valores de cada sector se cambian en su archivo de `niches/` (bloque `parametros` y `marca` de cada slider) sin tocar código. Consultado en octubre de 2026.
 
-## Coste por hora (empresa) por defecto
+## Coste por hora: salario mínimo para todos los sectores
 
-El cálculo es una estimación propia: salario anual de convenio dividido entre unas 1.750-1.790 h/año, multiplicado por 1,32 (cargas sociales). El suelo es el SMI de 2026, 17.094 €/año ([RD 126/2026](https://www.fieldfisher.com/es-es/locations/espana/actualidad/salario-minimo-interprofesional-2026)), que da unos **13 €/h** para la empresa.
+Desde la versión 1.4, todos los sectores calculan con el **salario mínimo interprofesional de 2026**: 17.094 €/año (1.221 € × 14 pagas, [RD 126/2026](https://www.fieldfisher.com/es-es/locations/espana/actualidad/salario-minimo-interprofesional-2026)) entre la jornada máxima anual (1.826 h) = **9,36 €/h** (`CONFIG.costeHora`).
 
-| Sector | €/h | Base |
+Es deliberadamente conservador: ningún negocio paga menos por hora, así que el ahorro mostrado es el mínimo. La app lo indica junto a la cifra («como mínimo») y en el pie del resultado. El coste real, con cotizaciones o con salarios de convenio, suele quedar entre 13 y 16 €/h según el sector (referencia para la conversación de venta):
+
+| Sector | Coste real orientativo | Base |
 |---|---|---|
-| Clínicas | 14 | Valor de la especificación original. Auxiliar de Oficinas y Despachos de A Coruña ≈ 17.207 €/año ([calculadornomina](https://calculadornomina.es/convenios/oficinas-y-despachos/a-coruna/)) |
-| Talleres | 15 | Estimación con el convenio del metal ([tablas ASIME 2025](https://asime.es/wp-content/uploads/2025/02/Tablas-salariales-convenio-2025.pdf)) |
-| Gestorías | 15 | Auxiliar ≈ SMI ([IX Convenio gestorías](https://wageindicator.org/es-es/ai/trabajo-en-espana/convenios-colectivos/ix-convenio-colectivo-estatal-de-gestorias-administrativas-2024-2026/)). Se usa 15 porque estas tareas las hace a menudo un oficial administrativo |
-| Peluquerías, barberías, spas | 13 | Grupo I del convenio estatal 2024-2026: 17.500 €/año ([Iberley](https://www.iberley.es/noticias/publicado-nuevo-convenio-colectivo-estatal-peluquerias-y-gimnasios-2024-2026-34045)) |
-| Veterinarias | 14 | Recepción ≈ 13 €/h y veterinario ≈ 16 €/h ([convenio estatal, Redacción Médica](https://www.redaccionmedica.com/salud-animal/20260723/acuerdo-definitivo-para-el-nuevo-convenio-estatal-de-centros-servicios-veterinarios/347961_0.html)) |
-| Inmobiliarias | 14 | Administrativo ≈ SMI ([convenio, CCOO](https://www.ccoo-servicios.es/archivos/20240710_Firma-Conv-gestio-mediacio-Inmobiliaria.pdf)). Se sube a 14 porque estas tareas las suele hacer el comercial |
-| Restaurantes | 14 | Estimación: camarero en A Coruña ≈ 1.305 €/mes × 15 pagas (tablas sin verificar). Cuenta 6 días de apertura a la semana |
-| Academias | 13 | Estimación (autoescuelas: SMI + 10 % según el [XXIV Convenio](https://www.iberley.es/noticias/publicado-xxiv-convenio-colectivo-nacional-autoescuelas-36350)). Cuenta 44 semanas al año |
-
-Los salarios de peluquería, gestorías y oficinas vienen de webs secundarias. Conviene contrastarlos con el BOE o el BOP antes de usarlos en una propuesta.
+| Peluquerías, barberías, spas | ≈ 13 €/h | Convenio estatal 2024-2026, grupo I: 17.500 €/año ([Iberley](https://www.iberley.es/noticias/publicado-nuevo-convenio-colectivo-estatal-peluquerias-y-gimnasios-2024-2026-34045)) |
+| Clínicas | ≈ 13-14 €/h | Auxiliar de Oficinas y Despachos de A Coruña ≈ 17.207 €/año ([calculadornomina](https://calculadornomina.es/convenios/oficinas-y-despachos/a-coruna/)) |
+| Gestorías | ≈ 13-15 €/h | [IX Convenio de gestorías](https://wageindicator.org/es-es/ai/trabajo-en-espana/convenios-colectivos/ix-convenio-colectivo-estatal-de-gestorias-administrativas-2024-2026/) |
+| Talleres | ≈ 15 €/h | Convenio del metal ([tablas ASIME 2025](https://asime.es/wp-content/uploads/2025/02/Tablas-salariales-convenio-2025.pdf)) |
+| Veterinarias | 13-16 €/h | [Convenio estatal](https://www.redaccionmedica.com/salud-animal/20260723/acuerdo-definitivo-para-el-nuevo-convenio-estatal-de-centros-servicios-veterinarios/347961_0.html) |
+| Inmobiliarias | ≈ 13-14 €/h | [Convenio, CCOO](https://www.ccoo-servicios.es/archivos/20240710_Firma-Conv-gestio-mediacio-Inmobiliaria.pdf) |
+| Restaurantes, academias | ≈ 13-14 €/h | Estimaciones propias (tablas sin verificar) |
 
 ## Volúmenes y "habitual" de los sliders
 

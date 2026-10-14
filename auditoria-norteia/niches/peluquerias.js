@@ -8,14 +8,14 @@ self.NICHOS = self.NICHOS || {};
 self.NICHOS.peluquerias = {
   id: "peluquerias",
   nombre: "Peluquerías",
-  icono: "💇",
+  icono: "scissors",
   completo: true,
-  tituloApp: "Auditoría rápida de tiempo perdido",
+  tituloApp: "Estimación rápida de tiempo perdido",
   subtituloBienvenida: "10 preguntas. 3 minutos. Y sabrá cuánto tiempo y dinero se le va al salón en tareas que se pueden automatizar.",
   campoNombre: "Nombre de la peluquería (opcional)",
   articuloCliente: "la peluquería",
 
-  parametros: { costeHora: 13, porcentajeAhorro: 0.60, diasSemana: 5, semanasAno: 48 }, // [DECIDIR]
+  parametros: { porcentajeAhorro: 0.60, diasSemana: 5, semanasAno: 48 }, // % de ahorro [DECIDIR] · coste/hora: salario mínimo (CONFIG.costeHora)
 
   preguntas: [
     { clave: "tipo", titulo: "Tipo de peluquería", tipo: "opcion",
@@ -63,7 +63,7 @@ self.NICHOS.peluquerias = {
         { valor: "papel", etiqueta: "No, agenda en papel" },
         { valor: "no_se", etiqueta: "No lo sé" }
       ] },
-    { clave: "interes", titulo: "Si recuperaran tiempo y los clientes pudieran reservar a cualquier hora, ¿interés?", tipo: "opcion",
+    { clave: "interes", titulo: "Si recuperaseis tiempo en la gestión de citas y los clientes pudieran reservar y resolver dudas automáticamente, ¿en qué nivel os interesaría?", tipo: "opcion",
       opciones: [
         { valor: "mucho", etiqueta: "Mucho" },
         { valor: "bastante", etiqueta: "Bastante" },
@@ -124,7 +124,7 @@ self.NICHOS.peluquerias = {
         cta: "Agenda una cita con NorteIA para saber cómo"
       }
     },
-    etiquetasCifras: { horas: "horas recuperables al año", euros: "recuperables al año" },
+    etiquetasCifras: { horas: "horas recuperables al año", euros: "recuperables al año, como mínimo" },
     volumenBajo: "Con estas cifras el volumen de tareas es bajo. Aun así, un diagnóstico puede encontrar otras oportunidades.",
     ctaVolumenBajo: "Agenda una cita con NorteIA para saber cómo",
     contraste: {
@@ -138,18 +138,18 @@ self.NICHOS.peluquerias = {
       menor: "Vuestra sensación era algo mayor ({percepcionTexto}), pero los números hablan: {horasDiaCalc} horas al día, que son {horasAno} horas al año. Hay margen de sobra para recuperar."
     },
     senales: [
-      { prioridad: 1, icono: "📅", si: { clave: "noShows", en: ["3-5", "5+"] },
+      { prioridad: 1, icono: "calendar-x", si: { clave: "noShows", en: ["3-5", "5+"] },
         texto: "Los huecos por clientes que no vienen se reducen con recordatorios y confirmación automática por WhatsApp." },
-      { prioridad: 2, icono: "📞", si: { clave: "interrupciones", en: ["con_frecuencia", "constantemente"] },
+      { prioridad: 2, icono: "phone-missed", si: { clave: "interrupciones", en: ["con_frecuencia", "constantemente"] },
         texto: "Dejar el secador para coger el teléfono: el cliente de la silla lo nota y el del teléfono espera." },
-      { prioridad: 3, icono: "🗓️", si: { clave: "software", en: ["si_poco", "papel", "no_se"] },
+      { prioridad: 3, icono: "calendar-days", si: { clave: "software", en: ["si_poco", "papel", "no_se"] },
         texto: "Si cada cita pasa por una persona, el salón depende del teléfono. Una reserva online con recordatorios quita llamadas y huecos." }
     ],
-    pie: "Estimación basada en vuestras respuestas. Ahorro calculado sobre un {porcentajeAhorroPct} % de recuperación media por automatización."
+    pie: "Estimación calculada con el salario mínimo ({costeHora} €/h, SMI 2026) y un {porcentajeAhorroPct} % de recuperación media por automatización. Con el coste real de vuestro equipo, el ahorro es mayor."
   },
 
   resumen: {
-    titulo: "AUDITORÍA RÁPIDA NORTEIA - PELUQUERÍA",
+    titulo: "ESTIMACIÓN RÁPIDA NORTEIA - PELUQUERÍA",
     etiquetaNombre: "Peluquería",
     cabecera: [["tipo", "Tipo"]],
     lineas: [

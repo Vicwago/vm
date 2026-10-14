@@ -12,7 +12,10 @@ window.CONFIG = {
   logo: "assets/logo-norteia.svg", // logo oficial de norteia.es (oscuro). Variante: assets/logo-norteia-blanco.svg
 
   // Cálculo (cada nicho puede pisar estos valores en su bloque "parametros")
-  costeHora: 14,            // [DECIDIR] euros por hora de trabajo del equipo
+  // Coste/hora = SALARIO MÍNIMO: SMI 2026 (17.094 €/año, RD 126/2026) entre la jornada máxima
+  // anual (1.826 h) = 9,36 €/h. Es el mínimo que cuesta una hora del equipo, así que el ahorro
+  // mostrado es el mínimo; el real es mayor. Lo explica el pie del resultado.
+  costeHora: 9.36,
   porcentajeAhorro: 0.65,   // [DECIDIR] entre 0.60 y 0.70 (fracción recuperable por automatización)
   diasSemana: 5,
   semanasAno: 48,
@@ -46,7 +49,7 @@ window.CONFIG = {
   modoDesarrollo: false,          // true = muestra nichos incompletos con etiqueta [COMPLETAR]
 
   // Varios
-  versionApp: "1.3",
+  versionApp: "1.4",
   pantallaCalculandoMs: 1200
 };
 

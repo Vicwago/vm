@@ -9,14 +9,14 @@ self.NICHOS = self.NICHOS || {};
 self.NICHOS.restaurantes = {
   id: "restaurantes",
   nombre: "Restaurantes",
-  icono: "🍽️",
+  icono: "utensils",
   completo: true,
-  tituloApp: "Auditoría rápida de tiempo perdido",
+  tituloApp: "Estimación rápida de tiempo perdido",
   subtituloBienvenida: "10 preguntas. 3 minutos. Y sabrá cuánto tiempo y dinero se le va al local en tareas que se pueden automatizar.",
   campoNombre: "Nombre del restaurante (opcional)",
   articuloCliente: "el restaurante",
 
-  parametros: { costeHora: 14, porcentajeAhorro: 0.60, diasSemana: 6, semanasAno: 48 }, // [DECIDIR] 6 días de apertura
+  parametros: { porcentajeAhorro: 0.60, diasSemana: 6, semanasAno: 48 }, // 6 días de apertura · coste/hora: salario mínimo (CONFIG.costeHora)
 
   preguntas: [
     { clave: "tipo", titulo: "Tipo de local", tipo: "opcion",
@@ -63,7 +63,7 @@ self.NICHOS.restaurantes = {
         { valor: "no", etiqueta: "No, solo por teléfono" },
         { valor: "no_se", etiqueta: "No lo sé" }
       ] },
-    { clave: "interes", titulo: "Si recuperaran tiempo y las reservas y dudas se atendieran solas a cualquier hora, ¿interés?", tipo: "opcion",
+    { clave: "interes", titulo: "Si recuperaseis tiempo al teléfono y las reservas y dudas se atendieran automáticamente, ¿en qué nivel os interesaría?", tipo: "opcion",
       opciones: [
         { valor: "mucho", etiqueta: "Mucho" },
         { valor: "bastante", etiqueta: "Bastante" },
@@ -124,7 +124,7 @@ self.NICHOS.restaurantes = {
         cta: "Agenda una cita con NorteIA para saber cómo"
       }
     },
-    etiquetasCifras: { horas: "horas recuperables al año", euros: "recuperables al año" },
+    etiquetasCifras: { horas: "horas recuperables al año", euros: "recuperables al año, como mínimo" },
     volumenBajo: "Con estas cifras el volumen de tareas es bajo. Aun así, un diagnóstico puede encontrar otras oportunidades.",
     ctaVolumenBajo: "Agenda una cita con NorteIA para saber cómo",
     contraste: {
@@ -138,18 +138,18 @@ self.NICHOS.restaurantes = {
       menor: "Vuestra sensación era algo mayor ({percepcionTexto}), pero los números hablan: {horasDiaCalc} horas al día, que son {horasAno} horas al año. Hay margen de sobra para recuperar."
     },
     senales: [
-      { prioridad: 1, icono: "📞", si: { clave: "perdidas", en: ["con_frecuencia", "no_controlado"] },
+      { prioridad: 1, icono: "phone-missed", si: { clave: "perdidas", en: ["con_frecuencia", "no_controlado"] },
         texto: "Teléfono sin contestar en pleno servicio: cada llamada perdida puede ser una mesa que reserva en otro sitio." },
-      { prioridad: 2, icono: "🪑", si: { clave: "noShows", en: ["3-5", "5+"] },
+      { prioridad: 2, icono: "armchair", si: { clave: "noShows", en: ["3-5", "5+"] },
         texto: "Mesas vacías por reservas que no vienen: la confirmación automática por WhatsApp las reduce." },
-      { prioridad: 3, icono: "🗓️", si: { clave: "software", en: ["no", "no_se"] },
+      { prioridad: 3, icono: "calendar-days", si: { clave: "software", en: ["no", "no_se"] },
         texto: "Si las reservas solo entran por teléfono, cada una interrumpe el servicio. Una reserva online lo resuelve." }
     ],
-    pie: "Estimación basada en vuestras respuestas. Ahorro calculado sobre un {porcentajeAhorroPct} % de recuperación media por automatización."
+    pie: "Estimación calculada con el salario mínimo ({costeHora} €/h, SMI 2026) y un {porcentajeAhorroPct} % de recuperación media por automatización. Con el coste real de vuestro equipo, el ahorro es mayor."
   },
 
   resumen: {
-    titulo: "AUDITORÍA RÁPIDA NORTEIA - RESTAURANTE",
+    titulo: "ESTIMACIÓN RÁPIDA NORTEIA - RESTAURANTE",
     etiquetaNombre: "Restaurante",
     cabecera: [["tipo", "Tipo"]],
     lineas: [

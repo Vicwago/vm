@@ -22,7 +22,7 @@
     calculando: "Calculando…",
     revisar: "Revisar respuestas",
     guardarResumen: "Guardar resumen",
-    nuevaAuditoria: "Nueva auditoría",
+    nuevaAuditoria: "Nueva estimación",
     llamaAhora: "O llama ahora: {telefono}",
     escaneaQR: "Escanea para agendar desde tu móvil",
     sinConexionCTA: "Sin conexión ahora. Podéis llamar al {telefono} o lo agendamos desde otro dispositivo.",
@@ -41,19 +41,19 @@
     noSePudoGuardar: "No se pudo guardar en el dispositivo. Copia el resumen antes de empezar otra.",
     verResumen: "Ver resumen",
     borrarHistorial: "Borrar historial",
-    borrarPaso1: "¿Borrar todas las auditorías de este dispositivo?",
-    borrarPaso2: "Se borrarán {n} auditorías. Esta acción no se puede deshacer.",
-    borrarPendientes: "Hay {n} auditorías con email pendiente. Borrar también cancela sus envíos locales.",
+    borrarPaso1: "¿Borrar todas las visitas de este dispositivo?",
+    borrarPaso2: "Se borrarán {n} visitas. Esta acción no se puede deshacer.",
+    borrarPendientes: "Hay {n} visitas con email pendiente. Borrar también cancela sus envíos locales.",
     siBorrar: "Sí, borrar",
     cancelar: "Cancelar",
     reintentar: "Reintentar pendientes",
     ayudaEnviado: "Aceptado por el servicio; no confirma entrega en bandeja",
     sinConexionEmail: "Sin conexión: queda pendiente. Abre la app con internet para completar los envíos.",
     sinNichos: "No hay ningún nicho disponible. Revisa CONFIG.nichosVisibles en config.js.",
-    historial: "Historial de auditorías",
-    resumen: "Resumen de la auditoría",
+    historial: "Historial de visitas",
+    resumen: "Resumen de la estimación",
     todos: "Todos",
-    sinAuditorias: "Todavía no hay auditorías guardadas en este dispositivo.",
+    sinAuditorias: "Todavía no hay visitas guardadas en este dispositivo.",
     contactoTitulo: "Datos de contacto (opcional)",
     contactoPersona: "Persona de contacto",
     contactoCargo: "Cargo",
@@ -142,6 +142,18 @@
       cont.appendChild(h("a", { href: e.href, target: "_blank", rel: "noopener", texto: e.texto }));
     });
     return cont;
+  }
+
+  // Icono de línea (assets/iconos.js) con el color de la paleta; si no existe, se muestra el texto tal cual
+  function icono(nombre, clase) {
+    var span = h("span", { clase: "icono" + (clase ? " " + clase : ""), "aria-hidden": "true" });
+    var cuerpo = nombre && window.ICONOS_NORTEIA && window.ICONOS_NORTEIA[nombre];
+    if (cuerpo) {
+      span.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">' + cuerpo + "</svg>";
+    } else if (nombre) {
+      span.textContent = nombre;
+    }
+    return span;
   }
 
   function telefonoLimpio(tel) { return String(tel || "").replace(/[^\d+]/g, ""); }
@@ -278,7 +290,7 @@
             campo.placeholder = nicho.campoNombre;
             campo.setAttribute("aria-label", nicho.campoNombre);
           }
-        }, [h("span", { clase: "icono", "aria-hidden": "true", texto: nicho.icono || "" }), h("span", { texto: nicho.nombre }),
+        }, [icono(nicho.icono), h("span", { clase: "nombre-nicho", texto: nicho.nombre }),
             nicho.completo ? null : h("span", { clase: "etiqueta-completar", texto: "[COMPLETAR]" })]);
         selector.appendChild(tarjeta);
       });
@@ -732,7 +744,7 @@
         h("p", { texto: t.subtitulo }),
         h("p", { clase: "impulso", texto: t.impulso }),
         t.senales.length ? h("ul", { clase: "senales" }, t.senales.map(function (s) {
-          return h("li", {}, [h("span", { "aria-hidden": "true", texto: s.icono }), h("span", { texto: s.texto })]);
+          return h("li", {}, [icono(s.icono, "icono-senal"), h("span", { texto: s.texto })]);
         })) : null
       ]);
       var contraste = h("aside", { clase: "panel contraste" }, [
@@ -815,9 +827,9 @@
 
   function textoResumenDe(registro) {
     var n = nichoPorId(registro.nicho);
-    if (!n) return "Auditoría " + registro.id + " (sector " + registro.nicho + " no disponible en esta versión)";
+    if (!n) return "Visita " + registro.id + " (sector " + registro.nicho + " no disponible en esta versión)";
     try { return M.textoResumen(n, registro, CONFIG); }
-    catch (e) { console.error(e); return "No se pudo generar el resumen de esta auditoría."; }
+    catch (e) { console.error(e); return "No se pudo generar el resumen de esta visita."; }
   }
 
   function copiarTexto(texto) {
@@ -843,7 +855,7 @@
     var csv = M.generarCSV(lista);
     var blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
     var url = URL.createObjectURL(blob);
-    var a = h("a", { href: url, download: "auditorias-norteia-" + M.fechaArchivo(new Date().toISOString()) + ".csv" });
+    var a = h("a", { href: url, download: "estimaciones-norteia-" + M.fechaArchivo(new Date().toISOString()) + ".csv" });
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -880,7 +892,7 @@
         });
       }),
       typeof navigator.share === "function" ? boton(T.compartir, "boton-secundario", function () {
-        navigator.share({ title: (nichoPorId(registro.nicho) || {}).nombre || "Auditoría NorteIA", text: texto }).catch(function () { /* cancelado */ });
+        navigator.share({ title: (nichoPorId(registro.nicho) || {}).nombre || "Estimación NorteIA", text: texto }).catch(function () { /* cancelado */ });
       }) : null,
       origen === "resultado" ? boton(T.descargarCSV, "boton-secundario", descargarCSV) : null,
       origen === "resultado"
@@ -909,7 +921,7 @@
     var eg = E.estadoGeneral();
     var c = E.contarPendientes();
     var texto;
-    if (!eg.habilitado) texto = "Envío por email desactivado (config). Las auditorías quedan pendientes y se enviarán al activarlo.";
+    if (!eg.habilitado) texto = "Envío por email desactivado (config). Las visitas quedan pendientes y se enviarán al activarlo.";
     else if (!eg.configOk) texto = "Email sin configurar: " + eg.motivo + ".";
     else if (eg.cuotaAgotada) texto = "Cuota de email agotada; resumen guardado. Revisa el panel de EmailJS y pulsa «Reintentar pendientes».";
     else if (eg.otraPestana) texto = "Hay otra pestaña de la app abierta: ciérrala para enviar desde aquí.";
@@ -936,7 +948,7 @@
         filtros.appendChild(h("button", {
           type: "button", clase: "filtro", "aria-pressed": String(estado.filtro === id),
           onclick: function () { estado.filtro = id; mostrarHistorial(); }
-        }, [id === "todos" ? T.todos : ((n && n.icono ? n.icono + " " : "") + (n ? n.nombre : id))]));
+        }, id === "todos" ? [T.todos] : [n ? icono(n.icono, "icono-mini") : null, n ? n.nombre : id]));
       });
     }
 
@@ -950,7 +962,7 @@
         type: "button", clase: "fila-historial",
         onclick: function () { if (libre()) mostrarResumen(A.obtener(r.id) || r, "historial"); }
       }, [
-        h("span", { clase: "insignia" }, [n && n.icono ? n.icono + " " : "", n ? n.nombre : r.nicho]),
+        h("span", { clase: "insignia" }, [n ? icono(n.icono, "icono-mini") : null, n ? n.nombre : r.nicho]),
         h("span", { texto: M.fmtFecha(r.fecha) }),
         h("span", { texto: r.nombreCliente || "Sin nombre" }),
         h("span", { clase: "cifras-fila", texto: M.fmtEntero(c.horasAno) + " h / " + M.fmtEuros(c.eurosRecuperables) }),

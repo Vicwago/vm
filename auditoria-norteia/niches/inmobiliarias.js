@@ -8,14 +8,14 @@ self.NICHOS = self.NICHOS || {};
 self.NICHOS.inmobiliarias = {
   id: "inmobiliarias",
   nombre: "Inmobiliarias",
-  icono: "🏠",
+  icono: "house",
   completo: true,
-  tituloApp: "Auditoría rápida de tiempo perdido",
+  tituloApp: "Estimación rápida de tiempo perdido",
   subtituloBienvenida: "10 preguntas. 3 minutos. Y sabrá cuánto tiempo y dinero se le va a la agencia en tareas que se pueden automatizar.",
   campoNombre: "Nombre de la inmobiliaria (opcional)",
   articuloCliente: "la inmobiliaria",
 
-  parametros: { costeHora: 14, porcentajeAhorro: 0.60, diasSemana: 5, semanasAno: 48 }, // [DECIDIR]
+  parametros: { porcentajeAhorro: 0.60, diasSemana: 5, semanasAno: 48 }, // % de ahorro [DECIDIR] · coste/hora: salario mínimo (CONFIG.costeHora)
 
   preguntas: [
     { clave: "tipo", titulo: "Tipo de inmobiliaria", tipo: "opcion",
@@ -61,7 +61,7 @@ self.NICHOS.inmobiliarias = {
         { valor: "no", etiqueta: "No" },
         { valor: "no_se", etiqueta: "No lo sé" }
       ] },
-    { clave: "interes", titulo: "Si recuperaran tiempo y cada contacto recibiera respuesta al momento, a cualquier hora, ¿interés?", tipo: "opcion",
+    { clave: "interes", titulo: "Si recuperaseis tiempo en atender contactos y cada interesado recibiera respuesta automáticamente, al momento, ¿en qué nivel os interesaría?", tipo: "opcion",
       opciones: [
         { valor: "mucho", etiqueta: "Mucho" },
         { valor: "bastante", etiqueta: "Bastante" },
@@ -122,7 +122,7 @@ self.NICHOS.inmobiliarias = {
         cta: "Agenda una cita con NorteIA para saber cómo"
       }
     },
-    etiquetasCifras: { horas: "horas recuperables al año", euros: "recuperables al año" },
+    etiquetasCifras: { horas: "horas recuperables al año", euros: "recuperables al año, como mínimo" },
     volumenBajo: "Con estas cifras el volumen de tareas es bajo. Aun así, un diagnóstico puede encontrar otras oportunidades.",
     ctaVolumenBajo: "Agenda una cita con NorteIA para saber cómo",
     contraste: {
@@ -136,18 +136,18 @@ self.NICHOS.inmobiliarias = {
       menor: "Vuestra sensación era algo mayor ({percepcionTexto}), pero los números hablan: {horasDiaCalc} horas al día, que son {horasAno} horas al año. Hay margen de sobra para recuperar."
     },
     senales: [
-      { prioridad: 1, icono: "⏱️", si: { clave: "respuesta", en: ["1-2d", "no_controlado"] },
+      { prioridad: 1, icono: "timer", si: { clave: "respuesta", en: ["1-2d", "no_controlado"] },
         texto: "Un interesado que espera un día ya ha escrito a otra agencia. La primera respuesta se puede automatizar." },
-      { prioridad: 2, icono: "🔎", si: { clave: "filtro", en: ["bastantes", "mayoria"] },
+      { prioridad: 2, icono: "filter", si: { clave: "filtro", en: ["bastantes", "mayoria"] },
         texto: "Visitas con gente que no encaja: se filtran antes con unas preguntas automáticas al primer contacto." },
-      { prioridad: 3, icono: "🗂️", si: { clave: "software", en: ["no", "no_se"] },
+      { prioridad: 3, icono: "folder-open", si: { clave: "software", en: ["no", "no_se"] },
         texto: "Sin CRM, los contactos se quedan en el correo y el móvil de cada uno. Se pueden ordenar en un solo sitio." }
     ],
-    pie: "Estimación basada en vuestras respuestas. Ahorro calculado sobre un {porcentajeAhorroPct} % de recuperación media por automatización."
+    pie: "Estimación calculada con el salario mínimo ({costeHora} €/h, SMI 2026) y un {porcentajeAhorroPct} % de recuperación media por automatización. Con el coste real de vuestro equipo, el ahorro es mayor."
   },
 
   resumen: {
-    titulo: "AUDITORÍA RÁPIDA NORTEIA - INMOBILIARIA",
+    titulo: "ESTIMACIÓN RÁPIDA NORTEIA - INMOBILIARIA",
     etiquetaNombre: "Inmobiliaria",
     cabecera: [["tipo", "Tipo"]],
     lineas: [

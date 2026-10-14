@@ -109,7 +109,7 @@ const browser = await chromium.launch();
   page.on("request", (r) => { if (!r.url().startsWith(URL_APP)) peticionesExternas++; });
   await page.goto(URL_APP);
   await page.locator(".bienvenida").waitFor();
-  ok(await page.locator("h1").textContent() === "Auditoría rápida de tiempo perdido", "título de bienvenida");
+  ok(await page.locator("h1").textContent() === "Estimación rápida de tiempo perdido", "título de bienvenida");
   ok(await page.locator(".nichos.pestanas .nicho-tarjeta").count() === 10, "10 sectores en pestañas");
   ok(await page.getByRole("button", { name: "Sector: Clínicas" }).getAttribute("aria-pressed") === "true", "Clínicas preseleccionada");
   ok(await page.locator(".etiqueta-completar").count() === 0, "ningún sector incompleto");
@@ -134,9 +134,9 @@ const browser = await chromium.launch();
   await clic(page.getByRole("button", { name: "Empezar" }));
   await contestarClinica(page);
   const titular = (await page.locator(".gancho h1").textContent()).replace(/\u00a0/g, " ");
-  ok(titular === "Podéis recuperar 351 horas y 4.910 € al año.", "titular sin nombre: " + titular);
+  ok(titular === "Podéis recuperar 351 horas y 3.290 € al año.", "titular sin nombre: " + titular);
   const cifras = await page.locator(".cifra-num").allTextContents();
-  ok(cifras[0] === "351" && cifras[1] === "4.910 €", "cifras gancho: " + cifras.join(" / "));
+  ok(cifras[0] === "351" && cifras[1] === "3.290 €", "cifras gancho: " + cifras.join(" / "));
   ok((await page.locator(".contraste p").textContent()).replace(/\u00a0/g, " ").startsWith("Vuestra intuición es buena: 2,3 horas"), "contraste «coincide»");
   ok(await page.locator(".qr svg").count() === 1, "QR generado en local");
   ok(await page.locator("a.telefono").getAttribute("href") === "tel:+34637905866", "teléfono tocable");
@@ -151,23 +151,23 @@ const browser = await chromium.launch();
   // Resumen
   await clic(page.getByRole("button", { name: "Guardar resumen" }));
   const resumen = await page.locator(".resumen-texto").textContent();
-  ok(resumen.includes("- Recuperable (65 %): 351 h y 4.910 €/año") && resumen.includes("Sector: Clínicas"), "resumen copiable");
+  ok(resumen.includes("- Recuperable (65 %): 351 h y 3.290 €/año") && resumen.includes("Sector: Clínicas"), "resumen copiable");
   await page.screenshot({ path: path.join(SALIDA, "05-resumen-1024.png") });
-  await clic(page.getByRole("button", { name: "Nueva auditoría" }));
+  await clic(page.getByRole("button", { name: "Nueva estimación" }));
   await page.locator(".bienvenida").waitFor();
   // Historial oculto: 5 toques al logo
   for (let i = 0; i < 5; i++) await clic(page.locator(".logo-boton"));
   await page.locator(".historial").waitFor();
   ok(await page.locator(".fila-historial").count() === 1, "historial con 1 visita");
-  ok((await page.locator(".fila-historial").textContent()).includes("540 h / 4.910 €"), "fila «540 h / 4.910 €»");
+  ok((await page.locator(".fila-historial").textContent()).includes("540 h / 3.290 €"), "fila «540 h / 3.290 €»");
   ok((await page.locator(".estado-general-email").textContent()).includes("desactivado"), "historial indica email desactivado");
   await page.screenshot({ path: path.join(SALIDA, "06-historial-1024.png") });
   // CSV
   const [descarga] = await Promise.all([page.waitForEvent("download"), page.getByRole("button", { name: "Descargar CSV (todo)" }).click()]);
   const csv = fs.readFileSync(await descarga.path());
   ok(csv[0] === 0xef && csv[1] === 0xbb && csv[2] === 0xbf, "CSV con BOM UTF-8");
-  ok(/^auditorias-norteia-\d{4}-\d{2}-\d{2}\.csv$/.test(descarga.suggestedFilename()), "nombre del CSV");
-  ok(csv.toString("utf8").includes('"clinicas";"";135;540;7560;351;4914;"coincide";14;0.65;'), "fila CSV con las cifras");
+  ok(/^estimaciones-norteia-\d{4}-\d{2}-\d{2}\.csv$/.test(descarga.suggestedFilename()), "nombre del CSV");
+  ok(csv.toString("utf8").includes('"clinicas";"";135;540;5054.4;351;3285.36;"coincide";9.36;0.65;'), "fila CSV con las cifras");
   // Borrar historial: doble confirmación
   await clic(page.getByRole("button", { name: "Borrar historial" }));
   await clic(page.locator("#dialogo-botones").getByRole("button", { name: "Sí, borrar" }));
@@ -213,8 +213,8 @@ const browser = await chromium.launch();
   }
   await clic(page.locator(".calculando"));
   await page.locator(".resultado").click({ position: { x: 5, y: 5 } });
-  ok((await page.locator(".gancho h1").textContent()).replace(/\u00a0/g, " ") === "Aunque no sea prioritario: 2.496 horas y 34.940 € al año.", "variante C con máximos");
-  ok((await page.locator(".gancho > p").first().textContent()).replace(/\u00a0/g, " ").includes("3.840 horas al año, 53.760 € en total"), "máximos: 3.840 h y 53.760 €");
+  ok((await page.locator(".gancho h1").textContent()).replace(/\u00a0/g, " ") === "Aunque no sea prioritario: 2.496 horas y 23.360 € al año.", "variante C con máximos");
+  ok((await page.locator(".gancho > p").first().textContent()).replace(/\u00a0/g, " ").includes("3.840 horas al año, 35.940 € en total"), "máximos: 3.840 h y 35.940 €");
   ok((await page.locator(".contraste p").textContent()).replace(/\u00a0/g, " ").startsWith("Perdéis más tiempo del que pensáis"), "contraste «mayor»");
   ok(await page.locator(".senales li").count() === 2, "dos señales como máximo");
   await page.screenshot({ path: path.join(SALIDA, "08-resultado-maximos-1024.png") });
@@ -231,7 +231,7 @@ const browser = await chromium.launch();
   await clic(page.locator(".calculando"));
   ok((await page.locator(".volumen-bajo").textContent()).startsWith("Con estas cifras el volumen de tareas es bajo"), "todo a 0: volumen bajo sin cifras");
   ok(await page.locator(".cifra-num").count() === 0, "volumen bajo sin cifras gancho");
-  await clic(page.getByRole("button", { name: "Nueva auditoría" }));
+  await clic(page.getByRole("button", { name: "Nueva estimación" }));
   for (let i = 0; i < 5; i++) await clic(page.locator(".logo-boton"));
   ok(await page.locator(".fila-historial").count() === 1, "recalcular sobrescribe el mismo registro (no duplica)");
   await ctx.close();
@@ -269,7 +269,7 @@ const browser = await chromium.launch();
   await page.screenshot({ path: path.join(SALIDA, "09-resultado-email-parcial.png") });
   // Reintento manual desde el historial: solo sale Luis
   luisFalla = false;
-  await clic(page.getByRole("button", { name: "Nueva auditoría" }));
+  await clic(page.getByRole("button", { name: "Nueva estimación" }));
   for (let i = 0; i < 5; i++) await clic(page.locator(".logo-boton"));
   await clic(page.getByRole("button", { name: "Reintentar pendientes" }));
   await page.waitForFunction(() => /enviado \(2\/2\)/.test(document.querySelector(".email-fila").textContent));
@@ -310,7 +310,7 @@ const browser = await chromium.launch();
   ok(true, "la app abre sin conexión");
   await clic(page.getByRole("button", { name: "Empezar" }));
   await contestarClinica(page, { interes: "Poco" });
-  ok((await page.locator(".gancho h1").textContent()).replace(/\u00a0/g, " ") === "Podéis recuperar 351 horas y 4.910 € al año.", "resultado offline (variante B)");
+  ok((await page.locator(".gancho h1").textContent()).replace(/\u00a0/g, " ") === "Podéis recuperar 351 horas y 3.290 € al año.", "resultado offline (variante B)");
   await page.waitForFunction(() => /Email: pendiente/.test(document.querySelector(".estado-email").textContent));
   ok((await page.locator(".estado-email").textContent()).includes("Sin conexión: queda pendiente"), "aviso de pendiente sin conexión");
   ok(envios.length === 0, "ningún falso «enviado» sin conexión");
@@ -367,7 +367,7 @@ const browser = await chromium.launch();
   await page.locator(".resultado").click({ position: { x: 5, y: 5 } });
   // 10x6 + 5x2 = 70 min/día -> 280 h/año x 20 €/h = 5.600 € -> 65 %: 182 h y 3.640 €
   ok((await page.locator(".gancho h1").textContent()).replace(/\u00a0/g, " ") === "Prueba A: 182 h y 3.640 €.", "nicho nuevo de principio a fin con su coste/hora propio");
-  await clic(page.getByRole("button", { name: "Nueva auditoría" }));
+  await clic(page.getByRole("button", { name: "Nueva estimación" }));
   for (let i = 0; i < 5; i++) await clic(page.locator(".logo-boton"));
   ok((await page.locator(".insignia").first().textContent()).includes("Prueba"), "insignia de nicho en el historial");
   await ctx.close();
@@ -403,7 +403,7 @@ const browser = await chromium.launch();
       } else {
         const titulo = await page.locator(".pregunta-titulo").textContent();
         const ops = page.locator(".pregunta-cuerpo .opcion");
-        await clic(titulo.startsWith("Si recuperaran") ? ops.first() : ops.last());
+        await clic(titulo.startsWith("Si recuperaseis") ? ops.first() : ops.last());
       }
       await clic(page.locator(".boton-siguiente"));
     }
@@ -415,7 +415,7 @@ const browser = await chromium.launch();
     ok(titular.startsWith("Negocio de prueba " + nombre + ", podéis recuperar"), nombre + ": " + titular);
     ok(await page.locator(".senales li").count() >= 1, nombre + ": señales propias del sector");
     await page.screenshot({ path: path.join(SALIDA, "21-" + nombre.split(" ")[0].toLowerCase() + "-resultado.png") });
-    await clic(page.getByRole("button", { name: "Nueva auditoría" }));
+    await clic(page.getByRole("button", { name: "Nueva estimación" }));
   }
   for (let i = 0; i < 5; i++) await page.locator(".logo-boton").click();
   ok(await page.locator(".fila-historial").count() === 10, "10 auditorías en el historial, una por sector");

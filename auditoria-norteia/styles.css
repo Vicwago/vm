@@ -34,6 +34,9 @@
 
 * { box-sizing: border-box; }
 
+/* Lo oculto se oculta siempre, aunque la clase defina "display" */
+[hidden] { display: none !important; }
+
 html, body {
   margin: 0;
   height: 100%;
@@ -220,7 +223,13 @@ h1, h2, .boton, .opcion, .atajo, .slider-valor, .cifra-num, .nicho-tarjeta, .tel
   font-weight: 650;
 }
 
-.nicho-tarjeta .icono { font-size: 44px; line-height: 1; }
+/* Iconos de línea: siempre en tonos de la paleta */
+.icono { display: inline-flex; align-items: center; justify-content: center; color: var(--principal); line-height: 1; }
+.icono svg { width: 100%; height: 100%; display: block; }
+.nicho-tarjeta .icono { width: 40px; height: 40px; }
+.nicho-tarjeta[aria-pressed="true"] .icono { color: var(--principal-oscuro); }
+.icono-senal { width: 22px; height: 22px; flex: 0 0 auto; margin-top: 1px; color: var(--principal); }
+.icono-mini { width: 18px; height: 18px; color: currentColor; }
 .nicho-tarjeta[aria-pressed="true"] { border-color: var(--principal); background: var(--principal-claro); color: var(--principal-oscuro); }
 
 /* Más de 4 sectores: pestañas en rejilla de 5 columnas */
@@ -232,7 +241,7 @@ h1, h2, .boton, .opcion, .atajo, .slider-valor, .cifra-num, .nicho-tarjeta, .tel
   max-width: 1100px;
 }
 .nichos.pestanas .nicho-tarjeta { min-height: 84px; min-width: 0; padding: 8px 10px; gap: 2px; font-size: 20px; line-height: 1.15; text-align: center; }
-.nichos.pestanas .nicho-tarjeta .icono { font-size: 30px; }
+.nichos.pestanas .nicho-tarjeta .icono { width: 30px; height: 30px; }
 
 .etiqueta-completar {
   position: absolute;
@@ -711,7 +720,7 @@ h1, h2, .boton, .opcion, .atajo, .slider-valor, .cifra-num, .nicho-tarjeta, .tel
 .confirmacion { color: var(--principal); font-weight: 700; }
 
 .filtros { display: flex; gap: 12px; flex-wrap: wrap; margin: 12px 0; flex: 0 0 auto; }
-.filtro { min-height: 56px; padding: 0 18px; border-radius: 28px; border: 2px solid var(--borde); background: var(--superficie); font-size: 19px; font-weight: 600; cursor: pointer; }
+.filtro { display: inline-flex; align-items: center; gap: 8px; min-height: 56px; padding: 0 18px; border-radius: 28px; border: 2px solid var(--borde); background: var(--superficie); font-size: 19px; font-weight: 600; cursor: pointer; }
 .filtro[aria-pressed="true"] { background: var(--principal); color: #fff; border-color: var(--principal); }
 
 .lista-historial { list-style: none; margin: 0; padding: 0; flex: 1 1 auto; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; min-height: 0; }
@@ -731,7 +740,7 @@ h1, h2, .boton, .opcion, .atajo, .slider-valor, .cifra-num, .nicho-tarjeta, .tel
   cursor: pointer;
 }
 .insignia { display: inline-flex; gap: 6px; align-items: center; background: var(--principal-claro); color: var(--principal-oscuro); border-radius: 18px; padding: 4px 12px; font-weight: 700; font-size: 16px; white-space: nowrap; }
-.fila-historial .cifras-fila { font-weight: 700; color: var(--principal); }
+.fila-historial .cifras-fila { font-weight: 700; color: var(--principal); white-space: nowrap; }
 .fila-historial .email-fila { font-size: 16px; color: var(--texto-suave); }
 .fila-historial .email-fila.ok { color: var(--principal); }
 .fila-historial .email-fila.revisar { color: var(--texto); font-weight: 600; }

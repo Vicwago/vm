@@ -8,14 +8,14 @@ self.NICHOS = self.NICHOS || {};
 self.NICHOS.talleres = {
   id: "talleres",
   nombre: "Talleres",
-  icono: "🔧",
+  icono: "wrench",
   completo: true,
-  tituloApp: "Auditoría rápida de tiempo perdido",
+  tituloApp: "Estimación rápida de tiempo perdido",
   subtituloBienvenida: "10 preguntas. 3 minutos. Y sabrá cuánto tiempo y dinero se le va al taller en tareas que se pueden automatizar.",
   campoNombre: "Nombre del taller (opcional)",
   articuloCliente: "el taller",
 
-  parametros: { costeHora: 15, porcentajeAhorro: 0.60, diasSemana: 5, semanasAno: 48 }, // [DECIDIR]
+  parametros: { porcentajeAhorro: 0.60, diasSemana: 5, semanasAno: 48 }, // % de ahorro [DECIDIR] · coste/hora: salario mínimo (CONFIG.costeHora)
 
   preguntas: [
     { clave: "tipo", titulo: "Tipo de taller", tipo: "opcion",
@@ -61,7 +61,7 @@ self.NICHOS.talleres = {
         { valor: "no", etiqueta: "No" },
         { valor: "no_se", etiqueta: "No lo sé" }
       ] },
-    { clave: "interes", titulo: "Si recuperaran tiempo y los clientes pudieran pedir cita o saber cómo va su coche sin llamar, ¿interés?", tipo: "opcion",
+    { clave: "interes", titulo: "Si recuperaseis tiempo en llamadas y presupuestos y los clientes pudieran pedir cita o saber cómo va su coche automáticamente, ¿en qué nivel os interesaría?", tipo: "opcion",
       opciones: [
         { valor: "mucho", etiqueta: "Mucho" },
         { valor: "bastante", etiqueta: "Bastante" },
@@ -122,7 +122,7 @@ self.NICHOS.talleres = {
         cta: "Agenda una cita con NorteIA para saber cómo"
       }
     },
-    etiquetasCifras: { horas: "horas recuperables al año", euros: "recuperables al año" },
+    etiquetasCifras: { horas: "horas recuperables al año", euros: "recuperables al año, como mínimo" },
     volumenBajo: "Con estas cifras el volumen de tareas es bajo. Aun así, un diagnóstico puede encontrar otras oportunidades.",
     ctaVolumenBajo: "Agenda una cita con NorteIA para saber cómo",
     contraste: {
@@ -136,18 +136,18 @@ self.NICHOS.talleres = {
       menor: "Vuestra sensación era algo mayor ({percepcionTexto}), pero los números hablan: {horasDiaCalc} horas al día, que son {horasAno} horas al año. Hay margen de sobra para recuperar."
     },
     senales: [
-      { prioridad: 1, icono: "📞", si: { clave: "perdidas", en: ["con_frecuencia", "no_controlado"] },
+      { prioridad: 1, icono: "phone-missed", si: { clave: "perdidas", en: ["con_frecuencia", "no_controlado"] },
         texto: "Llamadas sin contestar con las manos en el coche: cada una puede ser una reparación que se va a otro taller." },
-      { prioridad: 2, icono: "🔔", si: { clave: "recordatorios", en: ["a_mano", "no"] },
+      { prioridad: 2, icono: "bell", si: { clave: "recordatorios", en: ["a_mano", "no"] },
         texto: "Sin avisos automáticos de ITV, revisión o aceite, el cliente no vuelve solo. Se puede automatizar con los datos que ya tenéis." },
-      { prioridad: 3, icono: "🗂️", si: { clave: "software", en: ["no", "no_se"] },
+      { prioridad: 3, icono: "folder-open", si: { clave: "software", en: ["no", "no_se"] },
         texto: "Sin un programa de gestión claro, citas, órdenes y avisos dependen de las personas. Se puede ordenar paso a paso." }
     ],
-    pie: "Estimación basada en vuestras respuestas. Ahorro calculado sobre un {porcentajeAhorroPct} % de recuperación media por automatización."
+    pie: "Estimación calculada con el salario mínimo ({costeHora} €/h, SMI 2026) y un {porcentajeAhorroPct} % de recuperación media por automatización. Con el coste real de vuestro equipo, el ahorro es mayor."
   },
 
   resumen: {
-    titulo: "AUDITORÍA RÁPIDA NORTEIA - TALLER",
+    titulo: "ESTIMACIÓN RÁPIDA NORTEIA - TALLER",
     etiquetaNombre: "Taller",
     cabecera: [["tipo", "Tipo"]],
     lineas: [

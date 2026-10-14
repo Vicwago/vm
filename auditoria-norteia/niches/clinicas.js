@@ -7,14 +7,14 @@ self.NICHOS = self.NICHOS || {};
 self.NICHOS.clinicas = {
   id: "clinicas",
   nombre: "Clínicas",
-  icono: "🩺",
+  icono: "stethoscope",
   completo: true,
-  tituloApp: "Auditoría rápida de tiempo perdido",
+  tituloApp: "Estimación rápida de tiempo perdido",
   subtituloBienvenida: "10 preguntas. 3 minutos. Y sabrá cuánto tiempo y dinero se le va en tareas que se pueden automatizar.",
   campoNombre: "Nombre de la clínica (opcional)",
   articuloCliente: "la clínica",
 
-  parametros: { costeHora: 14, porcentajeAhorro: 0.65, diasSemana: 5, semanasAno: 48 },
+  parametros: { porcentajeAhorro: 0.65, diasSemana: 5, semanasAno: 48 },
 
   preguntas: [
     { clave: "tipo", titulo: "Tipo de clínica", tipo: "opcion",
@@ -60,7 +60,7 @@ self.NICHOS.clinicas = {
         { valor: "no", etiqueta: "No" },
         { valor: "no_se", etiqueta: "No lo sé" }
       ] },
-    { clave: "interes", titulo: "Si recuperaran tiempo y atendieran consultas fuera de horario, ¿interés?", tipo: "opcion",
+    { clave: "interes", titulo: "Si recuperaseis tiempo en la gestión de citas y los pacientes pudieran resolver dudas automáticamente, también fuera de horario, ¿en qué nivel os interesaría?", tipo: "opcion",
       opciones: [
         { valor: "mucho", etiqueta: "Mucho" },
         { valor: "bastante", etiqueta: "Bastante" },
@@ -139,7 +139,7 @@ self.NICHOS.clinicas = {
         cta: "Agenda una cita con NorteIA para saber cómo"
       }
     },
-    etiquetasCifras: { horas: "horas recuperables al año", euros: "recuperables al año" },
+    etiquetasCifras: { horas: "horas recuperables al año", euros: "recuperables al año, como mínimo" },
     volumenBajo: "Con estas cifras el volumen de tareas es bajo. Aun así, un diagnóstico puede encontrar otras oportunidades.",
     ctaVolumenBajo: "Agenda una cita con NorteIA para saber cómo",
     contraste: {
@@ -154,23 +154,23 @@ self.NICHOS.clinicas = {
     },
     // Máximo 2 visibles, por prioridad (menor número = antes)
     senales: [
-      { prioridad: 1, icono: "📞", si: { clave: "perdidas", en: ["con_frecuencia", "no_controlado"] },
+      { prioridad: 1, icono: "phone-missed", si: { clave: "perdidas", en: ["con_frecuencia", "no_controlado"] },
         texto: "Llamadas sin contestar mientras se atiende a pacientes: cada una puede ser un paciente que se va a otra clínica." },
-      { prioridad: 2, icono: "🌙", si: { clave: "fueraHorario", en: ["se_pierden"] },
+      { prioridad: 2, icono: "moon", si: { clave: "fueraHorario", en: ["se_pierden"] },
         texto: "Las consultas fuera de horario se pierden." },
-      { prioridad: 3, icono: "🔁", si: { clave: "repetidas", en: ["constantemente"] },
+      { prioridad: 3, icono: "repeat", si: { clave: "repetidas", en: ["constantemente"] },
         texto: "Respuestas repetidas constantemente: es lo primero que se automatiza." },
-      { prioridad: 4, icono: "📅", si: { clave: "noShows", en: ["3-5", "5+"] },
+      { prioridad: 4, icono: "calendar-x", si: { clave: "noShows", en: ["3-5", "5+"] },
         texto: "Los no-shows se pueden reducir con recordatorios automáticos." },
-      { prioridad: 5, icono: "🗂️", si: { clave: "software", en: ["no", "no_se"] },
+      { prioridad: 5, icono: "folder-open", si: { clave: "software", en: ["no", "no_se"] },
         texto: "Sin un programa de gestión de citas claro, todo depende de las personas. Se puede ordenar sin cambiar de programa." }
     ],
-    pie: "Estimación basada en vuestras respuestas. Ahorro calculado sobre un {porcentajeAhorroPct} % de recuperación media por automatización."
+    pie: "Estimación calculada con el salario mínimo ({costeHora} €/h, SMI 2026) y un {porcentajeAhorroPct} % de recuperación media por automatización. Con el coste real de vuestro equipo, el ahorro es mayor."
   },
 
   // Resumen copiable (texto plano). [clave, etiqueta, opciones]
   resumen: {
-    titulo: "AUDITORÍA RÁPIDA NORTEIA",
+    titulo: "ESTIMACIÓN RÁPIDA NORTEIA",
     etiquetaNombre: "Clínica",
     cabecera: [["tipo", "Tipo"]],
     lineas: [

@@ -19,9 +19,10 @@ Marca cada punto en la tablet, no en el ordenador.
 - [ ] La pantalla no se apaga durante la visita.
 
 ## Cálculo (con calculadora)
-- [ ] 25×3 + 20×2 + 10×2 = 135 min/día → 540 h/año, 7.560 €/año; recuperable al 65 %: **351 h y 4.910 €** (4.914 € internos, redondeado a 10).
+- [ ] 25×3 + 20×2 + 10×2 = 135 min/día → 540 h/año. Con el salario mínimo (9,36 €/h): 5.050 €/año; recuperable al 65 %: **351 h y 3.290 €** (3.285,36 € internos, redondeado a 10).
 - [ ] Todo a 0: sale el texto de volumen bajo, sin cifras.
-- [ ] Máximos (100×5, 100×3, 40×4) = 960 min/día → 3.840 h/año y 53.760 €/año, y las cifras caben sin cortarse.
+- [ ] Máximos (100×5, 100×3, 40×4) = 960 min/día → 3.840 h/año y 35.940 €/año, y las cifras caben sin cortarse.
+- [ ] El resultado deja claro que es «como mínimo» y que se calcula con el salario mínimo.
 - [ ] Con `costeHora: 20` en el nicho o en `config.js`, los euros cambian.
 
 ## Resultado
@@ -64,11 +65,11 @@ Marca cada punto en la tablet, no en el ordenador.
 
 ## Decisiones pendientes [DECIDIR]
 
-1. Coste por hora (14 €) y porcentaje recuperable (65 %).
+1. Porcentaje recuperable (65 % clínicas, 60 % el resto). El coste/hora ya es el salario mínimo (9,36 €/h).
 2. Destino de la cita (ahora el formulario de contacto de norteia.es) y teléfono que se muestra (ahora el de Víctor).
 3. Preguntas extra (desactivadas por defecto).
 4. Redes sociales de NorteIA (Instagram, LinkedIn) en `CONFIG.contactoNorteIA` cuando existan.
 5. Colores: toda la app usa la paleta de norteia.es (`styles.css`, `:root`). Solo el rojo de errores y de «Borrar» queda fuera de la paleta.
 6. Buzón remitente de EmailJS y direcciones reales de Victor y Luis.
-7. Coste/hora y «habitual» de cada sector (ver `niches/FUENTES.md`).
+7. «Habitual» de cada sector (ver `niches/FUENTES.md`).
 8. Activar `capturarContacto` y aprobar el texto de privacidad, la retención local y la del proveedor.

@@ -8,14 +8,14 @@ self.NICHOS = self.NICHOS || {};
 self.NICHOS.academias = {
   id: "academias",
   nombre: "Academias",
-  icono: "📚",
+  icono: "graduation-cap",
   completo: true,
-  tituloApp: "Auditoría rápida de tiempo perdido",
+  tituloApp: "Estimación rápida de tiempo perdido",
   subtituloBienvenida: "10 preguntas. 3 minutos. Y sabrá cuánto tiempo y dinero se le va al centro en tareas que se pueden automatizar.",
   campoNombre: "Nombre de la academia o autoescuela (opcional)",
   articuloCliente: "la academia",
 
-  parametros: { costeHora: 13, porcentajeAhorro: 0.60, diasSemana: 5, semanasAno: 44 }, // [DECIDIR] curso con vacaciones
+  parametros: { porcentajeAhorro: 0.60, diasSemana: 5, semanasAno: 44 }, // curso con vacaciones · coste/hora: salario mínimo (CONFIG.costeHora)
 
   preguntas: [
     { clave: "tipo", titulo: "Tipo de centro", tipo: "opcion",
@@ -60,7 +60,7 @@ self.NICHOS.academias = {
         { valor: "excel", etiqueta: "No, Excel o papel" },
         { valor: "no_se", etiqueta: "No lo sé" }
       ] },
-    { clave: "interes", titulo: "Si recuperaran tiempo y las consultas y avisos se atendieran solos, ¿interés?", tipo: "opcion",
+    { clave: "interes", titulo: "Si recuperaseis tiempo en consultas y avisos y las familias o alumnos recibieran respuestas automáticamente, ¿en qué nivel os interesaría?", tipo: "opcion",
       opciones: [
         { valor: "mucho", etiqueta: "Mucho" },
         { valor: "bastante", etiqueta: "Bastante" },
@@ -121,7 +121,7 @@ self.NICHOS.academias = {
         cta: "Agenda una cita con NorteIA para saber cómo"
       }
     },
-    etiquetasCifras: { horas: "horas recuperables al año", euros: "recuperables al año" },
+    etiquetasCifras: { horas: "horas recuperables al año", euros: "recuperables al año, como mínimo" },
     volumenBajo: "Con estas cifras el volumen de tareas es bajo. Aun así, un diagnóstico puede encontrar otras oportunidades.",
     ctaVolumenBajo: "Agenda una cita con NorteIA para saber cómo",
     contraste: {
@@ -135,18 +135,18 @@ self.NICHOS.academias = {
       menor: "Vuestra sensación era algo mayor ({percepcionTexto}), pero los números hablan: {horasDiaCalc} horas al día, que son {horasAno} horas al año. Hay margen de sobra para recuperar."
     },
     senales: [
-      { prioridad: 1, icono: "🎯", si: { clave: "seguimiento", en: ["a_veces", "nunca"] },
+      { prioridad: 1, icono: "target", si: { clave: "seguimiento", en: ["a_veces", "nunca"] },
         texto: "Quien pidió información y no se apuntó es el alumno más fácil de conseguir. El seguimiento se puede automatizar." },
-      { prioridad: 2, icono: "💶", si: { clave: "impagos", en: ["todos_meses"] },
+      { prioridad: 2, icono: "euro", si: { clave: "impagos", en: ["todos_meses"] },
         texto: "Reclamar recibos cada mes: los avisos de pago automáticos lo hacen por vosotros." },
-      { prioridad: 3, icono: "🗂️", si: { clave: "software", en: ["excel", "no_se"] },
+      { prioridad: 3, icono: "folder-open", si: { clave: "software", en: ["excel", "no_se"] },
         texto: "Con alumnos, grupos y cobros en Excel o papel, todo depende de una persona. Se puede ordenar paso a paso." }
     ],
-    pie: "Estimación basada en vuestras respuestas. Ahorro calculado sobre un {porcentajeAhorroPct} % de recuperación media por automatización."
+    pie: "Estimación calculada con el salario mínimo ({costeHora} €/h, SMI 2026) y un {porcentajeAhorroPct} % de recuperación media por automatización. Con el coste real de vuestro equipo, el ahorro es mayor."
   },
 
   resumen: {
-    titulo: "AUDITORÍA RÁPIDA NORTEIA - ACADEMIA",
+    titulo: "ESTIMACIÓN RÁPIDA NORTEIA - ACADEMIA",
     etiquetaNombre: "Centro",
     cabecera: [["tipo", "Tipo"]],
     lineas: [

@@ -1,6 +1,6 @@
-# Auditoría rápida de tiempo perdido · NorteIA
+# Estimación rápida de tiempo perdido · NorteIA
 
-Web app para tablet en horizontal. Cochet elige el sector en una pestaña y hace 10 preguntas en la visita y la app calcula las horas y los euros que el negocio pierde al año. Termina con un botón para agendar cita, la llamada directa y un QR. Funciona sin conexión.
+Web app para tablet en horizontal. Cochet elige el sector en una pestaña y hace 10 preguntas en la visita y la app estima las horas y los euros que el negocio pierde al año. No se presenta como una auditoría: es una estimación rápida para abrir la conversación. Termina con un botón para agendar cita, la llamada directa y un QR. Funciona sin conexión.
 
 ## 1. Publicar
 
@@ -14,6 +14,8 @@ Sube **esta carpeta** (`auditoria-norteia/`) a **Netlify** (arrastrar y soltar e
 
 ## 3. Configurar
 
+**Coste por hora:** todos los sectores calculan con el **salario mínimo** (SMI 2026: 17.094 €/año ÷ 1.826 h = **9,36 €/h**, en `CONFIG.costeHora`). Es el mínimo que cuesta una hora del equipo, así que el ahorro que se muestra es el mínimo, y el resultado lo dice («como mínimo» y en el pie). Si un sector necesita otro valor, añade `costeHora` en su bloque `parametros`.
+
 Edita **`config.js`** con cualquier editor de texto: coste/hora, % de ahorro, enlace de la cita, teléfono, contacto, preguntas extra y sectores visibles. Después vuelve a publicar.
 
 Para que la tablet recoja la nueva versión, **sube `CACHE_VERSION` en `sw.js`** (por ejemplo `v1.1.0` → `v1.1.1`) y abre la app una vez con internet. Actualizar no borra el historial ni los emails pendientes.
@@ -21,6 +23,7 @@ Para que la tablet recoja la nueva versión, **sube `CACHE_VERSION` en `sw.js`**
 - **Marca:** el logo es el oficial de norteia.es (`assets/logo-norteia.svg`, oscuro, y `assets/logo-norteia-blanco.svg`). Los colores (acento `#343BDF`) y la tipografía Outfit también vienen de la web; la tipografía está guardada en `assets/fonts/` para que funcione sin conexión. El icono de la app es la estrella del logo.
 - **Botón «Agenda una cita»:** lleva al formulario de contacto de norteia.es (`CONFIG.enlaceCal`). Si más adelante usáis Cal.com, cambia ese enlace.
 - **Contacto y redes de NorteIA:** se configuran en `CONFIG.contactoNorteIA` (web, email, WhatsApp, Instagram, LinkedIn) y en `CONFIG.telefono`. Salen en la barra de cita del resultado; los campos vacíos no se muestran.
+- **Iconos:** iconos de línea (Lucide, licencia ISC) en `assets/iconos.js`, pintados con el color de la marca. En cada sector, `icono` es el nombre del icono.
 - **Historial oculto:** toca el logo 5 veces seguidas en la bienvenida. Desde ahí puedes descargar el CSV, reintentar los emails y borrar el historial.
 
 ## Sectores (pestañas)
@@ -66,7 +69,7 @@ Al llegar al resultado, la auditoría se guarda en la tablet y se envía sola a 
 **Body de las dos plantillas** (texto; en HTML, usa `<pre>` o `white-space: pre-line` para conservar los saltos de línea):
 
 ```text
-AUDITORÍA RÁPIDA NORTEIA
+ESTIMACIÓN RÁPIDA NORTEIA
 {{tipo_envio}}
 ID: {{auditoria_id}} · Revisión: {{revision}}
 Fecha de visita: {{fecha_local}} (Europe/Madrid)

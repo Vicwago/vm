@@ -8,14 +8,14 @@ self.NICHOS = self.NICHOS || {};
 self.NICHOS.gestorias = {
   id: "gestorias",
   nombre: "Gestorías",
-  icono: "📑",
+  icono: "file-text",
   completo: true,
-  tituloApp: "Auditoría rápida de tiempo perdido",
+  tituloApp: "Estimación rápida de tiempo perdido",
   subtituloBienvenida: "10 preguntas. 3 minutos. Y sabrá cuánto tiempo y dinero se le va al despacho en tareas que se pueden automatizar.",
   campoNombre: "Nombre de la gestoría (opcional)",
   articuloCliente: "la gestoría",
 
-  parametros: { costeHora: 15, porcentajeAhorro: 0.60, diasSemana: 5, semanasAno: 48 }, // [DECIDIR]
+  parametros: { porcentajeAhorro: 0.60, diasSemana: 5, semanasAno: 48 }, // % de ahorro [DECIDIR] · coste/hora: salario mínimo (CONFIG.costeHora)
 
   preguntas: [
     { clave: "tipo", titulo: "Tipo de despacho", tipo: "opcion",
@@ -62,7 +62,7 @@ self.NICHOS.gestorias = {
         { valor: "no", etiqueta: "No" },
         { valor: "no_se", etiqueta: "No lo sé" }
       ] },
-    { clave: "interes", titulo: "Si recuperaran tiempo y los clientes recibieran respuestas y recordatorios automáticos, ¿interés?", tipo: "opcion",
+    { clave: "interes", titulo: "Si recuperaseis tiempo en consultas y documentación y los clientes recibieran respuestas y recordatorios automáticamente, ¿en qué nivel os interesaría?", tipo: "opcion",
       opciones: [
         { valor: "mucho", etiqueta: "Mucho" },
         { valor: "bastante", etiqueta: "Bastante" },
@@ -123,7 +123,7 @@ self.NICHOS.gestorias = {
         cta: "Agenda una cita con NorteIA para saber cómo"
       }
     },
-    etiquetasCifras: { horas: "horas recuperables al año", euros: "recuperables al año" },
+    etiquetasCifras: { horas: "horas recuperables al año", euros: "recuperables al año, como mínimo" },
     volumenBajo: "Con estas cifras el volumen de tareas es bajo. Aun así, un diagnóstico puede encontrar otras oportunidades.",
     ctaVolumenBajo: "Agenda una cita con NorteIA para saber cómo",
     contraste: {
@@ -137,18 +137,18 @@ self.NICHOS.gestorias = {
       menor: "Vuestra sensación era algo mayor ({percepcionTexto}), pero los números hablan: {horasDiaCalc} horas al día, que son {horasAno} horas al año. Hay margen de sobra para recuperar."
     },
     senales: [
-      { prioridad: 1, icono: "📂", si: { clave: "reclamar", en: ["ultimo_dia", "no_controlado"] },
+      { prioridad: 1, icono: "folder-clock", si: { clave: "reclamar", en: ["ultimo_dia", "no_controlado"] },
         texto: "Reclamar papeles hasta el último día: los recordatorios automáticos por cliente y trimestre lo resuelven." },
-      { prioridad: 2, icono: "📈", si: { clave: "picos", en: ["horas_extra", "desbordados"] },
+      { prioridad: 2, icono: "trending-up", si: { clave: "picos", en: ["horas_extra", "desbordados"] },
         texto: "Los picos de trimestre y renta se aplanan quitando el trabajo repetitivo del resto del año." },
-      { prioridad: 3, icono: "🗂️", si: { clave: "software", en: ["si_poco", "no", "no_se"] },
+      { prioridad: 3, icono: "folder-open", si: { clave: "software", en: ["si_poco", "no", "no_se"] },
         texto: "Si los clientes no suben sus documentos solos, todo pasa por el correo y el teléfono. Se puede ordenar sin cambiar de programa." }
     ],
-    pie: "Estimación basada en vuestras respuestas. Ahorro calculado sobre un {porcentajeAhorroPct} % de recuperación media por automatización."
+    pie: "Estimación calculada con el salario mínimo ({costeHora} €/h, SMI 2026) y un {porcentajeAhorroPct} % de recuperación media por automatización. Con el coste real de vuestro equipo, el ahorro es mayor."
   },
 
   resumen: {
-    titulo: "AUDITORÍA RÁPIDA NORTEIA - GESTORÍA",
+    titulo: "ESTIMACIÓN RÁPIDA NORTEIA - GESTORÍA",
     etiquetaNombre: "Gestoría",
     cabecera: [["tipo", "Tipo"]],
     lineas: [
