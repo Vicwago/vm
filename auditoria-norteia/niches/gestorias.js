@@ -11,7 +11,7 @@ self.NICHOS.gestorias = {
   icono: "file-text",
   completo: true,
   tituloApp: "Estimación rápida de tiempo perdido",
-  subtituloBienvenida: "10 preguntas. 3 minutos. Y sabréis cuánto tiempo y dinero se os va en tareas que se pueden automatizar.",
+  subtituloBienvenida: "13 preguntas. 4 minutos. Y sabréis cuánto tiempo y dinero se os va en tareas que se pueden automatizar.",
   campoNombre: "Nombre de la gestoría (opcional)",
   articuloCliente: "la gestoría",
 
@@ -42,6 +42,14 @@ self.NICHOS.gestorias = {
         { valor: 3, etiqueta: "3" },
         { valor: 4, etiqueta: "4 o más" }
       ] },
+    { clave: "devolver", titulo: "¿Cuánto tiempo dedicáis al día a devolver llamadas?", tipo: "opcion",
+      opciones: [
+        { valor: 0, etiqueta: "Nada" },
+        { valor: 10, etiqueta: "Menos de 15 min" },
+        { valor: 20, etiqueta: "De 15 a 30 min" },
+        { valor: 45, etiqueta: "De 30 a 60 min" },
+        { valor: 60, etiqueta: "Más de 1 hora" }
+      ] },
     { clave: "reclamar", titulo: "¿Cuántas veces reclamáis la documentación a un mismo cliente?", tipo: "opcion",
       opciones: [
         { valor: "una", etiqueta: "Una vez y la manda" },
@@ -61,6 +69,21 @@ self.NICHOS.gestorias = {
         { valor: "si_poco", etiqueta: "Sí, pero casi no lo usan" },
         { valor: "no", etiqueta: "No" },
         { valor: "no_se", etiqueta: "No lo sé" }
+      ] },
+    { clave: "prioridad", titulo: "¿Qué tarea repetitiva os gustaría dejar de hacer?", tipo: "opcion",
+      nota: "La que más tiempo os quita o más os interrumpe",
+      opciones: [
+        { valor: "consultas", etiqueta: "Atender consultas" },
+        { valor: "documentos", etiqueta: "Reclamar documentación" },
+        { valor: "registros", etiqueta: "Teclear datos a mano" },
+        { valor: "telefono", etiqueta: "El teléfono" },
+        { valor: "otra", etiqueta: "Otra" }
+      ] },
+    { clave: "retomar", titulo: "Cuando una de estas tareas os interrumpe, ¿cuánto os cuesta volver a lo que estabais haciendo?", tipo: "opcion",
+      opciones: [
+        { valor: "nada", etiqueta: "Nada, sigo al momento" },
+        { valor: "minutos", etiqueta: "Unos minutos" },
+        { valor: "bastante", etiqueta: "Bastante, pierdo el hilo" }
       ] },
     { clave: "interes", titulo: "Si recuperaseis tiempo en consultas y documentación y los clientes recibieran respuestas y recordatorios automáticamente, ¿en qué nivel os interesaría?", tipo: "opcion",
       opciones: [
@@ -85,7 +108,8 @@ self.NICHOS.gestorias = {
     lineas: [
       { cantidad: "consultas", minutos: "minConsulta" },
       { cantidad: "documentos", minutos: "minDocumento" },
-      { cantidad: "registros", minutos: "minRegistro" }
+      { cantidad: "registros", minutos: "minRegistro" },
+      { cantidad: "devolver", minutos: 1 }
     ],
     percepcion: {
       clave: "percepcion",
@@ -139,6 +163,8 @@ self.NICHOS.gestorias = {
       menor: "Vuestra sensación era algo mayor ({percepcionTexto}), pero los números hablan: {horasDiaCalc} horas al día, que son {horasAno} horas al año. Hay margen de sobra para recuperar."
     },
     senales: [
+      { prioridad: 3.5, icono: "timer", si: { clave: "retomar", en: ["bastante"] },
+        texto: "Cada interrupción os saca de lo que estabais haciendo: cuesta más que la propia llamada o el mensaje." },
       { prioridad: 1, icono: "folder-clock", si: { clave: "reclamar", en: ["ultimo_dia", "no_controlado"] },
         texto: "Reclamar papeles hasta el último día: los recordatorios automáticos por cliente y trimestre lo resuelven." },
       { prioridad: 2, icono: "trending-up", si: { clave: "picos", en: ["horas_extra", "desbordados"] },
@@ -158,9 +184,12 @@ self.NICHOS.gestorias = {
       ["documentos", "Documentos al día"],
       ["registros", "Datos tecleados a mano al día"],
       ["personas", "Personas que se ocupan"],
+      ["devolver", "Tiempo al día devolviendo llamadas"],
       ["reclamar", "Reclamar documentación"],
       ["picos", "Trimestres y renta"],
       ["software", "Portal de documentos"],
+      ["prioridad", "Tarea que más os gustaría dejar"],
+      ["retomar", "Volver a la tarea tras una interrupción"],
       ["interes", "Interés en respuestas automáticas"],
       ["percepcion", "Percepción del equipo", { sufijo: " al día" }]
     ]

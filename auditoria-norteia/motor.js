@@ -223,7 +223,8 @@
     if (!Array.isArray(lineas) || lineas.length < 1 || lineas.length > 6) err("calculo.lineas debe tener entre 1 y 6 líneas");
     else lineas.forEach(function (l) {
       if (!claves[l.cantidad]) err("línea de cálculo con cantidad desconocida: " + l.cantidad);
-      if (!claves[l.minutos]) err("línea de cálculo con minutos desconocidos: " + l.minutos);
+      // minutos: clave de una respuesta, o un número fijo (la respuesta ya son minutos al día)
+      if (typeof l.minutos !== "number" && !claves[l.minutos]) err("línea de cálculo con minutos desconocidos: " + l.minutos);
     });
 
     if (calculo.techo && (!calculo.techo.clave || !claves[calculo.techo.clave])) err("calculo.techo.clave no existe");
@@ -290,7 +291,7 @@
     var minutosRespuestas = 0;
     (nicho.calculo.lineas || []).forEach(function (l) {
       var cantidad = Number(respuestas[l.cantidad]) || 0;
-      var minutos = Number(respuestas[l.minutos]) || 0;
+      var minutos = typeof l.minutos === "number" ? l.minutos : Number(respuestas[l.minutos]) || 0;
       minutosRespuestas += cantidad * minutos;
     });
     // Tope: no más horas al día de las que caben en la jornada de quienes hacen estas tareas
@@ -500,6 +501,9 @@
     L.push("- Recuperable orientativo (" + vars.rangoPct + " %): entre " + vars.horasMin + " y " + vars.horasMax + " h, entre " + vars.eurosMin + " y " + vars.eurosMax + " al año");
     L.push("- Percepción vs realidad: " + (TEXTO_ESTADO[c.estadoPercepcion] || "sin dato"));
     L.push("");
+    L.push("OBSERVACIONES");
+    L.push(textoObservaciones(registro));
+    L.push("");
     L.push("PRÓXIMO PASO: cita con " + vars.empresa + " -> " + vars.enlaceCal + " / " + vars.telefono);
     return L.join("\n");
   }
@@ -507,7 +511,7 @@
   // ---------- CSV genérico (sección 0.3) ----------
 
   var COLUMNAS_CSV = ["fecha", "nicho", "nombre_cliente", "minutos_dia", "horas_ano", "coste_ano", "horas_recuperables",
-    "euros_recuperables", "estado_percepcion", "coste_hora", "porcentaje_ahorro", "respuestas"];
+    "euros_recuperables", "estado_percepcion", "coste_hora", "porcentaje_ahorro", "respuestas", "Observaciones"];
 
   function csvTexto(v) {
     var s = v == null ? "" : String(v);
@@ -543,7 +547,8 @@
         csvTexto(c.estadoPercepcion),
         csvNumero(p.costeHora),
         csvNumero(p.porcentajeAhorro),
-        csvTexto(respuestasPlano(r.respuestas))
+        csvTexto(respuestasPlano(r.respuestas)),
+        csvTexto(limpiarObservaciones(r.observaciones))
       ].join(";"));
     });
     return "﻿" + filas.join("\r\n") + "\r\n";
@@ -552,6 +557,23 @@
   // ---------- Instantánea para el email (addendum, sección 19) ----------
 
   var LIMITE_NOMBRE = 150;
+  var LIMITE_OBSERVACIONES = 1000;
+  var SIN_OBSERVACIONES = "(sin observaciones)";
+
+  // Notas libres del comercial: texto multilínea, sin caracteres de control, máximo 1.000 caracteres.
+  // Los registros antiguos no tienen el campo: cuentan como vacío.
+  function limpiarObservaciones(texto) {
+    return String(texto == null ? "" : texto)
+      .replace(/\r\n?/g, "\n")
+      .replace(/[\u0000-\u0008\u000B-\u001F\u007F]/g, "")
+      .replace(/\n{3,}/g, "\n\n")
+      .trim()
+      .slice(0, LIMITE_OBSERVACIONES);
+  }
+
+  function textoObservaciones(registro) {
+    return limpiarObservaciones(registro && registro.observaciones) || SIN_OBSERVACIONES;
+  }
   var LIMITES_CONTACTO = { persona: 100, cargo: 80, email: 120, telefono: 25 };
   var ETIQUETAS_CONTACTO = { persona: "Persona de contacto", cargo: "Cargo", email: "Email", telefono: "Teléfono" };
 
@@ -640,6 +662,7 @@
       calculo_texto: textoCalculoCompleto(registro),
       interes_texto: textoInteres(nicho, registro),
       contacto_texto: textoContacto(registro),
+      observaciones: textoObservaciones(registro),
       proximo_paso: "Ofrecer cita con " + vars.empresa + ": " + vars.enlaceCal + " · Teléfono " + vars.empresa + ": " + vars.telefono +
         "\n(No se ha agendado ni contactado nada automáticamente.)"
     };
@@ -649,6 +672,8 @@
     PARAMETROS_DEFECTO: PARAMETROS_DEFECTO,
     COLUMNAS_CSV: COLUMNAS_CSV,
     LIMITES_CONTACTO: LIMITES_CONTACTO,
+    LIMITE_OBSERVACIONES: LIMITE_OBSERVACIONES,
+    limpiarObservaciones: limpiarObservaciones,
     agrupar: agrupar,
     fmtEntero: fmtEntero,
     fmtDecimal: fmtDecimal,

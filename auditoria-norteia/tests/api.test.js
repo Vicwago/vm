@@ -113,3 +113,14 @@ test("errores de Resend: 4xx = configuración (400), 5xx o red = temporal (502/5
   assert.equal(cuota.res.statusCode, 429);
   assert.match(cuota.res.cuerpo.error, /quota/);
 });
+
+test("observaciones: bloque propio en el email; si una tablet antigua no las manda, «(sin observaciones)»", async () => {
+  handler._interno.ventanas.clear();
+  const con = await llamar({ body: Object.assign({}, CUERPO, { observaciones: "Llamar el lunes.\nTienen 2 recepcionistas." }) });
+  assert.equal(con.res.statusCode, 200);
+  assert.match(con.peticiones[0].body.text, /OBSERVACIONES\nLlamar el lunes\.\nTienen 2 recepcionistas\.\n/);
+  const sin = await llamar();
+  assert.match(sin.peticiones[0].body.text, /OBSERVACIONES\n\(sin observaciones\)\n/);
+  const largo = await llamar({ body: Object.assign({}, CUERPO, { observaciones: "x".repeat(1300) }) });
+  assert.equal(largo.res.statusCode, 400);
+});

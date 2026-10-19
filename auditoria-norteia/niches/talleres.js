@@ -11,7 +11,7 @@ self.NICHOS.talleres = {
   icono: "wrench",
   completo: true,
   tituloApp: "Estimación rápida de tiempo perdido",
-  subtituloBienvenida: "10 preguntas. 3 minutos. Y sabréis cuánto tiempo y dinero se os va en tareas que se pueden automatizar.",
+  subtituloBienvenida: "13 preguntas. 4 minutos. Y sabréis cuánto tiempo y dinero se os va en tareas que se pueden automatizar.",
   campoNombre: "Nombre del taller (opcional)",
   articuloCliente: "el taller",
 
@@ -49,6 +49,14 @@ self.NICHOS.talleres = {
         { valor: "con_frecuencia", etiqueta: "Con frecuencia" },
         { valor: "no_controlado", etiqueta: "No controlado" }
       ] },
+    { clave: "devolver", titulo: "¿Cuánto tiempo dedicáis al día a devolver llamadas?", tipo: "opcion",
+      opciones: [
+        { valor: 0, etiqueta: "Nada" },
+        { valor: 10, etiqueta: "Menos de 15 min" },
+        { valor: 20, etiqueta: "De 15 a 30 min" },
+        { valor: 45, etiqueta: "De 30 a 60 min" },
+        { valor: 60, etiqueta: "Más de 1 hora" }
+      ] },
     { clave: "recordatorios", titulo: "¿Avisáis a vuestros clientes de la ITV, la revisión o el cambio de aceite?", tipo: "opcion",
       opciones: [
         { valor: "automatico", etiqueta: "Sí, de forma automática" },
@@ -60,6 +68,21 @@ self.NICHOS.talleres = {
         { valor: "si", etiqueta: "Sí" },
         { valor: "no", etiqueta: "No" },
         { valor: "no_se", etiqueta: "No lo sé" }
+      ] },
+    { clave: "prioridad", titulo: "¿Qué tarea repetitiva os gustaría dejar de hacer?", tipo: "opcion",
+      nota: "La que más tiempo os quita o más os interrumpe",
+      opciones: [
+        { valor: "telefono", etiqueta: "El teléfono" },
+        { valor: "mensajes", etiqueta: "WhatsApp y mensajes" },
+        { valor: "presupuestos", etiqueta: "Hacer presupuestos" },
+        { valor: "estado", etiqueta: "Avisar de cómo va el coche" },
+        { valor: "otra", etiqueta: "Otra" }
+      ] },
+    { clave: "retomar", titulo: "Cuando una de estas tareas os interrumpe, ¿cuánto os cuesta volver a lo que estabais haciendo?", tipo: "opcion",
+      opciones: [
+        { valor: "nada", etiqueta: "Nada, sigo al momento" },
+        { valor: "minutos", etiqueta: "Unos minutos" },
+        { valor: "bastante", etiqueta: "Bastante, pierdo el hilo" }
       ] },
     { clave: "interes", titulo: "Si recuperaseis tiempo en llamadas y presupuestos y los clientes pudieran pedir cita o saber cómo va su coche automáticamente, ¿en qué nivel os interesaría?", tipo: "opcion",
       opciones: [
@@ -84,7 +107,8 @@ self.NICHOS.talleres = {
     lineas: [
       { cantidad: "llamadas", minutos: "minLlamada" },
       { cantidad: "mensajes", minutos: "minMensaje" },
-      { cantidad: "presupuestos", minutos: "minPresupuesto" }
+      { cantidad: "presupuestos", minutos: "minPresupuesto" },
+      { cantidad: "devolver", minutos: 1 }
     ],
     percepcion: {
       clave: "percepcion",
@@ -138,6 +162,8 @@ self.NICHOS.talleres = {
       menor: "Vuestra sensación era algo mayor ({percepcionTexto}), pero los números hablan: {horasDiaCalc} horas al día, que son {horasAno} horas al año. Hay margen de sobra para recuperar."
     },
     senales: [
+      { prioridad: 3.5, icono: "timer", si: { clave: "retomar", en: ["bastante"] },
+        texto: "Cada interrupción os saca de lo que estabais haciendo: cuesta más que la propia llamada o el mensaje." },
       { prioridad: 1, icono: "phone-missed", si: { clave: "perdidas", en: ["con_frecuencia", "no_controlado"] },
         texto: "Llamadas sin contestar con las manos en el coche: cada una puede ser una reparación que se va a otro taller." },
       { prioridad: 2, icono: "bell", si: { clave: "recordatorios", en: ["a_mano", "no"] },
@@ -158,8 +184,11 @@ self.NICHOS.talleres = {
       ["presupuestos", "Presupuestos al día"],
       ["personas", "Personas que se ocupan"],
       ["perdidas", "Llamadas sin contestar"],
+      ["devolver", "Tiempo al día devolviendo llamadas"],
       ["recordatorios", "Avisos de ITV y revisiones"],
       ["software", "Programa de gestión"],
+      ["prioridad", "Tarea que más os gustaría dejar"],
+      ["retomar", "Volver a la tarea tras una interrupción"],
       ["interes", "Interés en cita y estado sin llamar"],
       ["percepcion", "Percepción del equipo", { sufijo: " al día" }]
     ]

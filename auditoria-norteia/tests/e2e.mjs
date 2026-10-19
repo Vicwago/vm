@@ -70,6 +70,17 @@ window.CONFIG.email.destinatarios = [
   { id: "luis", nombre: "Luis", templateId: "template_l_prueba" }];`;
 
 async function contestarClinica(page, opciones) {
+  await hastaUltimaClinica(page, opciones);
+  const sig = page.locator(".boton-siguiente");
+  ok((await sig.textContent()).includes("Ver resultado"), "la última pregunta dice «Ver resultado»");
+  await clic(sig);
+  await clic(page.locator(".calculando"));
+  await page.locator(".resultado").waitFor();
+  await page.locator(".resultado").click({ position: { x: 5, y: 5 } }); // muestra el valor final al instante
+}
+
+// Contesta la clínica hasta la última pregunta (percepción), sin pulsar «Ver resultado»
+async function hastaUltimaClinica(page, opciones) {
   const o = Object.assign({ interes: "Mucho", percepcion: "De 2 a 4 horas" }, opciones || {});
   const sig = page.locator(".boton-siguiente");
   await clic(page.getByRole("button", { name: "Dental" }));
@@ -92,16 +103,19 @@ async function contestarClinica(page, opciones) {
   await clic(sig);
   await clic(page.getByRole("button", { name: "A veces" }));
   await clic(sig);
+  await clic(page.getByRole("button", { name: "Nada", exact: true })); // devolver llamadas: 0 min (cifras estables)
+  await clic(sig);
+  await clic(page.getByRole("button", { name: "Sí, automáticos" }));
+  await clic(sig);
   await clic(page.getByRole("button", { name: "Sí", exact: true }));
+  await clic(sig);
+  await clic(page.getByRole("button", { name: "El teléfono" }));
+  await clic(sig);
+  await clic(page.getByRole("button", { name: "Unos minutos" }));
   await clic(sig);
   await clic(page.getByRole("button", { name: o.interes, exact: true }));
   await clic(sig);
   await clic(page.getByRole("button", { name: o.percepcion }));
-  ok((await sig.textContent()).includes("Ver resultado"), "la última pregunta dice «Ver resultado»");
-  await clic(sig);
-  await clic(page.locator(".calculando"));
-  await page.locator(".resultado").waitFor();
-  await page.locator(".resultado").click({ position: { x: 5, y: 5 } }); // muestra el valor final al instante
 }
 
 async function abrirHistorial(page, pin = PIN) {
@@ -144,7 +158,7 @@ const browser = await chromium.launch();
   ok((await page.locator("a.boton-cta").count()) === 0, "el CTA aún no está en la bienvenida");
   await page.screenshot({ path: path.join(SALIDA, "01-bienvenida-1024.png") });
   await clic(page.getByRole("button", { name: "Empezar" }));
-  ok((await page.locator(".progreso-texto").textContent()) === "Pregunta 1 de 10", "Pregunta 1 de 10");
+  ok((await page.locator(".progreso-texto").textContent()) === "Pregunta 1 de 14", "Pregunta 1 de 14");
   await page.screenshot({ path: path.join(SALIDA, "02-pregunta1-1024.png") });
   await sinScroll(page, "pregunta 1 sin scroll");
   await clic(page.getByRole("button", { name: "Dental" }));
@@ -244,7 +258,7 @@ const browser = await chromium.launch();
     ok((await page.locator(".slider-valor").textContent()) === String(max), "slider al máximo " + max);
     await clic(sig);
   }
-  for (const n of ["4 o más", "Constantemente", "No controlado", "No", "No prioritario", "Menos de 2 horas"]) {
+  for (const n of ["4 o más", "Constantemente", "No controlado", "Nada", "Sí, automáticos", "No", "Otra", "Nada, sigo al momento", "No prioritario", "Menos de 2 horas"]) {
     await clic(page.getByRole("button", { name: n, exact: true }));
     await clic(sig);
   }
@@ -259,12 +273,12 @@ const browser = await chromium.launch();
   ok(desborde, "sin scroll horizontal con cifras máximas");
   // Volver y poner todo a 0
   await clic(page.locator(".boton-atras"));
-  for (let i = 0; i < 8; i++) await clic(page.locator(".boton-atras"));
+  for (let i = 0; i < 12; i++) await clic(page.locator(".boton-atras"));
   for (let i = 0; i < 3; i++) {
     await clic(page.locator(".atajo").first());
     await clic(sig);
   }
-  for (let i = 0; i < 6; i++) await clic(sig);
+  for (let i = 0; i < 10; i++) await clic(sig);
   await clic(page.locator(".calculando"));
   ok((await page.locator(".volumen-bajo").textContent()).startsWith("Con estas cifras el volumen de tareas es bajo"), "todo a 0: volumen bajo sin cifras");
   ok(await page.locator(".cifra-num").count() === 0, "volumen bajo sin cifras gancho");
@@ -303,7 +317,8 @@ const browser = await chromium.launch();
   ok(envios[1].t - envios[0].t >= 1400, "peticiones espaciadas ≥ 1,5 s");
   const p = envios[0].body.template_params;
   ok(p.nombre_cliente === "Clínica Ficticia Prueba" && p.tipo_envio === "INICIAL" && p.revision === "1", "variables del asunto");
-  ok(/10\. Horas\/día estimadas/.test(p.respuestas_texto), "las 10 respuestas en el email");
+  ok(/14\. Horas\/día estimadas/.test(p.respuestas_texto), "las 14 respuestas en el email");
+  ok(/El teléfono/.test(p.respuestas_texto) && /devolver llamadas\?: Nada/.test(p.respuestas_texto), "preguntas nuevas en el email");
   ok(p.interes_texto === "Mucho (variante A)", "interés declarado");
   ok(!("to_email" in p) && !("accessToken" in envios[0].body), "sin destinatario elegible ni clave privada");
   ok((await page.locator(".estado-email").textContent()).includes("Email: pendiente (1/2 enviado)"), "indicador 1/2");
@@ -359,8 +374,74 @@ const browser = await chromium.launch();
   const b = envios[0] && envios[0].body;
   ok(b && b.destino === "equipo" && b.nombre_cliente === "Taller Ficticio Prueba" && b.revision === "1", "cuerpo con destino, cliente y revisión");
   ok(b && !("to_email" in b) && !("template_id" in b), "sin correos ni plantillas en la petición");
+  ok(b && b.observaciones === "(sin observaciones)", "bloque de observaciones vacío en el email");
   await page.screenshot({ path: path.join(SALIDA, "10c-resultado-envio-propio.png") });
   configExtra = "";
+  await ctx.close();
+}
+
+// ---------- 3c. Observaciones: botón antes del resultado, borrador, resumen editable y CSV ----------
+{
+  console.log("Observaciones");
+  const ctx = await browser.newContext({ viewport: { width: 1024, height: 768 }, serviceWorkers: "block" });
+  const page = await ctx.newPage();
+  await page.goto(URL_APP);
+  await page.locator(".campo-nombre").fill("Clínica Notas");
+  await clic(page.getByRole("button", { name: "Empezar" }));
+  await hastaUltimaClinica(page);
+  const botonObs = page.locator(".boton-observaciones");
+  ok(await botonObs.isVisible(), "botón «Observaciones» en la última pregunta");
+  await sinScroll(page, "última pregunta con el botón de observaciones sin scroll");
+  await clic(botonObs);
+  const campo = page.locator("#observaciones-campo");
+  ok(await campo.isVisible(), "se abre el campo de texto libre");
+  await campo.fill("x".repeat(1100));
+  ok((await campo.inputValue()).length === 1000, "máximo 1.000 caracteres");
+  ok((await page.locator(".observaciones-contador").textContent()) === "1.000 / 1.000", "contador al límite");
+  await campo.fill('Dueño: "llamar el lunes"\nTienen 2 recepcionistas');
+  ok((await page.locator(".observaciones-contador").textContent()) === "48 / 1.000", "contador: " + await page.locator(".observaciones-contador").textContent());
+  await page.screenshot({ path: path.join(SALIDA, "23-observaciones.png") });
+  await page.waitForTimeout(600);
+  const borrador = await page.evaluate(() => JSON.parse(localStorage.getItem("norteia_observaciones_borrador_v1") || "null"));
+  ok(borrador && borrador.texto.startsWith("Dueño:") && borrador.nombreCliente === "Clínica Notas", "borrador autoguardado mientras escribe");
+  // Se cierra la app a medias: al volver, se ofrece recuperar
+  await page.reload();
+  await page.locator(".bienvenida").waitFor();
+  ok(await page.locator(".aviso-borrador").isVisible(), "aviso de observaciones sin terminar");
+  await clic(page.getByRole("button", { name: "Recuperar" }));
+  ok((await page.locator(".campo-nombre").inputValue()) === "Clínica Notas", "recupera también el nombre");
+  await clic(page.getByRole("button", { name: "Empezar" }));
+  await hastaUltimaClinica(page);
+  ok((await botonObs.textContent()).includes("(48)"), "el botón indica que hay observaciones");
+  await clic(page.locator(".boton-siguiente"));
+  await clic(page.locator(".calculando"));
+  await page.locator(".resultado").waitFor();
+  ok(await page.evaluate(() => localStorage.getItem("norteia_observaciones_borrador_v1")) === null, "borrador borrado al guardarse la visita");
+  let reg = await page.evaluate(() => JSON.parse(localStorage.getItem("norteia_auditorias_v1"))[0]);
+  ok(reg.observaciones === 'Dueño: "llamar el lunes"\nTienen 2 recepcionistas', "se guardan en el registro del historial");
+  // Pantalla de resumen: se ven y se editan antes de finalizar
+  await clic(page.getByRole("button", { name: "Ver y compartir resumen" }));
+  ok((await page.locator(".resumen-texto").textContent()).includes("OBSERVACIONES\nDueño: \"llamar el lunes\"\nTienen 2 recepcionistas"), "aparecen en el resumen");
+  await clic(page.getByRole("button", { name: "Editar observaciones" }));
+  await page.locator("#observaciones-campo").fill("Llamar el martes");
+  await clic(page.getByRole("button", { name: "Listo" }));
+  ok((await page.locator(".resumen-texto").textContent()).includes("OBSERVACIONES\nLlamar el martes"), "editadas en el resumen");
+  reg = await page.evaluate(() => JSON.parse(localStorage.getItem("norteia_auditorias_v1"))[0]);
+  ok(reg.observaciones === "Llamar el martes", "la edición se guarda en el historial");
+  const csv = await page.evaluate(() => window.MotorNorteIA.generarCSV(window.AlmacenNorteIA.leer()));
+  ok(/;Observaciones\r\n/.test(csv) && csv.includes(';"Llamar el martes"\r\n'), "columna Observaciones en el CSV");
+  await page.screenshot({ path: path.join(SALIDA, "24-resumen-observaciones.png") });
+  // Registro antiguo sin el campo: el historial y su resumen siguen funcionando
+  await page.evaluate(() => {
+    const l = JSON.parse(localStorage.getItem("norteia_auditorias_v1"));
+    const viejo = JSON.parse(JSON.stringify(l[0])); delete viejo.observaciones; viejo.id = "2026-01-01T10:00:00.000Z"; viejo.fecha = viejo.id;
+    l.push(viejo); localStorage.setItem("norteia_auditorias_v1", JSON.stringify(l));
+  });
+  await clic(page.getByRole("button", { name: "Nueva estimación" }));
+  await abrirHistorial(page);
+  ok(await page.locator(".fila-historial").count() === 2, "historial con un registro antiguo sin observaciones");
+  await clic(page.locator(".fila-historial").last());
+  ok((await page.locator(".resumen-texto").textContent()).includes("OBSERVACIONES\n(sin observaciones)"), "registro antiguo: «(sin observaciones)»");
   await ctx.close();
 }
 
@@ -474,7 +555,7 @@ const browser = await chromium.launch();
     await clic(page.getByRole("button", { name: "Empezar" }));
     let total = 0;
     let scrollOk = true;
-    for (let i = 0; i < 12; i++) {
+    for (let i = 0; i < 20; i++) {
       if (!(await page.locator(".pregunta").count())) break;
       total++;
       const r = await page.evaluate(() => {
@@ -493,7 +574,8 @@ const browser = await chromium.launch();
       }
       await clic(page.locator(".boton-siguiente"));
     }
-    ok(total === 10, nombre + ": 10 preguntas");
+    const esperadas = /Clínicas|Inmobiliarias|Restaurantes/.test(nombre) ? 14 : 13;
+    ok(total === esperadas, nombre + ": " + esperadas + " preguntas");
     ok(scrollOk, nombre + ": preguntas sin scroll");
     await clic(page.locator(".calculando"));
     await page.locator(".resultado").click({ position: { x: 5, y: 5 } });

@@ -22,6 +22,15 @@
     calculando: "Calculando…",
     revisar: "Revisar respuestas",
     guardarResumen: "Ver y compartir resumen",
+    observaciones: "Observaciones",
+    observacionesAyuda: "Lo que te cuenta el negocio. Opcional: no cambia el cálculo. Se guarda automáticamente mientras escribes.",
+    observacionesContador: "{n} / 1.000",
+    observacionesListo: "Listo",
+    editarObservaciones: "Editar observaciones",
+    borradorObservaciones: "Hay observaciones sin terminar{de} ({fecha}).",
+    borradorRecuperado: "Observaciones recuperadas: irán en la próxima estimación que empieces.",
+    recuperar: "Recuperar",
+    descartar: "Descartar",
     nuevaAuditoria: "Nueva estimación",
     llamaAhora: "O llamadnos: {telefono}",
     escaneaQR: "Escanead el código para pedir cita desde el móvil",
@@ -98,7 +107,8 @@
     filtro: "todos",
     toquesLogo: [],
     pinHasta: 0,
-    wakeLock: null
+    wakeLock: null,
+    observaciones: ""
   };
 
   // ---------- Utilidades DOM ----------
@@ -350,6 +360,115 @@
     document.body.appendChild(capa);
   }
 
+  // ---------- Observaciones del comercial ----------
+
+  // Borrador autoguardado mientras se escribe: si la app se cierra, no se pierde.
+  // Va ligado a la visita (sesión); al guardarse en el registro, el borrador se borra.
+  var CLAVE_BORRADOR_OBS = "norteia_observaciones_borrador_v1";
+
+  function leerBorradorObs() {
+    var b = A.leerValor(CLAVE_BORRADOR_OBS);
+    return b && typeof b.texto === "string" ? b : null;
+  }
+
+  function guardarBorradorObs(texto) {
+    if (!estado.sesion) return;
+    if (!M.limpiarObservaciones(texto)) { A.escribirValor(CLAVE_BORRADOR_OBS, null); return; }
+    A.escribirValor(CLAVE_BORRADOR_OBS, {
+      sesionId: estado.sesion.id, nicho: estado.nichoId, nombreCliente: estado.nombreCliente || "",
+      texto: String(texto).slice(0, M.LIMITE_OBSERVACIONES), actualizado: new Date().toISOString()
+    });
+  }
+
+  function borrarBorradorObs() { A.escribirValor(CLAVE_BORRADOR_OBS, null); }
+
+  // Al abrir la app: si el borrador era de una visita ya guardada, se pasa a su registro
+  function recogerBorradorObs() {
+    var b = leerBorradorObs();
+    if (!b) return;
+    var reg = b.sesionId ? A.obtener(b.sesionId) : null;
+    if (!reg) return; // visita sin terminar: se ofrece en la bienvenida
+    if (M.limpiarObservaciones(b.texto) !== M.limpiarObservaciones(reg.observaciones)) {
+      reg.observaciones = M.limpiarObservaciones(b.texto);
+      if (reg.consentimientoEnvio) prepararEmail(reg);
+      A.guardarRegistro(reg);
+    }
+    borrarBorradorObs();
+  }
+
+  // Panel con el campo de texto libre (multilínea, opcional, máx. 1.000, con contador)
+  function abrirObservaciones(textoInicial, alCambiar, alCerrar) {
+    var max = M.LIMITE_OBSERVACIONES;
+    var campo = h("textarea", { clase: "observaciones-campo seleccionable", id: "observaciones-campo", maxlength: String(max),
+      rows: "7", autocapitalize: "sentences", spellcheck: "true", "aria-describedby": "observaciones-ayuda observaciones-contador" });
+    campo.value = String(textoInicial || "").slice(0, max);
+    var contador = h("span", { clase: "observaciones-contador", id: "observaciones-contador", "aria-live": "polite" });
+    var temporizador = null;
+    function pintar() {
+      contador.textContent = f(T.observacionesContador, { n: M.fmtEntero(campo.value.length) });
+      contador.classList.toggle("al-limite", campo.value.length >= max);
+    }
+    function guardar() { clearTimeout(temporizador); temporizador = null; alCambiar(campo.value); }
+    campo.addEventListener("input", function () {
+      if (campo.value.length > max) campo.value = campo.value.slice(0, max);
+      pintar();
+      clearTimeout(temporizador);
+      temporizador = setTimeout(guardar, 400);
+    });
+    var capa;
+    function cerrar() {
+      guardar();
+      document.removeEventListener("keydown", tecla);
+      if (capa && capa.parentNode) capa.parentNode.removeChild(capa);
+      alCerrar(campo.value);
+    }
+    function tecla(ev) { if (ev.key === "Escape") cerrar(); }
+    capa = h("div", { clase: "dialogo", role: "dialog", "aria-modal": "true", "aria-labelledby": "observaciones-titulo" }, [
+      h("div", { clase: "dialogo-caja observaciones-caja" }, [
+        h("h2", { id: "observaciones-titulo", texto: T.observaciones }),
+        h("p", { clase: "observaciones-ayuda", id: "observaciones-ayuda", texto: T.observacionesAyuda }),
+        campo,
+        h("div", { clase: "observaciones-pie" }, [contador, boton(T.observacionesListo, "boton-principal", cerrar)])
+      ])
+    ]);
+    pintar();
+    document.addEventListener("keydown", tecla);
+    document.body.appendChild(capa);
+    setTimeout(function () { try { campo.focus(); } catch (e) { /* nada */ } }, 0);
+  }
+
+  // Bienvenida: observaciones de una visita que no llegó al resultado (la app se cerró a medias)
+  function avisoBorradorObs(campoNombre) {
+    if (estado.borradorRecuperado) return h("div", { clase: "aviso-borrador", role: "status", texto: T.borradorRecuperado });
+    var b = leerBorradorObs();
+    if (!b || A.obtener(b.sesionId)) return null;
+    var caja = h("div", { clase: "aviso-borrador", role: "status" });
+    caja.appendChild(h("span", { texto: f(T.borradorObservaciones, {
+      de: b.nombreCliente ? " de «" + M.unaLinea(b.nombreCliente).slice(0, 40) + "»" : "",
+      fecha: b.actualizado ? M.fmtFecha(b.actualizado) : "" }) }));
+    caja.appendChild(boton(T.recuperar, "boton-enlace", function () {
+      estado.borradorRecuperado = b.texto;
+      if (campoNombre && !campoNombre.value && b.nombreCliente) { campoNombre.value = b.nombreCliente; estado.nombreCliente = b.nombreCliente; }
+      caja.textContent = T.borradorRecuperado;
+    }));
+    caja.appendChild(boton(T.descartar, "boton-enlace", function () {
+      borrarBorradorObs();
+      if (caja.parentNode) caja.parentNode.removeChild(caja);
+    }));
+    return caja;
+  }
+
+  // Guarda en el registro ya calculado (pantalla de resumen) y, si se aceptó el envío, prepara la actualización
+  function guardarObservacionesEnRegistro(registro, texto) {
+    var limpio = M.limpiarObservaciones(texto);
+    if (limpio === M.limpiarObservaciones(registro.observaciones)) { borrarBorradorObs(); return; }
+    registro.observaciones = limpio;
+    estado.observaciones = limpio;
+    if (registro.consentimientoEnvio) prepararEmail(registro);
+    if (A.guardarRegistro(registro)) { estado.guardado = true; borrarBorradorObs(); }
+    E.procesar();
+  }
+
   // ---------- Enlaces legales ----------
 
   function enlacesLegales() {
@@ -467,6 +586,7 @@
     if (CONFIG.modoDesarrollo) esquina.appendChild(h("div", { clase: "alerta", texto: "modo desarrollo" }));
     var contador = h("div", { clase: "pendientes", "data-email-contador": "1" });
     esquina.appendChild(contador);
+    var avisoBorrador = avisoBorradorObs(campo);
 
     var empezar = boton(T.empezar, "boton-principal boton-empezar", function () {
       if (!libre() || !estado.nicho) return;
@@ -487,7 +607,8 @@
       n ? campo : h("p", { clase: "mensaje-error-nichos", texto: T.sinNichos }),
       contacto ? contacto.elemento : null,
       empezar,
-      esquina
+      esquina,
+      avisoBorrador
     ]);
     mostrar(seccion, "bienvenida");
     refrescarEmail();
@@ -543,6 +664,9 @@
     estado.sesion = { id: new Date().toISOString(), idCorto: idCorto(), fecha: null };
     estado.registro = null;
     estado.guardado = true;
+    estado.observaciones = estado.borradorRecuperado || "";
+    estado.borradorRecuperado = null;
+    if (estado.observaciones) guardarBorradorObs(estado.observaciones); // pasa a ser de esta visita
     pedirWakeLock();
     mostrarPregunta(0);
   }
@@ -556,6 +680,7 @@
       estado.sesion = null;
       estado.registro = null;
       estado.guardado = true;
+      estado.observaciones = "";
       mostrarBienvenida();
     };
     if (estado.guardado || !estado.registro) { reiniciar(); return; }
@@ -710,6 +835,27 @@
     });
     function actualizar() { siguiente.disabled = !contestada(p); }
 
+    // Última pregunta: notas libres del comercial antes de ver el resultado
+    var botonObs = null;
+    if (esUltima) {
+      var etiquetaObs = h("span");
+      var pintarObs = function () {
+        var n = M.limpiarObservaciones(estado.observaciones).length;
+        etiquetaObs.textContent = n ? T.observaciones + " (" + M.fmtEntero(n) + ")" : T.observaciones;
+      };
+      botonObs = boton([icono("file-text"), etiquetaObs], "boton-secundario boton-observaciones", function () {
+        if (!libre()) return;
+        abrirObservaciones(estado.observaciones, function (t) {
+          estado.observaciones = t;
+          guardarBorradorObs(t);
+        }, function (t) {
+          estado.observaciones = t;
+          pintarObs();
+        });
+      });
+      pintarObs();
+    }
+
     var contenido;
     if (p.tipo === "slider") {
       var slider = crearSlider(p, function (v) { estado.respuestas[p.clave] = v; actualizar(); });
@@ -756,7 +902,7 @@
           contenido
         ])
       ]),
-      h("footer", { clase: "pie-pregunta" }, [siguiente])
+      h("footer", { clase: "pie-pregunta" + (botonObs ? " con-observaciones" : "") }, [botonObs, siguiente])
     ]);
     actualizar();
     mostrar(seccion, "pregunta");
@@ -791,6 +937,7 @@
     };
     var contacto = M.limpiarContacto(estado.contacto);
     if (Object.keys(contacto).length) registro.contacto = contacto;
+    registro.observaciones = M.limpiarObservaciones(estado.observaciones);
     return registro;
   }
 
@@ -803,6 +950,7 @@
     // El email solo se prepara si está activo y, si se pide consentimiento, si ya se aceptó
     if (!(CONFIG.email && CONFIG.email.pedirConsentimiento) || registro.consentimientoEnvio) prepararEmail(registro);
     estado.guardado = A.guardarRegistro(registro);
+    if (estado.guardado) borrarBorradorObs(); // las observaciones ya están en el registro
     estado.registro = registro;
     E.procesar();
     mostrarCalculando();
@@ -1088,6 +1236,13 @@
       typeof navigator.share === "function" ? boton(T.compartir, "boton-secundario", function () {
         navigator.share({ title: (nichoPorId(registro.nicho) || {}).nombre || "Estimación NorteIA", text: texto }).catch(function () { /* cancelado */ });
       }) : null,
+      origen === "resultado" ? boton([icono("file-text"), h("span", { texto: T.editarObservaciones })], "boton-secundario boton-observaciones", function () {
+        if (!libre()) return;
+        abrirObservaciones(registro.observaciones, guardarBorradorObs, function (t) {
+          guardarObservacionesEnRegistro(registro, t);
+          mostrarResumen(registro, origen);
+        });
+      }) : null,
       origen === "resultado" ? boton(T.descargarCSV, "boton-secundario", descargarCSV) : null,
       origen === "resultado"
         ? boton(T.volverResultado, "boton-secundario", function () { if (libre()) mostrarResultado(); })
@@ -1255,6 +1410,7 @@
       var eg = E.estadoGeneral();
       if (eg.habilitado && !eg.configOk) console.warn("Email habilitado pero sin configurar: " + eg.motivo);
       purgarAntiguos();
+      recogerBorradorObs();
       mostrarBienvenida();
       E.iniciar();
       abrirHistorialPorEnlace();

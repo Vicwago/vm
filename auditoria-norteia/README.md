@@ -1,6 +1,6 @@
 # Estimación rápida de tiempo perdido · NorteIA
 
-Web app para tablet en horizontal. Cochet elige el sector en una pestaña y hace 10 preguntas en la visita y la app estima las horas y los euros que el negocio pierde al año. No se presenta como una auditoría: es una estimación rápida para abrir la conversación. Termina con un botón para agendar cita, la llamada directa y un QR. Funciona sin conexión.
+Web app para tablet en horizontal. Cochet elige el sector en una pestaña y hace 13-14 preguntas en la visita y la app estima las horas y los euros que el negocio pierde al año. No se presenta como una auditoría: es una estimación rápida para abrir la conversación. Termina con un botón para agendar cita, la llamada directa y un QR. Funciona sin conexión.
 
 ## 1. Publicar
 
@@ -37,7 +37,7 @@ Para que la tablet recoja la nueva versión, **sube `CACHE_VERSION` en `sw.js`**
 
 ## Sectores (pestañas)
 
-Hay 10 sectores completos, cada uno con sus propias 10 preguntas, cálculo, textos de resultado, señales y resumen:
+Hay 10 sectores completos, cada uno con sus propias preguntas (13, o 14 en clínicas, inmobiliarias y restaurantes), cálculo, textos de resultado, señales y resumen:
 
 Clínicas · Talleres · Gestorías · Peluquerías · Barberías · Spas y estética · Veterinarias · Inmobiliarias · Restaurantes · Academias y autoescuelas.
 
@@ -45,6 +45,8 @@ Clínicas · Talleres · Gestorías · Peluquerías · Barberías · Spas y est�
 - **Para ocultar un sector** en la tablet, quítalo de `CONFIG.nichosVisibles`. El orden de esa lista es el orden de las pestañas.
 - **Para crear un sector nuevo,** copia uno parecido (por ejemplo `niches/peluquerias.js`), cambia el `id` y añádelo en `niches/index.js` y en `CONFIG.nichosVisibles`. Si un sector está mal configurado, se oculta y el motivo aparece en la consola del navegador.
 - De dónde salen los costes por hora y los volúmenes: [`niches/FUENTES.md`](niches/FUENTES.md).
+- **Preguntas comunes (propuestas por Cochet, v1.9):** tiempo al día devolviendo llamadas (suma al cálculo: 0, 10, 20, 45 o 60 min/día), la tarea repetitiva que más os gustaría dejar de hacer, cuánto cuesta retomar el trabajo tras una interrupción y, en clínicas, inmobiliarias y restaurantes, si se envían recordatorios de cita, visita o reserva. Las cualitativas no cambian el cálculo: salen en el resumen, el email y, algunas, como señal en el resultado.
+- **Observaciones:** en la última pregunta, el botón «Observaciones» abre un campo libre (hasta 1.000 caracteres, con contador) para lo que cuente el negocio. Se autoguarda mientras se escribe (si la app se cierra a medias, la bienvenida ofrece recuperarlas), se guarda en el registro (`observaciones`), se puede editar en «Ver y compartir resumen», sale como columna `Observaciones` en el CSV y como bloque OBSERVACIONES en el email («(sin observaciones)» si está vacío). No cambia el cálculo.
 
 ---
 
@@ -114,6 +116,9 @@ INTERÉS DECLARADO
 
 CONTACTO
 {{contacto_texto}}
+
+OBSERVACIONES
+{{observaciones}}
 
 PRÓXIMO PASO
 {{proximo_paso}}

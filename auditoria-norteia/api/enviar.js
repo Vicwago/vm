@@ -36,6 +36,7 @@ const CAMPOS = {
   calculo_texto: 6000,
   interes_texto: 300,
   contacto_texto: 1000,
+  observaciones: 1200,
   proximo_paso: 1000
 };
 
@@ -80,6 +81,7 @@ function validar(cuerpo) {
     const v = cuerpo[campo];
     if (v == null || v === "") {
       if (campo === "contacto_texto") { datos[campo] = "No recogido"; continue; }
+      if (campo === "observaciones") { datos[campo] = "(sin observaciones)"; continue; }  // tablets con versiones anteriores
       return { error: "Falta el campo " + campo };
     }
     if (typeof v !== "string") return { error: "Campo no válido: " + campo };
@@ -112,6 +114,9 @@ function cuerpoEmail(d) {
     "",
     "CONTACTO",
     d.contacto_texto,
+    "",
+    "OBSERVACIONES",
+    d.observaciones,
     "",
     "PRÓXIMO PASO",
     d.proximo_paso,

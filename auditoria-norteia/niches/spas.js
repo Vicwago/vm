@@ -11,7 +11,7 @@ self.NICHOS.spas = {
   icono: "flower-2",
   completo: true,
   tituloApp: "Estimación rápida de tiempo perdido",
-  subtituloBienvenida: "10 preguntas. 3 minutos. Y sabréis cuánto tiempo y dinero se os va en tareas que se pueden automatizar.",
+  subtituloBienvenida: "13 preguntas. 4 minutos. Y sabréis cuánto tiempo y dinero se os va en tareas que se pueden automatizar.",
   campoNombre: "Nombre del centro (opcional)",
   articuloCliente: "el centro",
 
@@ -42,6 +42,14 @@ self.NICHOS.spas = {
         { valor: 3, etiqueta: "3" },
         { valor: 4, etiqueta: "4 o más" }
       ] },
+    { clave: "devolver", titulo: "¿Cuánto tiempo dedicáis al día a devolver llamadas?", tipo: "opcion",
+      opciones: [
+        { valor: 0, etiqueta: "Nada" },
+        { valor: 10, etiqueta: "Menos de 15 min" },
+        { valor: 20, etiqueta: "De 15 a 30 min" },
+        { valor: 45, etiqueta: "De 30 a 60 min" },
+        { valor: 60, etiqueta: "Más de 1 hora" }
+      ] },
     { clave: "bonos", titulo: "¿Cómo controláis bonos, sesiones pendientes y tarjetas regalo?", tipo: "opcion",
       opciones: [
         { valor: "programa", etiqueta: "Con el programa de gestión" },
@@ -62,6 +70,21 @@ self.NICHOS.spas = {
         { valor: "si_poco", etiqueta: "Sí, pero casi nadie la usa" },
         { valor: "no", etiqueta: "No" },
         { valor: "no_se", etiqueta: "No lo sé" }
+      ] },
+    { clave: "prioridad", titulo: "¿Qué tarea repetitiva os gustaría dejar de hacer?", tipo: "opcion",
+      nota: "La que más tiempo os quita o más os interrumpe",
+      opciones: [
+        { valor: "telefono", etiqueta: "El teléfono" },
+        { valor: "mensajes", etiqueta: "WhatsApp e Instagram" },
+        { valor: "citas", etiqueta: "Confirmar y recolocar citas" },
+        { valor: "bonos", etiqueta: "Controlar bonos y sesiones" },
+        { valor: "otra", etiqueta: "Otra" }
+      ] },
+    { clave: "retomar", titulo: "Cuando una de estas tareas os interrumpe, ¿cuánto os cuesta volver a lo que estabais haciendo?", tipo: "opcion",
+      opciones: [
+        { valor: "nada", etiqueta: "Nada, sigo al momento" },
+        { valor: "minutos", etiqueta: "Unos minutos" },
+        { valor: "bastante", etiqueta: "Bastante, pierdo el hilo" }
       ] },
     { clave: "interes", titulo: "Si recuperaseis tiempo en la gestión de citas de clientes y pudieran resolver dudas automáticamente, ¿en qué nivel os interesaría?", tipo: "opcion",
       opciones: [
@@ -86,7 +109,8 @@ self.NICHOS.spas = {
     lineas: [
       { cantidad: "llamadas", minutos: "minLlamada" },
       { cantidad: "mensajes", minutos: "minMensaje" },
-      { cantidad: "confirmaciones", minutos: "minConfirmacion" }
+      { cantidad: "confirmaciones", minutos: "minConfirmacion" },
+      { cantidad: "devolver", minutos: 1 }
     ],
     percepcion: {
       clave: "percepcion",
@@ -140,6 +164,8 @@ self.NICHOS.spas = {
       menor: "Vuestra sensación era algo mayor ({percepcionTexto}), pero los números hablan: {horasDiaCalc} horas al día, que son {horasAno} horas al año. Hay margen de sobra para recuperar."
     },
     senales: [
+      { prioridad: 3.5, icono: "timer", si: { clave: "retomar", en: ["bastante"] },
+        texto: "Cada interrupción os saca de lo que estabais haciendo: cuesta más que la propia llamada o el mensaje." },
       { prioridad: 1, icono: "calendar-x", si: { clave: "noShows", en: ["3-5", "5+"] },
         texto: "Cada hueco por un cliente que no viene es una cabina vacía. Los recordatorios automáticos los reducen." },
       { prioridad: 2, icono: "ticket", si: { clave: "bonos", en: ["excel", "memoria", "no_controlado"] },
@@ -159,9 +185,12 @@ self.NICHOS.spas = {
       ["mensajes", "Mensajes al día"],
       ["confirmaciones", "Confirmaciones a mano al día"],
       ["personas", "Personas que se ocupan"],
+      ["devolver", "Tiempo al día devolviendo llamadas"],
       ["bonos", "Control de bonos"],
       ["noShows", "No-shows por semana"],
       ["software", "Agenda online"],
+      ["prioridad", "Tarea que más os gustaría dejar"],
+      ["retomar", "Volver a la tarea tras una interrupción"],
       ["interes", "Interés en reservas y dudas a cualquier hora"],
       ["percepcion", "Percepción del equipo", { sufijo: " al día" }]
     ]

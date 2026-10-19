@@ -11,7 +11,7 @@ self.NICHOS.peluquerias = {
   icono: "scissors",
   completo: true,
   tituloApp: "Estimación rápida de tiempo perdido",
-  subtituloBienvenida: "10 preguntas. 3 minutos. Y sabréis cuánto tiempo y dinero se os va en tareas que se pueden automatizar.",
+  subtituloBienvenida: "13 preguntas. 4 minutos. Y sabréis cuánto tiempo y dinero se os va en tareas que se pueden automatizar.",
   campoNombre: "Nombre de la peluquería (opcional)",
   articuloCliente: "la peluquería",
 
@@ -49,6 +49,14 @@ self.NICHOS.peluquerias = {
         { valor: "con_frecuencia", etiqueta: "Con frecuencia" },
         { valor: "constantemente", etiqueta: "Constantemente" }
       ] },
+    { clave: "devolver", titulo: "¿Cuánto tiempo dedicáis al día a devolver llamadas?", tipo: "opcion",
+      opciones: [
+        { valor: 0, etiqueta: "Nada" },
+        { valor: 10, etiqueta: "Menos de 15 min" },
+        { valor: 20, etiqueta: "De 15 a 30 min" },
+        { valor: 45, etiqueta: "De 30 a 60 min" },
+        { valor: 60, etiqueta: "Más de 1 hora" }
+      ] },
     { clave: "noShows", titulo: "Clientes que no vienen sin avisar, a la semana", tipo: "opcion",
       opciones: [
         { valor: "0", etiqueta: "Ninguno" },
@@ -62,6 +70,21 @@ self.NICHOS.peluquerias = {
         { valor: "si_poco", etiqueta: "Sí, pero casi nadie la usa" },
         { valor: "papel", etiqueta: "No, agenda en papel" },
         { valor: "no_se", etiqueta: "No lo sé" }
+      ] },
+    { clave: "prioridad", titulo: "¿Qué tarea repetitiva os gustaría dejar de hacer?", tipo: "opcion",
+      nota: "La que más tiempo os quita o más os interrumpe",
+      opciones: [
+        { valor: "telefono", etiqueta: "El teléfono" },
+        { valor: "mensajes", etiqueta: "WhatsApp e Instagram" },
+        { valor: "citas", etiqueta: "Confirmar y recordar citas" },
+        { valor: "repetidas", etiqueta: "Contestar siempre lo mismo" },
+        { valor: "otra", etiqueta: "Otra" }
+      ] },
+    { clave: "retomar", titulo: "Cuando una de estas tareas os interrumpe, ¿cuánto os cuesta volver a lo que estabais haciendo?", tipo: "opcion",
+      opciones: [
+        { valor: "nada", etiqueta: "Nada, sigo al momento" },
+        { valor: "minutos", etiqueta: "Unos minutos" },
+        { valor: "bastante", etiqueta: "Bastante, pierdo el hilo" }
       ] },
     { clave: "interes", titulo: "Si recuperaseis tiempo en la gestión de citas y los clientes pudieran reservar y resolver dudas automáticamente, ¿en qué nivel os interesaría?", tipo: "opcion",
       opciones: [
@@ -86,7 +109,8 @@ self.NICHOS.peluquerias = {
     lineas: [
       { cantidad: "llamadas", minutos: "minLlamada" },
       { cantidad: "mensajes", minutos: "minMensaje" },
-      { cantidad: "confirmaciones", minutos: "minConfirmacion" }
+      { cantidad: "confirmaciones", minutos: "minConfirmacion" },
+      { cantidad: "devolver", minutos: 1 }
     ],
     percepcion: {
       clave: "percepcion",
@@ -140,6 +164,8 @@ self.NICHOS.peluquerias = {
       menor: "Vuestra sensación era algo mayor ({percepcionTexto}), pero los números hablan: {horasDiaCalc} horas al día, que son {horasAno} horas al año. Hay margen de sobra para recuperar."
     },
     senales: [
+      { prioridad: 3.5, icono: "timer", si: { clave: "retomar", en: ["bastante"] },
+        texto: "Cada interrupción os saca de lo que estabais haciendo: cuesta más que la propia llamada o el mensaje." },
       { prioridad: 1, icono: "calendar-x", si: { clave: "noShows", en: ["3-5", "5+"] },
         texto: "Los huecos por clientes que no vienen se reducen con recordatorios y confirmación automática por WhatsApp." },
       { prioridad: 2, icono: "phone-missed", si: { clave: "interrupciones", en: ["con_frecuencia", "constantemente"] },
@@ -160,8 +186,11 @@ self.NICHOS.peluquerias = {
       ["confirmaciones", "Confirmaciones a mano al día"],
       ["personas", "Personas que se ocupan"],
       ["interrupciones", "Dejan al cliente para coger el teléfono"],
+      ["devolver", "Tiempo al día devolviendo llamadas"],
       ["noShows", "No-shows por semana"],
       ["software", "Agenda online"],
+      ["prioridad", "Tarea que más os gustaría dejar"],
+      ["retomar", "Volver a la tarea tras una interrupción"],
       ["interes", "Interés en reservas a cualquier hora"],
       ["percepcion", "Percepción del equipo", { sufijo: " al día" }]
     ]

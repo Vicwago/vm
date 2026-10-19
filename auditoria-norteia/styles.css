@@ -986,3 +986,42 @@ h1, h2, .boton, .atajo, .slider-valor, .cifra-num, .nicho-tarjeta, .telefono {
 .clave-campo:focus { outline: none; border-color: var(--principal); box-shadow: 0 0 0 4px var(--principal-suave); }
 .clave-ayuda { margin: 0; font-size: 16px; color: var(--texto-suave); }
 .clave-estado { font-weight: 600; color: var(--texto); }
+
+/* ---------- Observaciones del comercial ---------- */
+
+.pie-pregunta.con-observaciones { justify-content: space-between; gap: var(--hueco); }
+.boton-observaciones { gap: 12px; }
+.boton-observaciones .icono { width: 26px; height: 26px; color: currentColor; }
+
+.observaciones-caja { max-width: 820px; }
+.observaciones-caja h2 { font-family: var(--fuente-marca); font-size: 30px; margin: 0 0 6px; }
+.dialogo-caja .observaciones-ayuda { font-size: 18px; font-weight: 400; color: var(--texto-secundario); margin: 0 0 14px; }
+.observaciones-campo {
+  display: block;
+  width: 100%;
+  min-height: 210px;
+  max-height: 46vh;
+  resize: vertical;
+  font: inherit;
+  font-size: 21px;
+  line-height: 1.4;
+  color: var(--texto);
+  background: var(--fondo);
+  border: 2px solid var(--borde-control);
+  border-radius: 14px;
+  padding: 14px 16px;
+}
+.observaciones-campo:focus { outline: none; border-color: var(--principal); box-shadow: 0 0 0 4px var(--principal-suave); }
+.observaciones-pie { display: flex; align-items: center; justify-content: space-between; gap: var(--hueco); margin-top: 16px; }
+.observaciones-contador { font-size: 17px; color: var(--texto-suave); font-variant-numeric: tabular-nums; }
+.observaciones-contador.al-limite { color: var(--error); font-weight: 700; }
+
+/* Esquina inferior izquierda de la bienvenida, sin tapar «Empezar» */
+.aviso-borrador {
+  position: absolute; left: 20px; bottom: 12px; max-width: 300px;
+  font-size: 15px; line-height: 1.4; color: var(--texto-secundario); text-align: left;
+}
+.boton-enlace {
+  background: none; border: 0; min-height: 36px; padding: 0 8px;
+  color: var(--principal); font-size: 15px; font-weight: 700; text-decoration: underline;
+}

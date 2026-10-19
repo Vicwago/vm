@@ -45,3 +45,7 @@ Síntesis de práctica habitual y de proveedores del sector, no un ranking publi
 - **Restaurantes:** reservas online, confirmación y recordatorio, respuestas sobre horario, carta y alérgenos.
 - **Academias y autoescuelas:** consultas de matrícula, recordatorios de clase, avisos de pago.
 - **Clínicas:** recordatorio de cita, confirmar o reprogramar por WhatsApp, atención fuera de horario.
+
+## Devolver llamadas (todas las pestañas, v1.9)
+
+Pregunta propuesta por Cochet en las visitas. Cada opción suma minutos al día al cálculo, con un valor prudente dentro de su tramo: «Nada» 0, «Menos de 15 min» 10, «De 15 a 30 min» 20, «De 30 a 60 min» 45 y «Más de 1 hora» 60. El tope por personas sigue aplicándose al total.

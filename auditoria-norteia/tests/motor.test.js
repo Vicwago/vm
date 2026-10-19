@@ -30,6 +30,7 @@ function registro(respuestas, extra) {
   return r;
 }
 
+const CON_RECORDATORIOS = ["clinicas", "inmobiliarias", "restaurantes"];
 const IDS = ["clinicas", "talleres", "gestorias", "peluquerias", "barberias", "spas", "veterinarias", "inmobiliarias", "restaurantes", "academias"];
 
 test("los 10 nichos están completos, son válidos y visibles", () => {
@@ -40,8 +41,13 @@ test("los 10 nichos están completos, son válidos y visibles", () => {
     assert.equal(n.id, id);
     assert.equal(n.completo, true, id + " completo");
     assert.deepEqual(Array.from(M.validarNicho(n).errores), [], id + " válido");
-    assert.equal(M.preguntasActivas(n, ctx.CONFIG).length, 10, id + " tiene 10 preguntas");
-    assert.equal(n.calculo.lineas.length, 3, id + " tiene 3 líneas de cálculo");
+    // 13 preguntas; 14 donde además se pregunta por recordatorios de citas, reservas o visitas
+    const esperadas = CON_RECORDATORIOS.includes(id) ? 14 : 13;
+    assert.equal(M.preguntasActivas(n, ctx.CONFIG).length, esperadas, id + " tiene " + esperadas + " preguntas");
+    assert.equal(n.calculo.lineas.length, 4, id + " tiene 4 líneas de cálculo (3 + devolver llamadas)");
+    ["devolver", "prioridad", "retomar"].forEach((c) => assert.ok(n.preguntas.some((p) => p.clave === c), id + ": pregunta " + c));
+    assert.equal(n.preguntas.some((p) => p.clave === "recordatoriosCitas"), CON_RECORDATORIOS.includes(id), id + ": recordatorios");
+    assert.ok(n.subtituloBienvenida.startsWith(esperadas + " preguntas."), id + ": la bienvenida dice cuántas preguntas son");
     assert.ok(!JSON.stringify(n).includes("[COMPLETAR]"), id + " sin [COMPLETAR]");
     assert.ok(n.resultado.senales.length >= 2, id + " con señales propias");
   });
@@ -72,9 +78,10 @@ test("cada nicho calcula, genera resultado, resumen, CSV e instantánea de email
     assert.ok(t.senales.length <= 2);
     const resumen = M.textoResumen(n, reg, ctx.CONFIG);
     assert.ok(!resumen.includes("no recogido"), id + ": resumen completo");
-    assert.equal(resumen.split("\n").filter((l) => l.startsWith("- ")).length, 9 + 5, id + ": 9 respuestas + 5 de resultado");
+    const activas = M.preguntasActivas(n, ctx.CONFIG).length;
+    assert.equal(resumen.split("\n").filter((l) => l.startsWith("- ")).length, activas - 1 + 5, id + ": respuestas (sin el tipo) + 5 de resultado");
     const inst = M.instantaneaEmail(n, reg, ctx.CONFIG);
-    assert.equal(inst.respuestas_texto.split("\n").filter((l) => /^\d+\. /.test(l)).length, 10, id + ": 10 respuestas en el email");
+    assert.equal(inst.respuestas_texto.split("\n").filter((l) => /^\d+\. /.test(l)).length, activas, id + ": todas las respuestas en el email");
     assert.equal(inst.interes_texto, "Mucho (variante A)");
     assert.match(M.generarCSV([reg]), new RegExp(";\"" + id + "\";"));
   });
@@ -255,6 +262,9 @@ test("resumen copiable con el formato exacto de la sección 9.2", () => {
     "- Recuperable orientativo (45-65 %): entre 243 y 351 h, entre 2.860 € y 4.120 € al año",
     "- Percepción vs realidad: coincide",
     "",
+    "OBSERVACIONES",
+    "(sin observaciones)",
+    "",
     "PRÓXIMO PASO: cita con NorteIA -> https://norteia.es/contacto?objetivo=orientacion&utm_source=auditoria-tablet / +34 637 90 58 66"
   ].join("\n");
   assert.equal(texto, esperado);
@@ -268,10 +278,10 @@ test("resumen con extras activas añade sus líneas", () => {
   assert.match(texto, /- No-shows por semana: 1-2\n- Fuera de horario: el dueño desde casa\n/);
 });
 
-test("preguntas activas: 10 por defecto, 12 con las dos extras", () => {
-  assert.equal(M.preguntasActivas(CL, ctx.CONFIG).length, 10);
-  assert.equal(M.preguntasActivas(CL, { extrasActivas: { noShows: true, fueraHorario: true } }).length, 12);
-  assert.equal(M.preguntasActivas(CL, { extrasActivas: { noShows: true } }).length, 11);
+test("preguntas activas: 14 por defecto, 16 con las dos extras", () => {
+  assert.equal(M.preguntasActivas(CL, ctx.CONFIG).length, 14);
+  assert.equal(M.preguntasActivas(CL, { extrasActivas: { noShows: true, fueraHorario: true } }).length, 16);
+  assert.equal(M.preguntasActivas(CL, { extrasActivas: { noShows: true } }).length, 15);
 });
 
 test("CSV genérico: BOM, columnas exactas, separador ; y comillas duplicadas", () => {
@@ -279,9 +289,10 @@ test("CSV genérico: BOM, columnas exactas, separador ; y comillas duplicadas", 
   const csv = M.generarCSV([reg]);
   assert.equal(csv.charCodeAt(0), 0xfeff);
   const filas = csv.slice(1).split("\r\n");
-  assert.equal(filas[0], "fecha;nicho;nombre_cliente;minutos_dia;horas_ano;coste_ano;horas_recuperables;euros_recuperables;estado_percepcion;coste_hora;porcentaje_ahorro;respuestas");
+  assert.equal(filas[0], "fecha;nicho;nombre_cliente;minutos_dia;horas_ano;coste_ano;horas_recuperables;euros_recuperables;estado_percepcion;coste_hora;porcentaje_ahorro;respuestas;Observaciones");
   const c = filas[1].split(";");
-  assert.equal(c.length, 12);
+  assert.equal(c.length, 13);
+  assert.equal(c[12], '""', "registro sin observaciones: celda vacía");
   assert.equal(c[0], '"14/10/2026 10:42"');
   assert.equal(c[1], '"clinicas"');
   assert.equal(c[2], '"Clínica ""La Paz"""');
@@ -388,4 +399,32 @@ test("no hay identificadores reales de EmailJS en el repositorio", () => {
   if (/habilitado: true/.test(cfg)) assert.match(cfg, /proveedor: "norteia"/);
   const ignore = fs.readFileSync(path.join(RAIZ, ".gitignore"), "utf8");
   assert.match(ignore, /^config\.local\.js$/m);
+});
+
+test("devolver llamadas suma sus minutos al día; las preguntas cualitativas no cambian el cálculo", () => {
+  const p = M.parametrosEfectivos(ctx.CONFIG, CL);
+  const base = M.calcular(CL, EJEMPLO, p).minutosDia; // 75 + 40 + 20 = 135
+  assert.equal(base, 135);
+  assert.equal(M.calcular(CL, Object.assign({}, EJEMPLO, { devolver: 45 }), p).minutosDia, 180);
+  assert.equal(M.calcular(CL, Object.assign({}, EJEMPLO, { devolver: 0 }), p).minutosDia, 135);
+  const conTodo = Object.assign({}, EJEMPLO, { devolver: 0, prioridad: "telefono", retomar: "bastante", recordatoriosCitas: "a_mano" });
+  assert.equal(M.calcular(CL, conTodo, p).minutosDia, 135);
+  const t = M.textosResultado(CL, registro(Object.assign({}, conTodo, { perdidas: "casi_nunca", repetidas: "pocas" })), ctx.CONFIG);
+  assert.deepEqual(Array.from(t.senales, (s) => s.icono), ["timer", "bell"], "señales de interrupciones y recordatorios a mano");
+});
+
+test("observaciones: CSV con comillas y saltos de línea, resumen, email y registros antiguos", () => {
+  const texto = 'Dueño: "llamar el lunes"\r\nTienen 2 recepcionistas;\nquieren WhatsApp';
+  const reg = registro(EJEMPLO, { observaciones: texto });
+  const csv = M.generarCSV([reg]);
+  assert.ok(csv.includes('"Dueño: ""llamar el lunes""\nTienen 2 recepcionistas;\nquieren WhatsApp"\r\n'), "celda entrecomillada, comillas dobladas y saltos conservados");
+  const resumen = M.textoResumen(CL, reg, ctx.CONFIG);
+  assert.match(resumen, /OBSERVACIONES\nDueño: "llamar el lunes"\nTienen 2 recepcionistas;\nquieren WhatsApp\n/);
+  const inst = M.instantaneaEmail(CL, reg, ctx.CONFIG);
+  assert.equal(inst.observaciones, 'Dueño: "llamar el lunes"\nTienen 2 recepcionistas;\nquieren WhatsApp');
+  assert.equal(M.instantaneaEmail(CL, registro(EJEMPLO), ctx.CONFIG).observaciones, "(sin observaciones)", "registro antiguo sin el campo");
+  assert.equal(M.instantaneaEmail(CL, registro(EJEMPLO, { observaciones: "   \n " }), ctx.CONFIG).observaciones, "(sin observaciones)");
+  assert.equal(M.limpiarObservaciones("x".repeat(1500)).length, 1000, "máximo 1.000 caracteres");
+  assert.equal(M.limpiarObservaciones("a\u0007b\n\n\n\nc"), "ab\n\nc", "sin caracteres de control");
+  assert.equal(M.calcular(CL, EJEMPLO, M.parametrosEfectivos(ctx.CONFIG, CL)).minutosDia, reg.calculo.minutosDia, "no cambia el cálculo");
 });

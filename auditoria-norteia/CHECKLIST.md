@@ -5,7 +5,7 @@ Marca cada punto en la tablet, no en el ordenador.
 ## Instalación y offline
 - [ ] La URL carga con internet y se añade a la pantalla de inicio con el icono NorteIA.
 - [ ] Desde el icono ocupa toda la pantalla (sin barra del navegador) y se queda en horizontal.
-- [ ] En modo avión: abre, se completan las 10 preguntas y sale el resultado.
+- [ ] En modo avión: abre, se completan todas las preguntas y sale el resultado.
 - [ ] Tras cambiar `config.js` y subir `CACHE_VERSION`, aparece la nueva configuración al abrir una vez con internet.
 
 ## Usabilidad (mejor con Cochet)
@@ -39,7 +39,8 @@ Marca cada punto en la tablet, no en el ordenador.
 - [ ] El resumen se copia y se pega bien en WhatsApp o en Notas. «Compartir» abre la hoja del sistema.
 - [ ] El historial pide el PIN tras 5 toques al logo; con un PIN incorrecto no se abre.
 - [ ] Tras descargar el CSV, la app propone borrar las visitas.
-- [ ] El CSV se abre en Excel con las tildes y las columnas bien.
+- [ ] El CSV se abre en Excel con las tildes y las columnas bien, incluida «Observaciones» con saltos de línea y comillas.
+- [ ] Observaciones: se escriben en la última pregunta, salen en el resumen, se editan allí y, si se cierra la app a medias, la bienvenida ofrece recuperarlas.
 - [ ] «Borrar historial» pide doble confirmación y vacía la lista.
 - [ ] Cerrar y reabrir la app no pierde el historial.
 
@@ -55,7 +56,7 @@ Marca cada punto en la tablet, no en el ordenador.
 
 ## Email (con Resend y las variables de Vercel ya configuradas)
 - [ ] En el historial se ha guardado la clave de envío de la tablet («Clave guardada en esta tablet»).
-- [ ] Auditoría ficticia con conexión: el envío sale al instante y llega a **las dos bandejas** (mira también spam) con el asunto correcto, las 10 respuestas, el interés y «Contacto: No recogido».
+- [ ] Auditoría ficticia con conexión: el envío sale al instante y llega a **las dos bandejas** (mira también spam) con el asunto correcto, todas las respuestas, el interés, «Contacto: No recogido» y el bloque OBSERVACIONES.
 - [ ] Con el hotspot de Cochet: la tablet envía el resumen al terminar.
 - [ ] Wi-Fi conectado pero datos móviles cortados en el móvil: **no** marca «enviado»; queda pendiente.
 - [ ] Modo avión: resultado, historial, resumen y CSV funcionan, y el email aparece como pendiente. Cerrar y abrir conserva los pendientes. Al volver la conexión con la app abierta se envían solos.

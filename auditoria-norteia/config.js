@@ -62,7 +62,7 @@ window.CONFIG = {
   modoDesarrollo: false,
 
   // Varios
-  versionApp: "1.8",
+  versionApp: "1.9",
   pantallaCalculandoMs: 1200
 };
 
