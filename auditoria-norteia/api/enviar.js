@@ -319,8 +319,16 @@ async function handler(req, res, opciones) {
 
 module.exports = handler;
 module.exports.handler = handler;
+// Para /api/estado: pide un token a Google sin enviar nada (comprueba clave y delegación)
+async function probarGmail(env, fetchFn, ahora) {
+  const cred = credencialesGoogle(env);
+  if (!cred) return { error: "Faltan GOOGLE_SA_EMAIL o GOOGLE_SA_KEY" };
+  const t = await tokenGmail(cred, env.GMAIL_USUARIO || GMAIL.usuario, fetchFn, ahora, false);
+  return t.error ? { error: t.error } : {};
+}
+
 module.exports._interno = {
-  validar, cuerpoEmail, mensajeMime, identificarTablet, credencialesGoogle,
+  validar, cuerpoEmail, mensajeMime, identificarTablet, credencialesGoogle, tabletas, proveedor, probarGmail,
   ventanas: POR_IP.ventanas, ventanasTablet: POR_TABLETA.ventanas,
   reiniciar() { POR_IP.ventanas.clear(); POR_TABLETA.ventanas.clear(); tokenCache = null; }
 };

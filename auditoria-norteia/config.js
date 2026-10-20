@@ -68,10 +68,10 @@ window.CONFIG = {
   pantallaCalculandoMs: 1200
 };
 
-// Envío por email de cada visita. Recomendado (auditoría de Luis, A3): proveedor "norteia",
-// la función propia /api/enviar en Vercel. Los correos de destino y la clave de Resend se
-// configuran en Vercel (variables de entorno), nunca aquí. Cada tablet necesita su clave de
-// envío, que se introduce una vez en el historial (protegido con PIN).
+// Envío por email de cada visita: proveedor "norteia", la función propia /api/enviar en Vercel,
+// que envía con Gmail como cuestionarios@norteia.es a Víctor y Luis. Las claves están solo en
+// Vercel (variables de entorno), nunca aquí. Cada tablet tiene su clave de envío, que se
+// introduce una vez en el historial (protegido con PIN).
 // Con el email desactivado no se guarda ninguna cola de envío.
 window.CONFIG.email = {
   habilitado: true,
@@ -79,7 +79,7 @@ window.CONFIG.email = {
   endpoint: "/api/enviar",
   pedirConsentimiento: true,  // el envío solo sale si el negocio lo acepta en la pantalla de resultado
   destinatarios: [
-    { id: "equipo", nombre: "NorteIA" }  // los correos reales están en Vercel (EMAIL_DESTINO)
+    { id: "equipo", nombre: "NorteIA" }  // los correos reales los pone el servidor (Víctor y Luis)
   ],
   timeoutMs: 20000,
   intervaloMinimoMs: 1500,

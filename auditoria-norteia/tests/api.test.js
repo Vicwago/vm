@@ -299,3 +299,28 @@ test("acceso: sin configurar, otro origen, método o formato no válidos", async
   assert.equal(acceso._interno.comprobarPin("24681357", HASH_PIN), true);
   assert.equal(acceso._interno.comprobarPin("24681358", HASH_PIN), false);
 });
+
+// ---------- /api/estado: diagnóstico sin secretos ----------
+const estado = require("../api/estado.js");
+function llamarEstado(env, fetch) {
+  const req = { method: "GET", headers: { "x-forwarded-for": "7.7.7.7" } };
+  const res = { statusCode: 0, cabeceras: {}, cuerpo: null, setHeader(k, v) { this.cabeceras[k.toLowerCase()] = v; }, end(t) { this.cuerpo = JSON.parse(t); } };
+  return estado(req, res, { env, fetch, ahora: () => 1792500000000 }).then(() => res);
+}
+
+test("estado: con Gmail comprueba la autorización sin enviar ni mostrar secretos", async () => {
+  handler._interno.reiniciar(); estado._interno.reiniciar();
+  const llamadas = [];
+  const okFetch = async (url) => { llamadas.push(url); return { status: 200, json: async () => ({ access_token: "ya29.x", expires_in: 3599 }) }; };
+  let r = await llamarEstado(Object.assign({}, ENV_GMAIL, ENV_ACCESO), okFetch);
+  assert.deepEqual(r.cuerpo, { proveedor: "gmail", tablets: 2, acceso: true, gmail: { autorizado: true } });
+  assert.ok(llamadas.every((u) => u.includes("oauth2")), "solo pide el token, no envía");
+  assert.ok(!JSON.stringify(r.cuerpo).match(/BEGIN|victor@|luis@|clave/), "sin secretos ni correos");
+  handler._interno.reiniciar();
+  const noFetch = async () => ({ status: 401, json: async () => ({ error: "unauthorized_client" }) });
+  r = await llamarEstado(ENV_GMAIL, noFetch);
+  assert.equal(r.cuerpo.gmail.autorizado, false);
+  assert.match(r.cuerpo.gmail.motivo, /unauthorized_client/);
+  r = await llamarEstado(ENV);
+  assert.deepEqual(r.cuerpo, { proveedor: "resend", tablets: 1, acceso: false });
+});
