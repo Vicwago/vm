@@ -42,8 +42,10 @@ window.CONFIG = {
 
   // Historial de visitas en la tablet (se abre con 5 toques al logo)
   historial: {
-    // Huella SHA-256 de "norteia:" + PIN. El PIN inicial se comunica aparte; para cambiarlo, ver README.
-    pinHuella: "bc983c0ca62f0a1f3b8a907ca6dd7c7454b465761492bec5a3cfc73a9480777a",
+    // El PIN (8 cifras) se comprueba en el servidor (/api/acceso); su huella está solo en Vercel.
+    // Para cambiarlo: node scripts/hash-pin.js <PIN> y pegar el resultado en ACCESO_PIN_HASH (ver README).
+    longitudPin: 8,
+    endpointAcceso: "/api/acceso",
     diasRetencion: 30,            // las visitas se borran solas pasado este plazo (0 = nunca)
     ofrecerBorrarTrasExportar: true
   },
@@ -62,7 +64,7 @@ window.CONFIG = {
   modoDesarrollo: false,
 
   // Varios
-  versionApp: "1.9",
+  versionApp: "2.0",
   pantallaCalculandoMs: 1200
 };
 

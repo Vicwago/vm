@@ -37,7 +37,7 @@ Marca cada punto en la tablet, no en el ordenador.
 
 ## Guardado
 - [ ] El resumen se copia y se pega bien en WhatsApp o en Notas. «Compartir» abre la hoja del sistema.
-- [ ] El historial pide el PIN tras 5 toques al logo; con un PIN incorrecto no se abre.
+- [ ] El historial pide el PIN de 8 cifras tras 5 toques al logo; con un PIN incorrecto no se abre y avisa de los intentos que quedan; tras 5 fallos bloquea 15 minutos. Sin conexión avisa de que hace falta internet.
 - [ ] Tras descargar el CSV, la app propone borrar las visitas.
 - [ ] El CSV se abre en Excel con las tildes y las columnas bien, incluida «Observaciones» con saltos de línea y comillas.
 - [ ] Observaciones: se escriben en la última pregunta, salen en el resumen, se editan allí y, si se cierra la app a medias, la bienvenida ofrece recuperarlas.

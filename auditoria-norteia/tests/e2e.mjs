@@ -1,4 +1,5 @@
-// Prueba de extremo a extremo en Chromium (Playwright). EmailJS se SIMULA: no se envía nada real.
+// Prueba de extremo a extremo en Chromium (Playwright). El envío de email se SIMULA: no se envía nada real.
+// El PIN del historial se comprueba con la función real /api/acceso (con una huella de pruebas).
 // Ejecutar: node tests/e2e.mjs   (requiere Playwright instalado; capturas en tests/salida/)
 import http from "node:http";
 import crypto from "node:crypto";
@@ -24,9 +25,11 @@ const TIPOS = { ".html": "text/html; charset=utf-8", ".js": "text/javascript; ch
 let configLocalServida = null;
 let configExtra = ""; // se añade al final de config.js (simula cambios de configuración)
 // Las pruebas parten con el email desactivado; cada sección de email lo activa
-// PIN propio de las pruebas (el real no está en el repositorio)
-const PIN = "1357";
-const PIN_TEST = 'window.CONFIG.historial.pinHuella = "' + crypto.createHash("sha256").update("norteia:" + PIN).digest("hex") + '";\n';
+// PIN propio de las pruebas (el real solo está, como huella, en Vercel)
+const PIN = "13572468";
+const acceso = require("../api/acceso.js");
+const ENV_ACCESO = { ACCESO_PIN_HASH: acceso._interno.crearHuella(PIN, 20000), ACCESO_SECRETO: "secreto-solo-para-las-pruebas-e2e" };
+const CLAVE_TABLET = "clave-de-prueba-123";
 // Las mismas cabeceras de seguridad que en Vercel (incluida la CSP)
 const CABECERAS = {};
 JSON.parse(fs.readFileSync(path.join(RAIZ, "vercel.json"), "utf8")).headers
@@ -39,9 +42,15 @@ const servidor = http.createServer((req, res) => {
     res.end(configLocalServida);
     return;
   }
+  if (ruta === "/api/acceso" && req.method === "POST") {
+    let datos = "";
+    req.on("data", (c) => { datos += c; });
+    req.on("end", () => { req.body = datos; acceso(req, res, { env: ENV_ACCESO }); });
+    return;
+  }
   if (ruta === "/config.js") {
     res.writeHead(200, Object.assign({ "Content-Type": "text/javascript; charset=utf-8", "Cache-Control": "no-cache" }, CABECERAS));
-    res.end(fs.readFileSync(path.join(RAIZ, "config.js"), "utf8") + "\n" + "window.CONFIG.email.habilitado = false;\n" + (configLocalServida ? "window.CONFIG.email.configLocal = true;\n" : "") + PIN_TEST + configExtra);
+    res.end(fs.readFileSync(path.join(RAIZ, "config.js"), "utf8") + "\n" + "window.CONFIG.email.habilitado = false;\n" + (configLocalServida ? "window.CONFIG.email.configLocal = true;\n" : "") + configExtra);
     return;
   }
   const archivo = path.join(RAIZ, ruta);
@@ -60,14 +69,11 @@ function ok(cond, msg) {
   else { fallos++; console.log("  ✘ " + msg); }
 }
 
-const CORS = { "Access-Control-Allow-Origin": "*" };
-const CONFIG_EMAIL = `window.CONFIG.email.habilitado = true;
-window.CONFIG.email.proveedor = "emailjs";
-window.CONFIG.email.serviceId = "service_prueba1";
-window.CONFIG.email.publicKey = "publica_prueba1";
-window.CONFIG.email.destinatarios = [
-  { id: "victor", nombre: "Victor", templateId: "template_v_prueba" },
-  { id: "luis", nombre: "Luis", templateId: "template_l_prueba" }];`;
+// Email activado con la función propia y la clave de la tablet ya guardada
+const EMAIL_ACTIVO = "window.CONFIG.email.habilitado = true;";
+async function conClaveTablet(ctx) {
+  await ctx.addInitScript((clave) => { try { localStorage.setItem("norteia_clave_envio_v1", JSON.stringify(clave)); } catch (e) { /* nada */ } }, CLAVE_TABLET);
+}
 
 async function contestarClinica(page, opciones) {
   await hastaUltimaClinica(page, opciones);
@@ -199,9 +205,10 @@ const browser = await chromium.launch();
   for (let i = 0; i < 5; i++) await page.locator(".logo-boton").click();
   ok(await page.locator(".pin-caja").isVisible(), "el historial pide PIN");
   await page.screenshot({ path: path.join(SALIDA, "06a-pin.png") });
-  for (const d of "0000") await page.locator(".pin-tecla", { hasText: new RegExp("^" + d + "$") }).click();
-  await page.waitForTimeout(200);
-  ok((await page.locator(".pin-error").textContent()) === "PIN incorrecto" && !(await page.locator(".historial").count()), "PIN incorrecto: no abre");
+  for (const d of "00000000") await page.locator(".pin-tecla", { hasText: new RegExp("^" + d + "$") }).click();
+  await page.waitForFunction(() => /PIN incorrecto/.test(document.querySelector(".pin-error").textContent));
+  ok((await page.locator(".pin-error").textContent()) === "PIN incorrecto. Te quedan 4 intentos." && !(await page.locator(".historial").count()), "PIN incorrecto (comprobado en el servidor): no abre");
+  ok(!(await page.evaluate(() => JSON.stringify(window.CONFIG))).match(/pinHuella|[0-9a-f]{64}/), "la huella del PIN ya no está en la web");
   for (const d of PIN) await page.locator(".pin-tecla", { hasText: new RegExp("^" + d + "$") }).click();
   await page.locator(".historial").waitFor();
   await page.waitForTimeout(330);
@@ -288,19 +295,19 @@ const browser = await chromium.launch();
   await ctx.close();
 }
 
-// ---------- 3. Email simulado: envío inmediato a los dos, fallo parcial y reintento ----------
+// ---------- 3. Email simulado: fallo temporal, pendiente y reintento manual ----------
 {
-  console.log("Email (EmailJS simulado)");
+  console.log("Email (fallo temporal y reintento)");
   const ctx = await browser.newContext({ viewport: { width: 1024, height: 768 }, serviceWorkers: "block" });
+  await conClaveTablet(ctx);
   const page = await ctx.newPage();
-  configLocalServida = CONFIG_EMAIL;
+  configExtra = EMAIL_ACTIVO;
   const envios = [];
-  let luisFalla = true;
-  await page.route("https://api.emailjs.com/**", async (r) => {
-    const body = JSON.parse(r.request().postData());
-    envios.push({ body, t: Date.now() });
-    if (luisFalla && body.template_id === "template_l_prueba") return r.fulfill({ status: 503, body: "caído", headers: CORS });
-    return r.fulfill({ status: 200, body: "OK", headers: CORS });
+  let caido = true;
+  await page.route("**/api/enviar", async (r) => {
+    envios.push({ body: JSON.parse(r.request().postData()), clave: r.request().headers()["x-clave-dispositivo"] });
+    if (caido) return r.fulfill({ status: 503, contentType: "application/json", body: '{"error":"Gmail no disponible"}' });
+    return r.fulfill({ status: 200, contentType: "application/json", body: '{"ok":true,"via":"gmail"}' });
   });
   await page.goto(URL_APP);
   await page.locator(".campo-nombre").fill("Clínica Ficticia Prueba");
@@ -310,30 +317,26 @@ const browser = await chromium.launch();
   ok(envios.length === 0, "sin consentimiento no se envía nada (A3)");
   await page.screenshot({ path: path.join(SALIDA, "09a-consentimiento.png") });
   await clic(page.getByRole("button", { name: "Enviar este resumen a NorteIA" }));
-  for (let i = 0; i < 100 && envios.length < 2; i++) await page.waitForTimeout(100);
-  await page.waitForFunction(() => /1\/2 enviado/.test(document.querySelector(".estado-email").textContent));
-  await page.waitForTimeout(300);
-  ok(envios.length === 2, "dos peticiones (una por destinatario)");
-  ok(envios[1].t - envios[0].t >= 1400, "peticiones espaciadas ≥ 1,5 s");
-  const p = envios[0].body.template_params;
+  await page.waitForFunction(() => /Email: pendiente/.test(document.querySelector(".estado-email").textContent));
+  ok(envios.length === 1 && envios[0].clave === CLAVE_TABLET, "un intento con la clave de la tablet");
+  const p = envios[0].body;
   ok(p.nombre_cliente === "Clínica Ficticia Prueba" && p.tipo_envio === "INICIAL" && p.revision === "1", "variables del asunto");
   ok(/14\. Horas\/día estimadas/.test(p.respuestas_texto), "las 14 respuestas en el email");
   ok(/El teléfono/.test(p.respuestas_texto) && /devolver llamadas\?: Nada/.test(p.respuestas_texto), "preguntas nuevas en el email");
   ok(p.interes_texto === "Mucho (variante A)", "interés declarado");
-  ok(!("to_email" in p) && !("accessToken" in envios[0].body), "sin destinatario elegible ni clave privada");
-  ok((await page.locator(".estado-email").textContent()).includes("Email: pendiente (1/2 enviado)"), "indicador 1/2");
-  await page.screenshot({ path: path.join(SALIDA, "09-resultado-email-parcial.png") });
-  // Reintento manual desde el historial: solo sale Luis
-  luisFalla = false;
+  ok(!("to_email" in p) && !("template_id" in p), "sin destinatarios ni plantillas en la petición");
+  await page.screenshot({ path: path.join(SALIDA, "09-resultado-email-pendiente.png") });
+  // Reintento manual desde el historial
+  caido = false;
   await clic(page.getByRole("button", { name: "Nueva estimación" }));
   await abrirHistorial(page);
   await clic(page.getByRole("button", { name: "Reintentar pendientes" }));
-  await page.waitForFunction(() => /enviado \(2\/2\)/.test(document.querySelector(".email-fila").textContent));
-  ok(envios.length === 3 && envios[2].body.template_id === "template_l_prueba", "al reintentar solo sale Luis");
+  await page.waitForFunction(() => /enviado \(1\/1\)/.test(document.querySelector(".email-fila").textContent));
+  ok(envios.length === 2, "al reintentar sale una vez");
   await clic(page.locator(".fila-historial"));
-  ok((await page.locator(".detalle-email").textContent()).includes("Victor: enviado"), "detalle por destinatario en el historial");
+  ok((await page.locator(".detalle-email").textContent()).includes("NorteIA: enviado"), "detalle del envío en el historial");
   await page.screenshot({ path: path.join(SALIDA, "10-historial-detalle-email.png") });
-  configLocalServida = null;
+  configExtra = "";
   await ctx.close();
 }
 
@@ -347,7 +350,7 @@ const browser = await chromium.launch();
   await page.route("**/api/enviar", async (r) => {
     const cab = r.request().headers();
     envios.push({ clave: cab["x-clave-dispositivo"], body: JSON.parse(r.request().postData()) });
-    if (cab["x-clave-dispositivo"] !== "clave-de-prueba-123") return r.fulfill({ status: 401, contentType: "application/json", body: '{"error":"Clave de envío de la tablet incorrecta o ausente"}' });
+    if (cab["x-clave-dispositivo"] !== CLAVE_TABLET) return r.fulfill({ status: 401, contentType: "application/json", body: '{"error":"Clave de envío de la tablet incorrecta o ausente"}' });
     return r.fulfill({ status: 200, contentType: "application/json", body: '{"ok":true}' });
   });
   await page.goto(URL_APP + "#historial");
@@ -358,10 +361,10 @@ const browser = await chromium.launch();
   await page.waitForTimeout(330);
   ok(await page.locator("#clave-envio").isVisible(), "el historial pide la clave de envío de la tablet");
   await page.screenshot({ path: path.join(SALIDA, "10b-historial-clave-envio.png") });
-  await page.locator("#clave-envio").fill("clave-de-prueba-123");
+  await page.locator("#clave-envio").fill(CLAVE_TABLET);
   await clic(page.getByRole("button", { name: "Guardar" }));
   ok((await page.locator(".clave-estado").textContent()) === "Clave guardada en esta tablet", "clave guardada en la tablet");
-  ok(!(await page.evaluate(() => JSON.stringify(window.CONFIG))).includes("clave-de-prueba-123"), "la clave no queda en la configuración pública");
+  ok(!(await page.evaluate(() => JSON.stringify(window.CONFIG))).includes(CLAVE_TABLET), "la clave no queda en la configuración pública");
   await page.goto(URL_APP);
   await page.locator(".campo-nombre").fill("Taller Ficticio Prueba");
   await clic(page.getByRole("button", { name: "Empezar" }));
@@ -370,7 +373,7 @@ const browser = await chromium.launch();
   ok(envios.length === 0, "sin consentimiento no llama a /api/enviar");
   await clic(page.getByRole("button", { name: "Enviar este resumen a NorteIA" }));
   await page.waitForFunction(() => /Email: enviado \(1\/1\)/.test(document.querySelector(".estado-email").textContent));
-  ok(envios.length === 1 && envios[0].clave === "clave-de-prueba-123", "una sola petición con la clave de la tablet en la cabecera");
+  ok(envios.length === 1 && envios[0].clave === CLAVE_TABLET, "una sola petición con la clave de la tablet en la cabecera");
   const b = envios[0] && envios[0].body;
   ok(b && b.destino === "equipo" && b.nombre_cliente === "Taller Ficticio Prueba" && b.revision === "1", "cuerpo con destino, cliente y revisión");
   ok(b && !("to_email" in b) && !("template_id" in b), "sin correos ni plantillas en la petición");
@@ -449,14 +452,15 @@ const browser = await chromium.launch();
 {
   console.log("Offline (service worker + modo avión)");
   const ctx = await browser.newContext({ viewport: { width: 1024, height: 768 } });
+  await conClaveTablet(ctx);
   const page = await ctx.newPage();
-  configLocalServida = CONFIG_EMAIL;
+  configExtra = EMAIL_ACTIVO;
   const envios = [];
   let sinRed = false; // los route de Playwright se resuelven antes que el modo offline: se simula el corte aquí
-  await ctx.route("https://api.emailjs.com/**", (r) => {
+  await ctx.route("**/api/enviar", (r) => {
     if (sinRed) return r.abort("internetdisconnected");
     envios.push(1);
-    return r.fulfill({ status: 200, body: "OK", headers: CORS });
+    return r.fulfill({ status: 200, contentType: "application/json", body: '{"ok":true}' });
   });
   await page.goto(URL_APP);
   await page.evaluate(() => navigator.serviceWorker.ready);
@@ -492,8 +496,8 @@ const browser = await chromium.launch();
   sinRed = false;
   await page.evaluate(() => window.dispatchEvent(new Event("online")));
   await page.waitForFunction(() => !/envío pendiente/.test(document.querySelector(".esquina-version").textContent), null, { timeout: 15000 });
-  ok(envios.length === 2, "al volver la conexión se envían los dos sin tocar nada");
-  configLocalServida = null;
+  ok(envios.length === 1, "al volver la conexión se envía solo, sin tocar nada");
+  configExtra = "";
   await ctx.close();
 }
 

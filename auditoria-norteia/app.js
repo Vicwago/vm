@@ -41,6 +41,10 @@
     pinTitulo: "Historial protegido",
     pinTexto: "Introduce el PIN para ver las visitas guardadas en esta tablet.",
     pinError: "PIN incorrecto",
+    pinQuedan: "PIN incorrecto. Te quedan {n} intentos.",
+    pinComprobando: "Comprobando…",
+    pinSinRed: "Para abrir el historial hace falta conexión a internet: el PIN se comprueba en el servidor.",
+    pinErrorServidor: "No se pudo comprobar el PIN. Inténtalo de nuevo.",
     borrar: "Borrar",
     borrarTrasExportar: "CSV descargado. ¿Borrar ya las visitas de esta tablet?",
     mantener: "Mantenerlas",
@@ -106,7 +110,6 @@
     bloqueoHasta: 0,
     filtro: "todos",
     toquesLogo: [],
-    pinHasta: 0,
     wakeLock: null,
     observaciones: ""
   };
@@ -294,55 +297,87 @@
     }
   }
 
-  // ---------- PIN del historial ----------
+  // ---------- PIN del historial (comprobado en el servidor) ----------
 
-  function huellaPin(pin) {
-    try {
-      if (!(window.crypto && window.crypto.subtle && window.TextEncoder)) return Promise.resolve(null);
-      return window.crypto.subtle.digest("SHA-256", new TextEncoder().encode("norteia:" + pin)).then(function (buf) {
-        return Array.prototype.map.call(new Uint8Array(buf), function (b) { return ("0" + b.toString(16)).slice(-2); }).join("");
-      });
-    } catch (e) { return Promise.resolve(null); }
+  // Sesión del historial: el servidor la firma tras comprobar el PIN y dura 8 horas.
+  // Se guarda en la tablet para no pedir el PIN en cada apertura; con conexión se vuelve a validar.
+  var CLAVE_SESION = "norteia_sesion_historial_v1";
+
+  function sesionGuardada() {
+    var s = A.leerValor(CLAVE_SESION);
+    return s && typeof s.token === "string" && Number(s.caduca) > Date.now() ? s : null;
   }
 
-  // Pide el PIN antes de abrir el historial (5 minutos de margen tras acertarlo)
+  function llamarAcceso(cuerpo) {
+    var url = (CONFIG.historial && CONFIG.historial.endpointAcceso) || "/api/acceso";
+    return fetch(url, {
+      method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(cuerpo), cache: "no-store"
+    }).then(function (r) {
+      return r.json().catch(function () { return {}; }).then(function (j) { return { status: r.status, datos: j || {} }; });
+    });
+  }
+
+  // Con conexión, comprueba que la sesión guardada sigue siendo válida (se puede revocar desde Vercel)
+  function revalidarSesion(s) {
+    if (navigator.onLine === false) return;
+    llamarAcceso({ token: s.token }).then(function (r) {
+      if (r.status === 401) {
+        A.escribirValor(CLAVE_SESION, null);
+        if (estado.pantalla === "historial" || estado.pantalla === "resumen") mostrarBienvenida();
+      }
+    }).catch(function () { /* sin red: se mantiene hasta que caduque */ });
+  }
+
+  // Pide el PIN antes de abrir el historial
   function pedirPin(alAcertar) {
-    var huella = CONFIG.historial && CONFIG.historial.pinHuella;
-    if (!huella || Date.now() < estado.pinHasta) { alAcertar(); return; }
+    var s = sesionGuardada();
+    if (s) { revalidarSesion(s); alAcertar(); return; }
+    var longitud = Number(CONFIG.historial && CONFIG.historial.longitudPin) || 8;
     var digitos = "";
+    var ocupado = false;
     var puntos = h("div", { clase: "pin-puntos", "aria-hidden": "true" });
     var error = h("p", { clase: "pin-error", role: "alert" });
     var capa;
     function pintar() {
       puntos.textContent = "";
-      for (var i = 0; i < 4; i++) puntos.appendChild(h("span", { clase: "pin-punto" + (i < digitos.length ? " lleno" : "") }));
+      for (var i = 0; i < longitud; i++) puntos.appendChild(h("span", { clase: "pin-punto" + (i < digitos.length ? " lleno" : "") }));
     }
     function cerrar() { if (capa && capa.parentNode) capa.parentNode.removeChild(capa); }
+    function fallo(texto) {
+      ocupado = false;
+      error.textContent = texto;
+      digitos = "";
+      pintar();
+    }
     function comprobar() {
-      huellaPin(digitos).then(function (hx) {
-        if (hx && hx === huella) {
-          estado.pinHasta = Date.now() + 5 * 60000;
+      if (navigator.onLine === false) { fallo(T.pinSinRed); return; }
+      ocupado = true;
+      error.textContent = T.pinComprobando;
+      llamarAcceso({ pin: digitos }).then(function (r) {
+        if (r.status === 200 && r.datos.token) {
+          A.escribirValor(CLAVE_SESION, { token: r.datos.token, caduca: r.datos.caduca });
           cerrar();
           alAcertar();
+        } else if (r.status === 401) {
+          fallo(r.datos.intentosRestantes != null ? f(T.pinQuedan, { n: r.datos.intentosRestantes }) : T.pinError);
         } else {
-          error.textContent = T.pinError;
-          digitos = "";
-          pintar();
+          fallo(r.datos.error || T.pinErrorServidor);
         }
-      });
+      }).catch(function () { fallo(navigator.onLine === false ? T.pinSinRed : T.pinErrorServidor); });
     }
     function pulsar(d) {
-      if (digitos.length >= 4) return;
+      if (ocupado || digitos.length >= longitud) return;
       error.textContent = "";
       digitos += d;
       pintar();
-      if (digitos.length === 4) comprobar();
+      if (digitos.length === longitud) comprobar();
     }
     var teclas = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "", "0", "borrar"];
     var teclado = h("div", { clase: "pin-teclado" }, teclas.map(function (k) {
       if (!k) return h("span");
       if (k === "borrar") {
         return h("button", { type: "button", clase: "pin-tecla pin-borrar", "aria-label": T.borrar, onclick: function () {
+          if (ocupado) return;
           digitos = digitos.slice(0, -1); pintar();
         } }, [icono("arrow-left")]);
       }
@@ -357,6 +392,7 @@
       ])
     ]);
     pintar();
+    if (navigator.onLine === false) error.textContent = T.pinSinRed;
     document.body.appendChild(capa);
   }
 
